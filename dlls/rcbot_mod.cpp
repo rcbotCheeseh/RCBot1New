@@ -3,6 +3,7 @@
 #include "extdll.h"
 #include "h_export_meta.h"
 #include "meta_api.h"
+#include "rcbot_specialists.h"
 
 RCBotModifications gRCBotModifications;
 
@@ -23,7 +24,7 @@ bool RCBotModification::isModification(const char* gameFolder)
 
 RCBotBase* RCBotModification_TheSpecialists::createBot()
 {
-	return new RCBotBase(); // TODO Change to RCBot_TheSpecialists or something
+	return new RCBotSpecialists(); 
 }
 
 RCBotModifications::RCBotModifications()
@@ -33,11 +34,6 @@ RCBotModifications::RCBotModifications()
 
 RCBotModifications::~RCBotModifications()
 {
-	for each ( RCBotModification *pMod in m_Mods)
-	{
-		delete pMod;
-	}
-
 	m_Mods.clear();
 }
 
