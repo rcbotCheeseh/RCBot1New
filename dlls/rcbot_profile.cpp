@@ -1,0 +1,128 @@
+#include "rcbot_profile.h"
+#include "rcbot_file.h"
+#include "rcbot_strings.h"
+#include "extdll.h"
+#include "enginecallback.h"
+#include <vector>
+
+RCBotProfiles gRCBotProfiles;
+
+RCBotProfile* RCBotProfiles::getRandomUnused()
+{
+	if (m_UnusedProfiles.size() > 0)
+	{
+		return UseProfile(RANDOM_LONG(0, m_UnusedProfiles.size() - 1));
+	}
+
+	return NULL;
+}
+
+RCBotProfile *RCBotProfiles::UseProfile( int iIndex )
+{
+	RCBotProfile* profile = m_UnusedProfiles[iIndex];
+
+	m_UnusedProfiles.erase(m_UnusedProfiles.begin()+iIndex);
+
+	return profile;
+}
+
+void RCBotProfiles::UnuseProfiles(RCBotProfile* profile)
+{
+	m_UnusedProfiles.push_back(profile);
+}
+
+void RCBotProfiles::Reset()
+{
+	m_UnusedProfiles.clear();
+}
+
+bool RCBotProfiles::Load(const char* szFilename)
+{
+	RCBotFile* file = RCBotFile::Open(szFilename, "r");
+
+	if (file != NULL)
+	{
+		const char* line;
+
+		m_ProfilePool.clear();
+
+		while ((line = file->readLine()) != NULL)
+		{
+			RCBotProfile* profile = RCBotProfile::FromLine(line);
+
+			if (profile != NULL)
+			{
+				m_ProfilePool.push_back(profile);
+				m_UnusedProfiles.push_back(profile);
+			}
+		}
+
+		file->close();
+
+		return m_ProfilePool.size() > 0;
+	}
+
+	return false;
+}
+
+RCBotProfiles::~RCBotProfiles()
+{
+	for each(RCBotProfile * profile in m_ProfilePool)
+	{
+		delete profile;
+	}
+
+	m_ProfilePool.clear();
+	m_UnusedProfiles.clear();
+}
+
+RCBotProfile::RCBotProfile(const char* szName,float fSkill,const char *szModel,int iVisRevs)
+{
+	m_szName = szName;
+	m_fSkill = fSkill;
+	m_szModel = szModel;
+	m_iVisRevs = iVisRevs;
+}
+
+RCBotProfile* RCBotProfile::FromLine(const char* szLine)
+{
+	std::vector<const char*> split;
+
+	int iColumn = 0;
+
+	const char* szName = NULL;
+	const char* szModel = NULL;
+	float fSkill = RCBOT_PROFILE_SKILL_INVALID;
+	int iVisRevs = RCBOT_PROFILE_VIS_REVS_DEFAULT;
+	gRCBotStrings.split(szLine, &split, ',');
+
+	for each ( const char *splitvar in split )
+	{
+		switch (iColumn)
+		{
+		case 0: // name
+			szName = splitvar;
+			break;
+		case 1: // skill
+			if (splitvar && *splitvar)
+				fSkill = atoi(splitvar);
+			break;
+		case 2://model
+			szModel = splitvar;
+			break;
+		case 3:
+			// vis revs
+			if ( splitvar && *splitvar )
+				iVisRevs = atoi(splitvar);
+			break;
+		}
+		iColumn++;
+	}
+
+	if (szName != NULL && fSkill > 0)
+	{
+		return new RCBotProfile(szName,fSkill,szModel,iVisRevs);
+	}
+
+	return NULL;
+}
