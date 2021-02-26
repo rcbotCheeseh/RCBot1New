@@ -3,6 +3,7 @@
 #include "rcbot_strings.h"
 #include "extdll.h"
 #include "enginecallback.h"
+#include "rcbot_utils.h"
 #include <vector>
 
 RCBotProfiles gRCBotProfiles;

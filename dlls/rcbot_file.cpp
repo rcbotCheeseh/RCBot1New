@@ -1,5 +1,6 @@
 #include "rcbot_file.h"
 #include "rcbot_strings.h"
+#include "rcbot_utils.h"
 #include <stdio.h>
 
 RCBotFile::RCBotFile(FILE* _fp)
@@ -25,7 +26,10 @@ RCBotFile* RCBotFile::Open(const char* filename, const char* mode)
 	FILE* fp = fopen(filename, mode);
 
 	if (fp == nullptr)
+	{ 
+		RCBotUtils::Message(NULL, MessageErrorLevel::MessageErrorLevel_Information, "WARNING: Attempt to open file \"%s\" mode \"%d\" failed", filename, mode);
 		return nullptr;
+	}
 
 	return new RCBotFile(fp);
 }

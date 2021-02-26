@@ -3,6 +3,7 @@
 
 #include "extdll.h"
 #include <vector>
+#include <stdint.h>
 
 class RCBotBase;
 
@@ -19,7 +20,10 @@ public:
 	/// <param name="pEdict"></param>
 	/// <returns></returns>
 	bool checkVisible(edict_t* pEdict);
-
+	/// <summary>
+	/// run visible tasks
+	/// </summary>
+	/// <param name="iNumThisFrame">number of vis revs to do this frame</param>
 	void tasks (int iNumThisFrame);
 
 private:
@@ -39,10 +43,18 @@ private:
 	/// current entity index being updated
 	/// </summary>
 	uint16_t m_iCurrentIndex;
+	/// <summary>
+	/// For ENGINE CHECK VISIBILITY
+	/// </summary>
 	unsigned char* pvs;
+	/// <summary>
+	/// For ENGINE CHECK VISIBILITY
+	/// </summary>
 	unsigned char* pas;
-
-	edict_t* m_pEdict; // the bot edict
+	/// <summary>
+	/// The bots edict
+	/// </summary>
+	edict_t* m_pEdict; 
 };
 
 #endif

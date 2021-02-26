@@ -301,7 +301,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 #else
 void _fini(void)
 {
-	gBotGlobals.FreeGlobalMemory();
+	//gBotGlobals.FreeGlobalMemory();
 }
 #endif
 

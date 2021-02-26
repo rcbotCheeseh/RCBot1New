@@ -7,18 +7,18 @@
 
 RCBotBase ::RCBotBase()
 {
-	m_pVisibiles = new RCBotVisibles(this);
+	m_pVisibles = new RCBotVisibles(this);
 	setFOV(RCBOT_DEFAULT_FOV);
 }
 
 RCBotBase :: ~RCBotBase()
 {
-	delete m_pVisibiles;
+	delete m_pVisibles;
 }
 
 void RCBotBase::Think()
 {
-	m_pVisibiles->tasks(m_pProfile->getVisRevs());
+	m_pVisibles->tasks(m_pProfile->getVisRevs());
 }
 
 void RCBotBase::setProfile(RCBotProfile* profile)
@@ -81,4 +81,25 @@ void RCBotBase::setUpClientInfo()
 		(*g_engfuncs.pfnSetClientKeyValue)(index, sInfoBuffer, "model", (char*) m_pProfile->getModel());
 	}
 
+}
+
+void RCBotBase::newVisible(edict_t* pEntity)
+{
+
+}
+
+void RCBotBase::lostVisible(edict_t* pEntity)
+{
+
+}
+
+float RCBotBase::distanceFrom(const edict_t* pEntity)
+{
+	return distanceFrom(RCBotUtils::entityOrigin(pEntity));
+}
+
+
+float RCBotBase::distanceFrom(const Vector& vOrigin)
+{
+	return (vOrigin - getViewOrigin()).Length();
 }

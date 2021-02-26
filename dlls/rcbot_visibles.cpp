@@ -23,30 +23,30 @@ RCBotVisibles::RCBotVisibles(RCBotBase* pBot)
 bool RCBotVisibles::checkVisible(edict_t* pEnt)
 {
 	Vector vOrigin;
-
+	// invalid entity
 	if (pEnt == nullptr)
 		return false;
-
-	if (pEnt->free) // not being used by engine
+	// not being used by engine
+	if (pEnt->free) 
 		return false;
-
-	if (pEnt->serialnumber == 0) // not being used by engine
+	// not being used by engine
+	if (pEnt->serialnumber == 0) 
 		return false;
-
+	// not being drawn by engine
 	if (pEnt->v.effects & EF_NODRAW)
-		return false; // not being drawn by engine
+		return false; 
 
 	vOrigin = RCBotUtils::entityOrigin(pEnt);
-
+	// behind me or something
 	if (!m_pBot->inViewCone(vOrigin))
-		return false; // behind me or something
-
+		return false; 
+	
 	pvs = ENGINE_SET_PVS(reinterpret_cast<float*>(&vOrigin));
-
+	// not in view range
 	if (!ENGINE_CHECK_VISIBILITY(m_pEdict, pvs))
 		return false;
 	
-	// Finally do a traceline
+	// Finally do a traceline (expensive part)
 	TraceResult *tr = RCBotUtils::Traceline(m_pBot->getViewOrigin(), vOrigin, ignore_monsters, ignore_glass, m_pEdict);
 
 	return (tr->pHit == pEnt || tr->flFraction >= 1.0);

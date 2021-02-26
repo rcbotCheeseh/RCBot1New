@@ -240,6 +240,7 @@
     <ClCompile Include="rcbot_message.cpp" />
     <ClCompile Include="rcbot_meta_api.cpp" />
     <ClCompile Include="rcbot_mod.cpp" />
+    <ClCompile Include="rcbot_navigator.cpp" />
     <ClCompile Include="rcbot_profile.cpp" />
     <ClCompile Include="rcbot_strings.cpp" />
     <ClCompile Include="rcbot_util.cpp" />

@@ -17,9 +17,9 @@
 class RCBotUtils
 {
 public:
-	static Vector entityOrigin(edict_t* pEdict)
+	static Vector entityOrigin(const edict_t* pEdict)
 	{
-		return pEdict->v.absmin + pEdict->v.size / 2;
+		return pEdict->v.absmin + (pEdict->v.size / 2);
 	}
 
 	static float DegreesToRadians(float fDegrees)

@@ -2,7 +2,7 @@
 #define __RCBOT_MANAGER_H__
 
 #include <vector>
-
+#include <stdint.h>
 #include "rcbot_base.h"
 
 #define BOT_MANAGER_DEFAULT_ADD_REMOVE_BOT_PERIOD 5.0f

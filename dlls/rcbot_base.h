@@ -11,6 +11,11 @@ template <class T>
 class RCBotDemand
 {
 public:
+	RCBotDemand()
+	{
+		m_iPriority = 0;
+	}
+
 	void setValue(T& value, uint8_t iPriority )
 	{
 		if (iPriority > m_iPriority)
@@ -27,7 +32,7 @@ public:
 
 	void reset()
 	{
-		m_iValue = 0;
+		m_Value = 0;
 	}
 private:
 	T m_Value;
@@ -54,24 +59,47 @@ public:
 	void setFOV(float fFov);
 	Vector getViewOrigin();
 
+	void newVisible(edict_t* pEntity);
 
-	void newVisible(edict_t* pEntity)
-	{
-
-	}
-
-	void lostVisible(edict_t* pEntity)
-	{
-
-	}
+	void lostVisible(edict_t* pEntity);
 
 	edict_t* getEdict()
 	{
 		return m_pEdict;
 	}
+
+	void setMoveTo(Vector vMoveTo, uint8_t iPriority = 1 )
+	{
+		m_vMoveTo.setValue(vMoveTo, iPriority);
+	}
+
+	void setLookAt(Vector vMoveTo, uint8_t iPriority = 1)
+	{
+		m_vLookAt.setValue(vMoveTo, iPriority);
+	}
+
+	void jump()
+	{
+		// buttons
+	}
+
+
+	void duck()
+	{
+		// buttons
+	}
+
+	float distanceFrom(const edict_t* pEntity);
+	float distanceFrom(const Vector &vOrigin);
+
+	void RunPlayerMove()
+	{
+
+	}
+
 private:
 	RCBotProfile* m_pProfile;
-	RCBotVisibles* m_pVisibiles;
+	RCBotVisibles* m_pVisibles;
 	edict_t* m_pEdict;
 	float m_fFovCos;
 
