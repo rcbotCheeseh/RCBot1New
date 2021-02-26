@@ -7,7 +7,9 @@
 class RCBotNavigator
 {
 public:
+	
 private:
+
 };
 
 class RCBotNavigatorNode

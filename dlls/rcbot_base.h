@@ -7,6 +7,33 @@
 
 #define RCBOT_DEFAULT_FOV 100
 
+template <class T>
+class RCBotDemand
+{
+public:
+	void setValue(T& value, uint8_t iPriority )
+	{
+		if (iPriority > m_iPriority)
+		{
+			m_Value = value;
+			m_iPriority = iPriority;
+		}
+	}
+
+	T getValue(void) const
+	{
+		return m_Value;
+	}
+
+	void reset()
+	{
+		m_iValue = 0;
+	}
+private:
+	T m_Value;
+	uint8_t m_iPriority;
+};
+
 class RCBotBase
 {
 public:
@@ -47,6 +74,9 @@ private:
 	RCBotVisibles* m_pVisibiles;
 	edict_t* m_pEdict;
 	float m_fFovCos;
+
+	RCBotDemand<Vector> m_vMoveTo;
+	RCBotDemand<Vector> m_vLookAt;
 };
 
 #endif 
