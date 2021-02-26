@@ -24,7 +24,7 @@ bool RCBotVisibles::checkVisible(edict_t* pEnt)
 {
 	Vector vOrigin;
 
-	if (pEnt == NULL)
+	if (pEnt == nullptr)
 		return false;
 
 	if (pEnt->free) // not being used by engine
@@ -55,13 +55,13 @@ bool RCBotVisibles::checkVisible(edict_t* pEnt)
 void RCBotVisibles::tasks(int iNumThisFrame)
 {
 
-	pvs = NULL;
-	pas = NULL;
+	pvs = nullptr;
+	pas = nullptr;
 
 	m_pEdict = m_pBot->getEdict();
 
 	// Setup the bots visibility, for quick vis checking
-	(*gFunctionTable.pfnSetupVisibility)(NULL, m_pEdict, &pvs, &pas);
+	(*gFunctionTable.pfnSetupVisibility)(nullptr, m_pEdict, &pvs, &pas);
 
 	while (iNumThisFrame--)
 	{

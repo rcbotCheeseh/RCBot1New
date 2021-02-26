@@ -71,7 +71,7 @@ DLL_GLOBAL const Vector g_vecZero = Vector(0, 0, 0);
 
 cvar_t bot_ver_cvar = { BOT_VER_CVAR,BOT_VER,FCVAR_SERVER };
 
-FILE* fpMapConfig = NULL;
+FILE* fpMapConfig = nullptr;
 
 void UpdateClientData(const struct edict_s* ent, int sendweapons, struct clientdata_s* cd);
 
@@ -318,7 +318,7 @@ void ParmsChangeLevel(void)
 
 const char* GetGameDescription(void)
 {
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 
@@ -550,11 +550,11 @@ void FakeClientCommand(edict_t* pFakeClient, const char* fmt, ...)
 
 	if (!pFakeClient)
 	{
-		//BugMessage(NULL, "FakeClientCommand : No fakeclient!");
+		//BugMessage(nullptr, "FakeClientCommand : No fakeclient!");
 		return; // reliability check
 	}
 
-	if (fmt == NULL)
+	if (fmt == nullptr)
 		return;
 
 	// concatenate all the arguments in one string
@@ -562,9 +562,9 @@ void FakeClientCommand(edict_t* pFakeClient, const char* fmt, ...)
 	vsprintf(command, fmt, argptr);
 	va_end(argptr);
 
-	if (command == NULL || *command == 0 || *command == '\n')
+	if (command == nullptr || *command == 0 || *command == '\n')
 	{
-		//BugMessage(NULL, "FakeClientCommand : No command!");
+		//BugMessage(nullptr, "FakeClientCommand : No command!");
 		return; // if nothing in the command buffer, return
 	}
 

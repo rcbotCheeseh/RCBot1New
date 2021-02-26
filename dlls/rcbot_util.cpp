@@ -27,14 +27,14 @@ void RCBotUtils:: Message(edict_t* pEntity, MessageErrorLevel errorlevel, char* 
 	vsprintf(string, fmt, argptr);
 	va_end(argptr);
 
-	if (pEntity != NULL)
+	if (pEntity != nullptr)
 	{
 		if (IS_DEDICATED_SERVER())
 		{
 			printf("%s%s Message : %s\n", BOT_DBG_MSG_TAG, STRING(pEntity->v.netname), string);
 		}
 
-		if (RCBotMessage::CurrentMessage==NULL)
+		if (RCBotMessage::CurrentMessage==nullptr)
 			// cant do a message at the moment
 		{
 			CLIENT_PRINTF(pEntity, print_console, BOT_DBG_MSG_TAG);

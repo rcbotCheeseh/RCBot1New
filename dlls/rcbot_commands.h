@@ -2,8 +2,10 @@
 #define __RCBOT_COMMANDS_H__
 
 #include <vector>
+#include <stdint.h>
 #include "meta_api.h"
 #include "extdll.h"
+
 
 #define RCBOT_COMMAND_ACCESS_ROOT 1
 
@@ -13,7 +15,7 @@ public:
 	RCBotCommandAccessor(const char* szSteamID, uint32_t iLevel);
 private:
 	const char* m_szSteamID;
-	uint32_t iLevel;
+	uint32_t m_iLevel;
 };
 
 class RCBotCommandAccessors
@@ -35,9 +37,9 @@ class RCBotCommand
 public:
 	RCBotCommand()
 	{
-		m_szCommand = NULL;
-		m_szHelp = NULL;
-		m_szUsage = NULL;
+		m_szCommand = nullptr;
+		m_szHelp = nullptr;
+		m_szUsage = nullptr;
 	}
 
 	~RCBotCommand()
@@ -60,6 +62,8 @@ public:
 	{
 		return m_szHelp;
 	}
+
+	void showUsage(edict_t* pClient);
 
 private:
 	const char* m_szCommand;
@@ -114,7 +118,7 @@ public:
 class RCBotCommand_AddBotCommand : public RCBotCommand
 {
 public:
-	RCBotCommand_AddBotCommand() : RCBotCommand("add", "adds a bot", NULL)
+	RCBotCommand_AddBotCommand() : RCBotCommand("add", "adds a bot", nullptr)
 	{
 
 	}

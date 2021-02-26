@@ -13,7 +13,7 @@ extern globalvars_t* gpGlobals;
 
 RCBotManager::~RCBotManager()
 {
-	for each (RCBotBase* pBot in m_Bots)
+	for (auto* pBot : m_Bots)
 	{
 		delete pBot;
 	}
@@ -47,7 +47,7 @@ void RCBotManager::Think()
 		{
 			RCBotBase *newBot = AddBot();
 
-			if (newBot == NULL)
+			if (newBot == nullptr)
 			{
 				if ( m_iQuota > 0 )
 					m_iQuota--; // decrease Quota 
@@ -70,23 +70,23 @@ RCBotBase *RCBotManager::AddBot()
 {
 	RCBotProfile * profile = gRCBotProfiles.getRandomUnused();
 
-	if (profile != NULL)
+	if (profile != nullptr)
 	{
 		edict_t *pBotEdict = (*g_engfuncs.pfnCreateFakeClient)(profile->getName());
 
-		if (pBotEdict != NULL)
+		if (pBotEdict != nullptr)
 		{
 			RCBotModification *pMod = gRCBotModifications.getCurrentMod();
 
-			if (pMod == NULL)
+			if (pMod == nullptr)
 			{
-				RCBotUtils::Message(NULL, MessageErrorLevel::MessageErrorLevel_Information, "Unknown modification!");
-				return NULL;
+				RCBotUtils::Message(nullptr, MessageErrorLevel::MessageErrorLevel_Information, "Unknown modification!");
+				return nullptr;
 			}
 
 			RCBotBase *pBot = pMod->createBot();
 
-			if (pBot != NULL)
+			if (pBot != nullptr)
 			{
 				char ptr[128];  // allocate space for message from ClientConnect
 
@@ -94,8 +94,8 @@ RCBotBase *RCBotManager::AddBot()
 				pBot->setProfile(profile);
 				pBot->setUpClientInfo();
 
-				MDLL_ClientConnect(pBotEdict, NULL, "127.0.0.1", ptr);
-				ClientConnect(pBotEdict, NULL, "127.0.0.1", ptr);
+				MDLL_ClientConnect(pBotEdict, nullptr, "127.0.0.1", ptr);
+				ClientConnect(pBotEdict, nullptr, "127.0.0.1", ptr);
 
 				MDLL_ClientPutInServer(pBotEdict);
 				ClientPutInServer(pBotEdict);
@@ -105,7 +105,7 @@ RCBotBase *RCBotManager::AddBot()
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 void RCBotManager::KickBot()
 {

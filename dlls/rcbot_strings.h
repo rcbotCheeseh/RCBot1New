@@ -2,6 +2,7 @@
 #define __RCBOT_STRINGS_H__
 
 #include <vector>
+#include <stdint.h>
 
 #define RCBOT_STRINGS_MAX_LENGTH 1024
 #define RCBOT_STRINGS_HASHES 26
@@ -40,7 +41,9 @@ public:
 
     static void stringCopy(const char* source, char* dest)
     {
+//#pragma warning(disable:4706)
         while (*dest++ = *source++);
+//#pragma warning(default:4706)
     }
 
     bool stringMatch(const char* a, const char* b)
@@ -56,7 +59,7 @@ public:
 
     const char* find(const char* str)
     {
-        if (str != NULL)
+        if (str != nullptr)
         {
             int hash = *str % RCBOT_STRINGS_HASHES;
 
@@ -69,17 +72,17 @@ public:
             }
         }
 
-        return NULL;
+        return nullptr;
     }
 
     const char* add(const char* str)
     {
-        if (str != NULL)
+        if (str != nullptr)
         {
             const char* found = find(str);
             int hash = *str % RCBOT_STRINGS_HASHES;
 
-            if (found != NULL)
+            if (found != nullptr)
                 return found;
 
             int len = stringLength(str);

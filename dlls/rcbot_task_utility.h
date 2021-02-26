@@ -39,7 +39,7 @@ public:
 
 	RCBotUtility* getBestUtility(RCBotBase* pBot)
 	{
-		RCBotUtility* pBest = NULL;
+		RCBotUtility* pBest = nullptr;
 		float fBestUtil = 0.0f;
 
 		for (RCBotUtility* pUtil : m_Utilities)
@@ -48,7 +48,7 @@ public:
 			{
 				float fUtil = pUtil->getUtility(pBot);
 
-				if (pBest == NULL || (fUtil > fBestUtil))
+				if (pBest == nullptr || (fUtil > fBestUtil))
 				{
 					pBest = pUtil;
 					fBestUtil = fUtil;
@@ -66,14 +66,14 @@ class RCBotTask
 {
 public:
 
-	RCBotTask(RCBotTaskInterrupt* interrupt = NULL)
+	RCBotTask(RCBotTaskInterrupt* interrupt = nullptr)
 	{
 		m_pInterrupt = interrupt;
 	}
 
 	~RCBotTask()
 	{
-		if (m_pInterrupt != NULL)
+		if (m_pInterrupt != nullptr)
 			delete m_pInterrupt;
 	}
 
@@ -83,7 +83,7 @@ public:
 
 	RCBotTaskState ExecuteTask(RCBotBase* pBot)
 	{
-		if (m_pInterrupt != NULL)
+		if (m_pInterrupt != nullptr)
 		{
 			RCBotTaskState interruptState = m_pInterrupt->Execute(pBot);
 

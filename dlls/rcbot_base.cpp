@@ -76,7 +76,7 @@ void RCBotBase::setUpClientInfo()
 	(*g_engfuncs.pfnSetClientKeyValue)(index, sInfoBuffer, "dm", "0");
 	(*g_engfuncs.pfnSetClientKeyValue)(index, sInfoBuffer, "tracker", "0");
 
-	if (m_pProfile->getModel() != NULL)
+	if (m_pProfile->getModel() != nullptr)
 	{
 		(*g_engfuncs.pfnSetClientKeyValue)(index, sInfoBuffer, "model", (char*) m_pProfile->getModel());
 	}

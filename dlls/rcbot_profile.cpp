@@ -14,7 +14,7 @@ RCBotProfile* RCBotProfiles::getRandomUnused()
 		return UseProfile(RANDOM_LONG(0, m_UnusedProfiles.size() - 1));
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 RCBotProfile *RCBotProfiles::UseProfile( int iIndex )
@@ -40,17 +40,17 @@ bool RCBotProfiles::Load(const char* szFilename)
 {
 	RCBotFile* file = RCBotFile::Open(szFilename, "r");
 
-	if (file != NULL)
+	if (file != nullptr)
 	{
 		const char* line;
 
 		m_ProfilePool.clear();
 
-		while ((line = file->readLine()) != NULL)
+		while ((line = file->readLine()) != nullptr)
 		{
 			RCBotProfile* profile = RCBotProfile::FromLine(line);
 
-			if (profile != NULL)
+			if (profile != nullptr)
 			{
 				m_ProfilePool.push_back(profile);
 				m_UnusedProfiles.push_back(profile);
@@ -67,7 +67,7 @@ bool RCBotProfiles::Load(const char* szFilename)
 
 RCBotProfiles::~RCBotProfiles()
 {
-	for each(RCBotProfile * profile in m_ProfilePool)
+	for (auto* profile : m_ProfilePool)
 	{
 		delete profile;
 	}
@@ -90,13 +90,13 @@ RCBotProfile* RCBotProfile::FromLine(const char* szLine)
 
 	int iColumn = 0;
 
-	const char* szName = NULL;
-	const char* szModel = NULL;
+	const char* szName = nullptr;
+	const char* szModel = nullptr;
 	float fSkill = RCBOT_PROFILE_SKILL_INVALID;
 	int iVisRevs = RCBOT_PROFILE_VIS_REVS_DEFAULT;
 	gRCBotStrings.split(szLine, &split, ',');
 
-	for each ( const char *splitvar in split )
+	for (auto *splitvar : split )
 	{
 		switch (iColumn)
 		{
@@ -119,10 +119,10 @@ RCBotProfile* RCBotProfile::FromLine(const char* szLine)
 		iColumn++;
 	}
 
-	if (szName != NULL && fSkill > 0)
+	if (szName != nullptr && fSkill > 0)
 	{
 		return new RCBotProfile(szName,fSkill,szModel,iVisRevs);
 	}
 
-	return NULL;
+	return nullptr;
 }

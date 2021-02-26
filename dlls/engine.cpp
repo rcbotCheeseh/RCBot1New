@@ -178,7 +178,7 @@ edict_t* pfnFindEntityByString(edict_t* pEdictStartSearchAfter, const char* pszF
 {
 	//   if (debug_engine) { fp=fopen("bot.txt","a"); fprintf(fp,"pfnFindEntityByString: %s\n",pszValue); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 int pfnGetEntityIllum(edict_t* pEnt)
@@ -192,21 +192,21 @@ edict_t* pfnFindEntityInSphere(edict_t* pEdictStartSearchAfter, const float* org
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnFindEntityInSphere:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 edict_t* pfnFindClientInPVS(edict_t* pEdict)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnFindClientInPVS:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 edict_t* pfnEntitiesInPVS(edict_t* pplayer)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnEntitiesInPVS:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 void pfnMakeVectors(const float* rgflVector)
@@ -226,7 +226,7 @@ void pfnAngleVectors(const float* rgflVector, float* forward, float* right, floa
 edict_t* pfnCreateEntity(void)
 {
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 void pfnRemoveEntity(edict_t* e)
@@ -246,7 +246,7 @@ void pfnRemoveEntity(edict_t* e)
 }
 edict_t* pfnCreateNamedEntity(int className)
 {
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 }
 void pfnMakeStatic(edict_t* ent)
 {
@@ -286,7 +286,7 @@ void pfnSetOrigin(edict_t* e, const float* rgflOrigin)
 void pfnEmitSound(edict_t* entity, int channel, const char* sample, /*int*/float volume, float attenuation, int fFlags, int pitch)
 {
 	/*
-	if (entity != NULL)
+	if (entity != nullptr)
 	{
 		int i;
 		CBot* pBot;
@@ -404,9 +404,9 @@ void pfnEmitSound(edict_t* entity, int channel, const char* sample, /*int*/float
 		{
 			pBot = &gBotGlobals.m_Bots[i];
 
-			if (pBot == NULL)
+			if (pBot == nullptr)
 				continue;
-			if (pBot->m_pEdict == NULL)
+			if (pBot->m_pEdict == nullptr)
 				continue;
 			if (pBot->m_pEdict == pEntityOwner)
 				continue;
@@ -414,7 +414,7 @@ void pfnEmitSound(edict_t* entity, int channel, const char* sample, /*int*/float
 				continue;
 			if (pBot->m_pEdict == entity)
 				continue;
-			if (pBot->m_pEnemy != NULL)
+			if (pBot->m_pEnemy != nullptr)
 				continue;
 
 			if (pBot->DistanceFrom(vOrigin) < BOT_HEAR_DISTANCE)
@@ -473,7 +473,7 @@ const char* pfnTraceTexture(edict_t* pTextureEntity, const float* v1, const floa
 {
 	//   if (debug_engine) { fp=fopen("bot.txt","a"); fprintf(fp,"pfnTraceTexture:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 void pfnTraceSphere(const float* v1, const float* v2, int fNoMonsters, float radius, edict_t* pentToSkip, TraceResult* ptr)
@@ -544,7 +544,7 @@ int pfnPointContents(const float* rgflVector)
 
 void pfnMessageBegin(int msg_dest, int msg_type, const float* pOrigin, edict_t* ed)
 {
-	if (RCBotMessage::CurrentMessage != NULL)
+	if (RCBotMessage::CurrentMessage != nullptr)
 	{
 		delete RCBotMessage::CurrentMessage;
 	}
@@ -573,13 +573,13 @@ void pfnMessageEnd(void)
 			if (gBotGlobals.m_CurrentMessage->isStateMsg())
 				static_cast<CBotStatedNetMessage*>(gBotGlobals.m_CurrentMessage)->messageEnd();
 			else
-				gBotGlobals.m_CurrentMessage->execute(NULL, gBotGlobals.m_iBotMsgIndex);  // NULL indicated msg end
+				gBotGlobals.m_CurrentMessage->execute(nullptr, gBotGlobals.m_iBotMsgIndex);  // nullptr indicated msg end
 		}*/
 	}
 
 	// clear out the bot message function pointers...
 
-	/*gBotGlobals.m_CurrentMessage = NULL;
+	/*gBotGlobals.m_CurrentMessage = nullptr;
 	gBotGlobals.m_iCurrentMessageState = 0;
 	gBotGlobals.m_iCurrentMessageState2 = 0;
 
@@ -800,7 +800,7 @@ const char* pfnCVarGetString(const char* szVarName)
 {
 	//   if (debug_engine) { fp=fopen("bot.txt","a"); fprintf(fp,"pfnCVarGetString:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 void pfnCVarSetFloat(const char* szVarName, float flValue)
@@ -821,14 +821,14 @@ void* pfnPvAllocEntPrivateData(edict_t* pEdict, long cb)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnPvAllocEntPrivateData:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 void* pfnPvEntPrivateData(edict_t* pEdict)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnPvEntPrivateData:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 void pfnFreeEntPrivateData(edict_t* pEdict)
@@ -842,7 +842,7 @@ const char* pfnSzFromIndex(int iString)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnSzFromIndex:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 int pfnAllocString(const char* szValue)
@@ -856,14 +856,14 @@ entvars_t* pfnGetVarsOfEnt(edict_t* pEdict)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnGetVarsOfEnt:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 edict_t* pfnPEntityOfEntOffset(int iEntOffset)
 {
 	//   if (debug_engine) { fp=fopen("bot.txt","a"); fprintf(fp,"pfnPEntityOfEntOffset:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 int pfnEntOffsetOfPEntity(const edict_t* pEdict)
@@ -884,19 +884,19 @@ edict_t* pfnPEntityOfEntIndex(int iEntIndex)
 {
 	//   if (debug_engine) { fp=fopen("bot.txt","a"); fprintf(fp,"pfnPEntityOfEntIndex:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 edict_t* pfnFindEntityByVars(entvars_t* pvars)
 {
 	//   if (debug_engine) { fp=fopen("bot.txt","a"); fprintf(fp,"pfnFindEntityByVars:\n"); fclose(fp); }
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 void* pfnGetModelPtr(edict_t* pEdict)
 {
 	//   if (debug_engine) { fp=fopen("bot.txt","a"); fprintf(fp,"pfnGetModelPtr: %x\n",pEdict); fclose(fp); }
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 }
 
 int pfnRegUserMsg(const char* pszName, int iSize)
@@ -937,7 +937,7 @@ const char* pfnNameForFunction(unsigned long function)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnNameForFunction:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 }
 
 void pfnClientPrintf(edict_t* pEdict, PRINT_TYPE ptype, const char* szMsg)
@@ -1097,7 +1097,7 @@ edict_t* pfnCreateFakeClient(const char* netname)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnCreateFakeClient:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 void pfnRunPlayerMove(edict_t* fakeclient, const float* viewangles, float forwardmove, float sidemove, float upmove, unsigned short buttons, byte impulse, byte msec)
@@ -1118,14 +1118,14 @@ char* pfnGetInfoKeyBuffer(edict_t* e)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnGetInfoKeyBuffer:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 char* pfnInfoKeyValue(char* infobuffer, char* key)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnInfoKeyValue: %s %s\n", infobuffer, key); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 void pfnSetKeyValue(char* infobuffer, char* key, char* value)
@@ -1181,12 +1181,12 @@ int pfnGetPlayerUserId(edict_t* e)
 const char* pfnGetPlayerAuthId(edict_t* e)
 {
 	/*static const char* BOT_STEAM_ID = "BOT";
-	BOOL bIsBot = UTIL_GetBotPointer(e) != NULL;
+	BOOL bIsBot = UTIL_GetBotPointer(e) != nullptr;
 
 	if (bIsBot)
 		RETURN_META_VALUE(MRES_SUPERCEDE, BOT_STEAM_ID);
 */
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 
@@ -1208,7 +1208,7 @@ cvar_t* pfnCVarGetPointer(const char* szVarName)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnCVarGetPointer: %s\n", szVarName); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 unsigned int pfnGetPlayerWONId(edict_t* e)
@@ -1234,7 +1234,7 @@ const char* pfnGetPhysicsKeyValue(const edict_t* pClient, const char* key)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnGetPhysicsKeyValue:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 void pfnSetPhysicsKeyValue(const edict_t* pClient, const char* key, const char* value)
@@ -1248,7 +1248,7 @@ const char* pfnGetPhysicsInfoString(const edict_t* pClient)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnGetPhysicsInfoString:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 unsigned short pfnPrecacheEvent(int type, const char* psz)
@@ -1270,14 +1270,14 @@ unsigned char* pfnSetFatPVS(float* org)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnSetFatPVS:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 unsigned char* pfnSetFatPAS(float* org)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnSetFatPAS:\n"); fclose(fp); }
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 int pfnCheckVisibility(const edict_t* entity, unsigned char* pset)
@@ -1418,7 +1418,7 @@ const char* pfnCmd_Args(void)
 		RETURN_META_VALUE(MRES_SUPERCEDE, &g_argv[0]); // else return the whole bot client command string we know
 	}
 
-	RETURN_META_VALUE(MRES_IGNORED, NULL);
+	RETURN_META_VALUE(MRES_IGNORED, nullptr);
 
 }
 
@@ -1439,7 +1439,7 @@ const char* pfnCmd_Argv(int argc)
 	}
 	else
 	{
-		RETURN_META_VALUE(MRES_IGNORED, NULL);
+		RETURN_META_VALUE(MRES_IGNORED, nullptr);
 		//return ((*g_engfuncs.pfnCmd_Argv) (argc));
 	}
 }
@@ -1461,7 +1461,7 @@ const char* GetArg(const char* command, int arg_number)
 	arg[0] = 0; // reset arg
 
 	if (!command || !*command)
-		return NULL;
+		return nullptr;
 
 	length = strlen(command); // get length of command
 

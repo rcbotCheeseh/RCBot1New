@@ -9,23 +9,23 @@ RCBotFile::RCBotFile(FILE* _fp)
 
 RCBotFile::~RCBotFile()
 {
-	if (fp != NULL)
+	if (fp != nullptr)
 		fclose(fp);
 }
 
 void RCBotFile::close()
 {
-	if (fp != NULL)
+	if (fp != nullptr)
 		fclose(fp);
-	fp = NULL;
+	fp = nullptr;
 }
 
 RCBotFile* RCBotFile::Open(const char* filename, const char* mode)
 {
 	FILE* fp = fopen(filename, mode);
 
-	if (fp == NULL)
-		return NULL;
+	if (fp == nullptr)
+		return nullptr;
 
 	return new RCBotFile(fp);
 }
@@ -52,8 +52,8 @@ const char *RCBotFile::readLine()
 {
 	static char line[RCBOT_FILE_MAX_LINE_LENGTH];
 
-	if (fgets(line, RCBOT_FILE_MAX_LINE_LENGTH, fp) == NULL)
-		return NULL;
+	if (fgets(line, RCBOT_FILE_MAX_LINE_LENGTH, fp) == nullptr)
+		return nullptr;
 
 	line[RCBOT_FILE_MAX_LINE_LENGTH - 1] = 0;
 

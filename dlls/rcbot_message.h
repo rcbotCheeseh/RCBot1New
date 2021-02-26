@@ -24,8 +24,8 @@ public:
 		this->msg_type = msg_type;
 
 		this->msg_dest = 0;
-		this->pOrigin = NULL;
-		this->ed= NULL;
+		this->pOrigin = nullptr;
+		this->ed= nullptr;
 	}
 
 	void writeByte(uint8_t bByte )
@@ -90,7 +90,7 @@ public:
 
 	static RCBotMessage *FindMessage(uint32_t msg_type)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	static RCBotMessage* CurrentMessage;

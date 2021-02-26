@@ -18,7 +18,7 @@ public:
 	void writeByte(uint8_t b);
 	void writeFloat(float f);
 	void writeString(const char* szString);
-	const char* RCBotFile::readLine();
+	const char* readLine();
 
 	uint8_t readByte();
 	uint16_t readUInt16();

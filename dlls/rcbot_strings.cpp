@@ -2,4 +2,4 @@
 
 RCBotStrings gRCBotStrings;
 
-const char* RCBotStrings::NullString = "(NULL)";
+const char* RCBotStrings::NullString = "(nullptr)";

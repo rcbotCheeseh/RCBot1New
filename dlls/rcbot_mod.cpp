@@ -43,7 +43,7 @@ void RCBotModifications::GameInit()
 	// Find mod
 	GET_GAME_DIR(game_dir);
 
-	for each (RCBotModification * pMod in m_Mods)
+	for (auto* pMod : m_Mods)
 	{
 		if (pMod->isModification(game_dir))
 		{

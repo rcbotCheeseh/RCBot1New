@@ -16,7 +16,7 @@
 
 bool RCBotCommands_MainCommand::IsFakeClientCommand = false;
 int RCBotCommands_MainCommand::NumArgs = 0;
-edict_t *RCBotCommands_MainCommand::m_pClient = NULL;
+edict_t *RCBotCommands_MainCommand::m_pClient = nullptr;
 
 RCBotCommands_MainCommand gRCBotCommands;
 
@@ -27,19 +27,19 @@ bool RCBotCommand::isCommand(const char* szCommand)
 
 RCBotCommand *RCBotCommands::findCommand(const char* szCommand)
 {
-	for each (RCBotCommand * command in m_Commands)
+	for (auto *command : m_Commands)
 	{
 		if (command->isCommand(szCommand))
 			return command;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 RCBotCommandAccessor::RCBotCommandAccessor(const char* szSteamID, uint32_t iLevel)
 {
 	this->m_szSteamID = szSteamID;
-	this->iLevel = iLevel;
+	this->m_iLevel = iLevel;
 }
 
 RCBotCommandAccessors :: RCBotCommandAccessors()
@@ -48,10 +48,10 @@ RCBotCommandAccessors :: RCBotCommandAccessors()
 	RCBotFile* file = RCBotFile::Open(RCBOT_ACCESSORS_FILE, "r");
 	const char* szLine;
 
-	while ((szLine = file->readLine()) != NULL)
+	while ((szLine = file->readLine()) != nullptr)
 	{
 		std::vector<const char*> split;
-		const char* szSteamID = NULL;
+		const char* szSteamID = nullptr;
 		int iLevel = 0;
 
 		gRCBotStrings.split(szLine, &split, ',');
@@ -69,7 +69,7 @@ RCBotCommandAccessors :: RCBotCommandAccessors()
 			}
 		}
 
-		if (szSteamID != NULL && iLevel)
+		if (szSteamID != nullptr && iLevel)
 		{
 			m_Accessors.push_back(new RCBotCommandAccessor(szSteamID, iLevel));
 		}
@@ -85,18 +85,24 @@ RCBotCommand::RCBotCommand(const char* szCommand, const char* szHelp, const char
 	m_szUsage = gRCBotStrings.add(szUsage);
 }
 
+void RCBotCommand::showUsage(edict_t* pClient)
+{
+	if ( m_szUsage != nullptr )
+		RCBotUtils::Message(pClient, MessageErrorLevel::MessageErrorLevel_Information, "\"%s\" usage: [%s]\n", m_szCommand, m_szUsage);
+}
+
 RCBotCommandReturn RCBotCommands::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
-	for each (RCBotCommand * command in m_Commands)
+	for (auto* command : m_Commands)
 	{
 		if (command->isCommand(arg1))
 		{
-			return command->execute(pClient, arg2, arg3, arg4, arg5, NULL);
+			return command->execute(pClient, arg2, arg3, arg4, arg5, nullptr);
 		}
 
 		//RCBotUtils::Message(pClient, MessageErrorLevel_Information, "%s : [%s]",command->getCommand(),command->getHelp());
 	}
-	for each (RCBotCommand * command in m_Commands)
+	for (auto* command : m_Commands)
 	{
 		RCBotUtils::Message(pClient, MessageErrorLevel::MessageErrorLevel_Information, "%s : [%s]",command->getCommand(),command->getHelp());
 	}
@@ -104,7 +110,7 @@ RCBotCommandReturn RCBotCommands::execute(edict_t* pClient, const char* arg1, co
 	return RCBotCommandReturn::RCBotCommandReturn_Ok;
 }
 
-RCBotCommands::RCBotCommands(const char* szCommand) : RCBotCommand (szCommand,"NULL","NULL")
+RCBotCommands::RCBotCommands(const char* szCommand) : RCBotCommand (szCommand,"nullptr","nullptr")
 {
 
 }

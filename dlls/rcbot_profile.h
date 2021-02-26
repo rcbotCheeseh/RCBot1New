@@ -16,9 +16,9 @@ public:
 
 	RCBotProfile()
 	{
-		m_szName = NULL;
+		m_szName = nullptr;
 		m_fSkill = RCBOT_PROFILE_SKILL_INVALID;
-		m_szModel = NULL;
+		m_szModel = nullptr;
 		m_iVisRevs = RCBOT_PROFILE_VIS_REVS_DEFAULT;
 	}
 
