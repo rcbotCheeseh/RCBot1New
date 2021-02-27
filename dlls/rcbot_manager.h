@@ -16,6 +16,7 @@ public:
 
 	void KickBot();
 	void LevelInit();
+	void ChangeLevel();
 	bool SetQuota(uint8_t iQuota);
 	void IncreaseQuota()
 	{

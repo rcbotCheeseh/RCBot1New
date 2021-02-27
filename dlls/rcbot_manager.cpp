@@ -85,7 +85,7 @@ RCBotBase *RCBotManager::AddBot()
 
 			if (pMod == nullptr)
 			{
-				RCBotUtils::Message(nullptr, MessageErrorLevel::MessageErrorLevel_Information, "Unknown modification!");
+				RCBotUtils::Message(nullptr, MessageErrorLevel::Information, "Unknown modification!");
 				return nullptr;
 			}
 
@@ -112,6 +112,17 @@ RCBotBase *RCBotManager::AddBot()
 
 	return nullptr;
 }
+
+void RCBotManager::ChangeLevel()
+{
+	for (auto* pBot : m_Bots)
+	{
+		delete pBot;
+	}
+
+	m_Bots.clear();
+}
+
 void RCBotManager::KickBot()
 {
 	if (m_Bots.size() > 0)
@@ -125,10 +136,12 @@ void RCBotManager::KickBot()
 		sprintf(cmd, "kick \"%s\"\n", szName);
 
 		SERVER_COMMAND(cmd);
+
+		m_Bots.erase(m_Bots.end());
 	}
 }
 	
 void RCBotManager::LevelInit()
 {
-
+	ChangeLevel();
 }

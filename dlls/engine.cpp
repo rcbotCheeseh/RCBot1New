@@ -52,6 +52,7 @@
 #include "engine.h"
 #include "rcbot_message.h"
 #include "rcbot_commands.h"
+#include "rcbot_manager.h"
 
 extern globalvars_t* gpGlobals;
 extern enginefuncs_t g_engfuncs;
@@ -121,6 +122,8 @@ void pfnSetSize(edict_t* e, const float* rgflMin, const float* rgflMax)
 void pfnChangeLevel(char* s1, char* s2)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnChangeLevel:\n"); fclose(fp); }
+
+	gRCBotManager.ChangeLevel();
 
 	RETURN_META(MRES_IGNORED);
 

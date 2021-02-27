@@ -109,7 +109,7 @@ int DispatchSpawn(edict_t* pent)
 		if (strcmp(pClassname, "worldspawn") == 0)
 		{
 			// do level initialization stuff here...
-
+			gRCBotManager.LevelInit();
 		}
 	}
 
@@ -255,7 +255,7 @@ void ClientCommand(edict_t* pEntity)
 {
 	RCBotCommands_MainCommand::setClient(pEntity);
 
-	if (RCBotCommands_MainCommand::ClientCommand() == RCBotCommandReturn::RCBotCommandReturn_Ok)
+	if (RCBotCommands_MainCommand::ClientCommand() == RCBotCommandReturn::Ok)
 		RETURN_META(MRES_SUPERCEDE);
 
 	RETURN_META(MRES_IGNORED);

@@ -27,7 +27,7 @@ RCBotFile* RCBotFile::Open(const char* filename, const char* mode)
 
 	if (fp == nullptr)
 	{ 
-		RCBotUtils::Message(NULL, MessageErrorLevel::MessageErrorLevel_Information, "WARNING: Attempt to open file \"%s\" mode \"%d\" failed", filename, mode);
+		RCBotUtils::Message(NULL, MessageErrorLevel::Information, "WARNING: Attempt to open file \"%s\" mode \"%d\" failed", filename, mode);
 		return nullptr;
 	}
 

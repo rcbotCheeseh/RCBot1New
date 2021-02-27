@@ -3,6 +3,7 @@
 #include "rcbot_const.h"
 #include "extdll.h"
 #include "rcbot_message.h"
+#include <string.h>
 
 TraceResult *RCBotUtils::Traceline (const Vector& vecStart, const Vector& vecEnd, IGNORE_MONSTERS igmon, IGNORE_GLASS ignoreGlass, edict_t* pentIgnore)
 {
@@ -62,7 +63,7 @@ void RCBotUtils:: Message(edict_t* pEntity, MessageErrorLevel errorlevel, char* 
 	{
 			switch (errorlevel)
 			{
-			case MessageErrorLevel::MessageErrorLevel_Warning:
+			case MessageErrorLevel::Warning:
 			{
 				UTIL_LogPrintf("!!!!ERROR : %s%s\n", BOT_DBG_MSG_TAG, string);
 
@@ -74,7 +75,7 @@ void RCBotUtils:: Message(edict_t* pEntity, MessageErrorLevel errorlevel, char* 
 				exit(0);
 			}
 			break;
-			case MessageErrorLevel::MessageErrorLevel_Critical:
+			case MessageErrorLevel::Critical:
 				UTIL_LogPrintf("!!!!ERROR : %s%s\n", BOT_DBG_MSG_TAG, string);
 
 				ALERT(at_console, BOT_DBG_MSG_TAG);
@@ -91,6 +92,121 @@ void RCBotUtils:: Message(edict_t* pEntity, MessageErrorLevel errorlevel, char* 
 				g_engfuncs.pfnServerPrint("\n");
 			}
 	}
+}
+
+edict_t* RCBotUtils::findPlayer(const char* szName)
+{
+	edict_t* pent = NULL;
+
+	int i;
+
+	for (i = 1; i <= gpGlobals->maxClients; i++)
+	{
+		pent = INDEXENT(i);
+
+		if (pent != NULL)
+		{
+			if (!pent->free)
+			{
+				const int length = strlen(szName);
+
+				char arg_lwr[128];
+				char pent_lwr[128];
+
+				strncpy(arg_lwr, szName,127);
+				arg_lwr[127] = 0;
+				strncpy(pent_lwr, STRING(pent->v.netname),127);
+				pent_lwr[127] = 0;
+
+				strlwr(arg_lwr);
+				strlwr(pent_lwr);
+
+				if (strncmp(arg_lwr, pent_lwr, length) == 0)
+				{
+					return pent;
+				}
+			}
+		}
+	}
+
+	return nullptr;
+	
+}
+
+void RCBotUtils::FixAngle(float* fAngle)
+{
+	if (*fAngle < -180)
+	{
+		*fAngle += 360.0;
+	}
+	else if (*fAngle > 180)
+	{
+		*fAngle -= 360.0;
+	}
+}
+
+void RCBotUtils::ChangeAngle(float* fSpeed, const float* fIdeal, float* fCurrent, float* fUpdate)
+{
+	float fCurrent180;  // current +/- 180 degrees
+	float fDiff;
+
+	// turn from the current v_angle yaw to the ideal_yaw by selecting
+	// the quickest way to turn to face that direction
+
+	// find the difference in the current and ideal angle
+	fDiff = fabs(*fCurrent - *fIdeal);
+
+	// check if the bot is already facing the ideal_yaw direction...
+	if (fDiff <= 0.1)
+	{
+		*fSpeed = fDiff;
+
+		return;
+	}
+
+	// check if difference is less than the max degrees per turn
+	if (fDiff < *fSpeed)
+		*fSpeed = fDiff;  // just need to turn a little bit (less than max)
+
+	 // here we have four cases, both angle positive, one positive and
+	 // the other negative, one negative and the other positive, or
+	 // both negative.  handle each case separately...
+
+	if (*fCurrent >= 0 && *fIdeal >= 0)  // both positive
+	{
+		if (*fCurrent > *fIdeal)
+			*fCurrent -= *fSpeed;
+		else
+			*fCurrent += *fSpeed;
+	}
+	else if (*fCurrent >= 0 && *fIdeal < 0)
+	{
+		fCurrent180 = *fCurrent - 180;
+
+		if (fCurrent180 > *fIdeal)
+			*fCurrent += *fSpeed;
+		else
+			*fCurrent -= *fSpeed;
+	}
+	else if (*fCurrent < 0 && *fIdeal >= 0)
+	{
+		fCurrent180 = *fCurrent + 180;
+		if (fCurrent180 > *fIdeal)
+			*fCurrent += *fSpeed;
+		else
+			*fCurrent -= *fSpeed;
+	}
+	else  // (current < 0) && (ideal < 0)  both negative
+	{
+		if (*fCurrent > *fIdeal)
+			*fCurrent -= *fSpeed;
+		else
+			*fCurrent += *fSpeed;
+	}
+
+	FixAngle(fCurrent);
+
+	*fUpdate = *fCurrent;
 }
 
 // -------------------

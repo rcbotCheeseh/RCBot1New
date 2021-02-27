@@ -8,6 +8,8 @@ class RCBotHLDM : public RCBotBase
 	void spawnInit();
 
 	bool isEnemy(edict_t* pEdict);
+
+	void Think();
 };
 
 #endif 

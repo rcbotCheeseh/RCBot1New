@@ -109,7 +109,7 @@ public:
 
 	~RCBotBase();
 
-	void Think();
+	virtual void Think();
 
 	void Init();
 	virtual void spawnInit();
@@ -138,14 +138,20 @@ public:
 		return m_pEdict;
 	}
 
+
+	void walk()
+	{
+		m_fSpeedPercent = 0.5; // half speed
+	}
+
 	void setMoveTo(Vector vMoveTo, uint8_t iPriority = 1 )
 	{
 		m_vMoveTo.setValue(vMoveTo, iPriority);
 	}
 
-	void setLookAt(Vector vMoveTo, uint8_t iPriority = 1)
+	void setLookAt(Vector vLookAt, uint8_t iPriority = 1)
 	{
-		m_vLookAt.setValue(vMoveTo, iPriority);
+		m_vLookAt.setValue(vLookAt, iPriority);
 	}
 
 	void jump()
@@ -172,7 +178,10 @@ public:
 
 	float distanceFrom(const edict_t* pEntity);
 	float distanceFrom(const Vector &vOrigin);
-
+	float distanceFrom2D(const Vector& vOrigin)
+	{
+		return (vOrigin - getViewOrigin()).Length2D();
+	}
 	void RunPlayerMove();
 protected:
 	edict_t* m_pEdict;
@@ -191,6 +200,8 @@ private:
 	float m_fLastRunPlayerMove;
 
 	bool m_bPreviousAliveState;
+
+	float m_fSpeedPercent;
 };
 
 #endif 

@@ -88,7 +88,7 @@ RCBotCommand::RCBotCommand(const char* szCommand, const char* szHelp, const char
 void RCBotCommand::showUsage(edict_t* pClient)
 {
 	if ( m_szUsage != nullptr )
-		RCBotUtils::Message(pClient, MessageErrorLevel::MessageErrorLevel_Information, "\"%s\" usage: [%s]\n", m_szCommand, m_szUsage);
+		RCBotUtils::Message(pClient, MessageErrorLevel::Information, "\"%s\" usage: [%s]\n", m_szCommand, m_szUsage);
 }
 
 RCBotCommandReturn RCBotCommands::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
@@ -104,10 +104,10 @@ RCBotCommandReturn RCBotCommands::execute(edict_t* pClient, const char* arg1, co
 	}
 	for (auto* command : m_Commands)
 	{
-		RCBotUtils::Message(pClient, MessageErrorLevel::MessageErrorLevel_Information, "%s : [%s]",command->getCommand(),command->getHelp());
+		RCBotUtils::Message(pClient, MessageErrorLevel::Information, "%s : [%s]",command->getCommand(),command->getHelp());
 	}
 
-	return RCBotCommandReturn::RCBotCommandReturn_Ok;
+	return RCBotCommandReturn::Ok;
 }
 
 RCBotCommands::RCBotCommands(const char* szCommand) : RCBotCommand (szCommand,"[sub command]","")
@@ -126,7 +126,7 @@ RCBotCommandReturn RCBotCommand_AddProfileCommand:: execute(edict_t* pClient, co
 		{
 			gRCBotProfiles.addProfile(profile);
 
-			RCBotUtils::Message(pClient,MessageErrorLevel::MessageErrorLevel_Information,"Bot Profile Added");
+			RCBotUtils::Message(pClient,MessageErrorLevel::Information,"Bot Profile Added");
 		}
 		else
 		{
@@ -136,7 +136,7 @@ RCBotCommandReturn RCBotCommand_AddProfileCommand:: execute(edict_t* pClient, co
 	else
 		showUsage(pClient);
 
-	return RCBotCommandReturn::RCBotCommandReturn_Ok;
+	return RCBotCommandReturn::Ok;
 }
 
 RCBotCommandReturn RCBotCommand_RemoveProfileCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
@@ -154,15 +154,15 @@ RCBotCommandReturn RCBotCommand_RemoveProfileCommand::execute(edict_t* pClient, 
 	}
 	else
 		showUsage(pClient);*/
-	return RCBotCommandReturn::RCBotCommandReturn_Ok;
+	return RCBotCommandReturn::Ok;
 };
 
 
 RCBotCommandReturn RCBotCommand_ListProfilesCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
-	RCBotUtils::Message(pClient, MessageErrorLevel::MessageErrorLevel_Information, "Listing profiles...\n");
+	RCBotUtils::Message(pClient, MessageErrorLevel::Information, "Listing profiles...\n");
 	gRCBotProfiles.List(pClient);
-	return RCBotCommandReturn::RCBotCommandReturn_Ok;
+	return RCBotCommandReturn::Ok;
 };
 
 
@@ -171,6 +171,7 @@ RCBotCommands_MainCommand::RCBotCommands_MainCommand() : RCBotCommands("rcbot")
 	
 	addCommand(new RCBotCommands_BotCommand());
 	addCommand(new RCBotCommands_ProfileCommand());
+	addCommand(new RCBotCommands_UtilCommand());
 }
 
 RCBotCommands_BotCommand::RCBotCommands_BotCommand() : RCBotCommands("bot")
@@ -182,12 +183,12 @@ RCBotCommandReturn RCBotCommand_AddBotCommand::execute(edict_t* pClient, const c
 {
 	gRCBotManager.IncreaseQuota();
 
-	return RCBotCommandReturn::RCBotCommandReturn_Ok;
+	return RCBotCommandReturn::Ok;
 }
 
 RCBotCommandReturn RCBotCommands_MainCommand::ClientCommand()
 {
-	RCBotCommandReturn ret = RCBotCommandReturn::RCBotCommandReturn_Continue;
+	RCBotCommandReturn ret = RCBotCommandReturn::Continue;
 
 	if (!IsFakeClientCommand)
 	{
@@ -211,4 +212,74 @@ RCBotCommandReturn RCBotCommands_MainCommand::ClientCommand()
 
 	return ret;
 
+}
+
+
+RCBotCommandReturn RCBotCommand_TeleportToPlayerCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	edict_t* pTeleportTo = nullptr;
+
+	if (*arg1 && arg1)
+	{
+		pTeleportTo = RCBotUtils::findPlayer(arg1);
+	}
+
+	if (pClient != nullptr && pTeleportTo != nullptr)
+	{
+		SET_ORIGIN(pClient, pTeleportTo->v.origin + pTeleportTo->v.view_ofs);
+
+		RCBotUtils::Message(NULL, MessageErrorLevel::Information, "%s teleported to %s", STRING(pClient->v.netname),STRING(pTeleportTo->v.netname));
+	}
+	else
+		showUsage(pClient);
+
+	return RCBotCommandReturn::Ok;
+}
+
+RCBotCommandReturn RCBotCommand_NoClipCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	edict_t* pPlayer = pClient;
+
+	if (*arg1 && arg1 )
+	{
+		pPlayer = RCBotUtils::findPlayer(arg1);
+	}
+
+	if (pPlayer != nullptr)
+	{
+		if (pPlayer->v.movetype != MOVETYPE_NOCLIP)
+			pPlayer->v.movetype = MOVETYPE_NOCLIP;
+		else
+			pPlayer->v.movetype = MOVETYPE_WALK;
+
+		RCBotUtils::Message(NULL, MessageErrorLevel::Information, "noclip mode %s on %s", pPlayer->v.movetype == MOVETYPE_NOCLIP ? "enabled" : "disabled", STRING(pPlayer->v.netname));
+	}
+	else 
+		showUsage(pClient);
+
+	return RCBotCommandReturn::Ok;
+}
+
+RCBotCommandReturn RCBotCommand_GodModeCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	edict_t* pPlayer = pClient;
+
+	if (*arg1 && arg1)
+	{
+		pPlayer = RCBotUtils::findPlayer(arg1);
+	}
+
+	if (pPlayer != nullptr)
+	{
+		if (pPlayer->v.takedamage != DAMAGE_NO)
+			pPlayer->v.takedamage = DAMAGE_NO;
+		else
+			pPlayer->v.takedamage = DAMAGE_YES;
+
+		RCBotUtils::Message(NULL, MessageErrorLevel::Information, "god mode %s on %s", pPlayer->v.takedamage == DAMAGE_NO ? "enabled" : "disabled", STRING(pPlayer->v.netname));
+	}
+	else 
+		showUsage(pClient);
+
+	return RCBotCommandReturn::Ok;
 }

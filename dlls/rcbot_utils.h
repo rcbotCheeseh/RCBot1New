@@ -8,9 +8,9 @@
 
  enum class MessageErrorLevel
 {
-	MessageErrorLevel_Information,
-	MessageErrorLevel_Warning,
-	MessageErrorLevel_Critical
+	Information,
+	Warning,
+	Critical
 
 };
 
@@ -40,6 +40,12 @@ public:
 	static TraceResult *Traceline(const Vector& vecStart, const Vector& vecEnd, IGNORE_MONSTERS igmon, IGNORE_GLASS ignoreGlass, edict_t* pentIgnore);
 
 	static void Message(edict_t* pEntity, MessageErrorLevel errorlevel, char* fmt, ...);
+
+	static void ChangeAngle(float* fSpeed, const float* fIdeal, float* fCurrent, float* fUpdate);
+
+	static void FixAngle(float* fAngle);
+
+	static edict_t* findPlayer(const char* szName);
 };
 
 #endif 

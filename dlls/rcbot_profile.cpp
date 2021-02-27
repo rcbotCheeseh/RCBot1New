@@ -12,11 +12,11 @@ void RCBotProfiles::List(edict_t *pClient)
 {
 	uint32_t id = 0;
 
-	RCBotUtils::Message(pClient, MessageErrorLevel::MessageErrorLevel_Information, "id\tname\tskill\tmodel\tvisrevs");  
+	RCBotUtils::Message(pClient, MessageErrorLevel::Information, "id\tname\tskill\tmodel\tvisrevs");  
 
 	for (auto* pProfile : m_UnusedProfiles)
 	{
-		RCBotUtils::Message(pClient, MessageErrorLevel::MessageErrorLevel_Information, "%d\t%s\t%0.1f\t%s\t%d", id,
+		RCBotUtils::Message(pClient, MessageErrorLevel::Information, "%d\t%s\t%0.1f\t%s\t%d", id,
 			pProfile->getName(), pProfile->getSkill(), pProfile->getModel(), pProfile->getVisRevs());
 		id++;
 	}

@@ -20,12 +20,7 @@ RCBotBase :: ~RCBotBase()
 
 void RCBotBase::Init()
 {
-	m_vMoveTo.reset();
-	m_vLookAt.reset();
-
-	m_fRespawnTime = gpGlobals->time;
 	m_fLastRunPlayerMove = gpGlobals->time;
-	m_pEnemy.Set(nullptr);
 	m_bPreviousAliveState = false;
 
 	spawnInit();
@@ -33,7 +28,12 @@ void RCBotBase::Init()
 
 void RCBotBase::spawnInit()
 {
-	
+	m_vMoveTo.reset();
+	m_vLookAt.reset();
+
+	m_fRespawnTime = gpGlobals->time;
+	m_fLastRunPlayerMove = gpGlobals->time;
+	m_pEnemy.Set(nullptr);
 }
 
 #define RCBOT_RESPAWN_WAIT_TIME 2.0f
@@ -42,6 +42,7 @@ void RCBotBase::Think()
 {
 	m_pEdict->v.button = 0;
 	m_pEdict->v.impulse = 0;
+	m_fSpeedPercent = 1.0f; // full speed
 	m_vMoveTo.reset();
 	m_vLookAt.reset();
 
@@ -63,20 +64,19 @@ void RCBotBase::Think()
 	}
 	else
 	{
-		m_bPreviousAliveState = true;
-	}
+		if (m_bPreviousAliveState == false)
+		{
+			m_bPreviousAliveState = true;
 
-	if (m_pEnemy.Get() != nullptr)
-	{
-		edict_t* pEnemy = m_pEnemy.Get();
-
-		Vector vEnemy = RCBotUtils::entityOrigin(pEnemy);
-		m_vMoveTo.setValue(vEnemy,1);
-		m_vLookAt.setValue(vEnemy,1);
+			m_pEdict->v.v_angle = m_pEdict->v.angles;
+		}
 	}
 
 	m_pVisibles->tasks(m_pProfile->getVisRevs());
 }
+
+#define BOT_MOVE_TO_MIN_DISTANCE 16.0f
+#define BOT_MOVE_TO_MAX_SPEED 320.0f
 
 void RCBotBase::RunPlayerMove()
 {
@@ -100,14 +100,19 @@ void RCBotBase::RunPlayerMove()
 
 	if (m_vMoveTo.isValid())
 	{
-		Vector vComponent = m_vMoveTo.getValue() - vOrigin;
-		Vector vMove = RCBotUtils::VectorToAngles(vComponent);
-		vMove = vMove.Normalize();
+		Vector vMoveTo = m_vMoveTo.getValue();
 
-		fForwardSpeed = vMove.x * 320.0f;
-		fSideSpeed = vMove.y * 320.0f;
+		if (distanceFrom2D(vMoveTo) > BOT_MOVE_TO_MIN_DISTANCE)
+		{
+			Vector vComponent = m_vMoveTo.getValue() - vOrigin;
+			Vector vMove = RCBotUtils::VectorToAngles(vComponent);
+			vMove = vMove.Normalize();
 
-		fUpSpeed = 0;
+			fForwardSpeed = vMove.x * m_fSpeedPercent * BOT_MOVE_TO_MAX_SPEED;
+			fSideSpeed = vMove.y * m_fSpeedPercent * BOT_MOVE_TO_MAX_SPEED;
+
+			fUpSpeed = 0;
+		}
 	}
 
 	m_fLastRunPlayerMove = gpGlobals->time;
@@ -146,7 +151,7 @@ bool RCBotBase::inViewCone(Vector &vOrigin)
 	// in fov? Check angle to edict
 	MAKE_VECTORS(m_pEdict->v.v_angle);
 
-	vecLOS = vOrigin - m_pEdict->v.origin + getViewOrigin();
+	vecLOS = vOrigin - getViewOrigin();
 	vecLOS = vecLOS.Normalize();
 
 	flDot = DotProduct(vecLOS, gpGlobals->v_forward);
@@ -194,7 +199,7 @@ void RCBotBase::lostVisible(edict_t* pEntity)
 		return;
 
 	if (m_pEnemy.Get() == pEntity)
-		m_pEnemy.Set(pEntity);
+		m_pEnemy.Set(nullptr);
 }
 
 bool RCBotBase::isAlive()

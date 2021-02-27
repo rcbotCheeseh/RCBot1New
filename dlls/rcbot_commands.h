@@ -28,8 +28,8 @@ private:
 
 enum class RCBotCommandReturn
 {
-	RCBotCommandReturn_Ok,
-	RCBotCommandReturn_Continue
+	Ok,
+	Continue
 };
 
 class RCBotCommand
@@ -142,6 +142,52 @@ public:
 	}
 
 	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+
+class RCBotCommand_TeleportToPlayerCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_TeleportToPlayerCommand() : RCBotCommand("teleport_player", "teleport to a player", "<playername>")
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+
+class RCBotCommand_NoClipCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_NoClipCommand() : RCBotCommand("noclip", "clipping enable/disable", "toggle")
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+class RCBotCommand_GodModeCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_GodModeCommand() : RCBotCommand("god", "god mode enable/disable", "toggle")
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+class RCBotCommands_UtilCommand : public RCBotCommands
+{
+public:
+	RCBotCommands_UtilCommand() : RCBotCommands("util")
+	{
+		addCommand(new RCBotCommand_TeleportToPlayerCommand());
+		addCommand(new RCBotCommand_NoClipCommand());
+		addCommand(new RCBotCommand_GodModeCommand());
+	}
 };
 
 

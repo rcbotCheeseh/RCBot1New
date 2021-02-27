@@ -4,6 +4,7 @@
 #include "meta_api.h"
 #include "rcbot_utils.h"
 #include "rcbot_base.h"
+#include <stdint.h>
 #include <memory.h>
 
 // engine functions
@@ -91,7 +92,8 @@ void RCBotVisibles::tasks(int iNumThisFrame)
 			}
 		}
 
-		m_bVisibleBool[m_iCurrentIndex] = isVisible;
+		if (m_iCurrentIndex < (uint16_t)gpGlobals->maxEntities )
+			m_bVisibleBool[m_iCurrentIndex] = isVisible;
 
 		m_iCurrentIndex++;
 
