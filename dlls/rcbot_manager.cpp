@@ -33,6 +33,7 @@ void RCBotManager::Think()
 	{
 		RCBotBase* pBot = m_Bots[i];
 		pBot->Think();
+		pBot->RunPlayerMove();
 	}
 
 	if (m_fAddRemoveBotTime < gpGlobals->time)
@@ -45,9 +46,13 @@ void RCBotManager::Think()
 		}
 		else if (m_Bots.size() < m_iQuota)
 		{
-			RCBotBase *newBot = AddBot();
+			RCBotBase * pBot = AddBot();
 
-			if (newBot == nullptr)
+			if (pBot != nullptr)
+			{
+				m_Bots.push_back(pBot);
+			}
+			else 
 			{
 				if ( m_iQuota > 0 )
 					m_iQuota--; // decrease Quota 
@@ -100,7 +105,7 @@ RCBotBase *RCBotManager::AddBot()
 				MDLL_ClientPutInServer(pBotEdict);
 				ClientPutInServer(pBotEdict);
 
-				m_Bots.push_back(pBot);
+				return pBot;
 			}
 		}
 	}
@@ -109,7 +114,18 @@ RCBotBase *RCBotManager::AddBot()
 }
 void RCBotManager::KickBot()
 {
+	if (m_Bots.size() > 0)
+	{
+		RCBotBase* pBot = m_Bots[m_Bots.size() - 1];
 
+		const char* szName = STRING(pBot->getEdict()->v.netname);
+
+		char cmd[128];
+
+		sprintf(cmd, "kick \"%s\"\n", szName);
+
+		SERVER_COMMAND(cmd);
+	}
 }
 	
 void RCBotManager::LevelInit()

@@ -110,15 +110,67 @@ RCBotCommandReturn RCBotCommands::execute(edict_t* pClient, const char* arg1, co
 	return RCBotCommandReturn::RCBotCommandReturn_Ok;
 }
 
-RCBotCommands::RCBotCommands(const char* szCommand) : RCBotCommand (szCommand,"nullptr","nullptr")
+RCBotCommands::RCBotCommands(const char* szCommand) : RCBotCommand (szCommand,"[sub command]","")
 {
 
 }
+
+
+RCBotCommandReturn RCBotCommand_AddProfileCommand:: execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	if (arg1 && *arg1)
+	{
+		RCBotProfile* profile = RCBotProfile::FromLine(arg1);
+
+		if (profile != nullptr)
+		{
+			gRCBotProfiles.addProfile(profile);
+
+			RCBotUtils::Message(pClient,MessageErrorLevel::MessageErrorLevel_Information,"Bot Profile Added");
+		}
+		else
+		{
+			showUsage(pClient);
+		}
+	}
+	else
+		showUsage(pClient);
+
+	return RCBotCommandReturn::RCBotCommandReturn_Ok;
+}
+
+RCBotCommandReturn RCBotCommand_RemoveProfileCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	/*if (arg1 && *arg1)
+	{
+		int id = atoi(arg1);
+
+		if (gRCBotProfiles.remove(id))
+		{
+			RCBotUtils::Message(pClient, MessageErrorLevel::MessageErrorLevel_Information, "Removed profile...\n");
+		}
+		else
+			RCBotUtils::Message(pClient, MessageErrorLevel::MessageErrorLevel_Information, "Couldn't find profile...\n");
+	}
+	else
+		showUsage(pClient);*/
+	return RCBotCommandReturn::RCBotCommandReturn_Ok;
+};
+
+
+RCBotCommandReturn RCBotCommand_ListProfilesCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	RCBotUtils::Message(pClient, MessageErrorLevel::MessageErrorLevel_Information, "Listing profiles...\n");
+	gRCBotProfiles.List(pClient);
+	return RCBotCommandReturn::RCBotCommandReturn_Ok;
+};
+
 
 RCBotCommands_MainCommand::RCBotCommands_MainCommand() : RCBotCommands("rcbot")
 {
 	
 	addCommand(new RCBotCommands_BotCommand());
+	addCommand(new RCBotCommands_ProfileCommand());
 }
 
 RCBotCommands_BotCommand::RCBotCommands_BotCommand() : RCBotCommands("bot")
@@ -135,23 +187,25 @@ RCBotCommandReturn RCBotCommand_AddBotCommand::execute(edict_t* pClient, const c
 
 RCBotCommandReturn RCBotCommands_MainCommand::ClientCommand()
 {
-	const char* pcmd = CMD_ARGV(0);
-	const char* arg1 = CMD_ARGV(1);
-	const char* arg2 = CMD_ARGV(2);
-	const char* arg3 = CMD_ARGV(3);
-	const char* arg4 = CMD_ARGV(4);
-	const char* arg5 = CMD_ARGV(5);
-
 	RCBotCommandReturn ret = RCBotCommandReturn::RCBotCommandReturn_Continue;
 
-	if (pcmd)
+	if (!IsFakeClientCommand)
 	{
-		// Do Stuff
+		const char* pcmd = CMD_ARGV(0);
+		const char* arg1 = CMD_ARGV(1);
+		const char* arg2 = CMD_ARGV(2);
+		const char* arg3 = CMD_ARGV(3);
+		const char* arg4 = CMD_ARGV(4);
+		const char* arg5 = CMD_ARGV(5);
 
-		if (gRCBotCommands.isCommand(pcmd))
+		if (pcmd)
 		{
-			if (!IsFakeClientCommand)
+			// Do Stuff
+
+			if (gRCBotCommands.isCommand(pcmd))
+			{
 				ret = gRCBotCommands.execute(m_pClient, arg1, arg2, arg3, arg4, arg5);
+			}
 		}
 	}
 

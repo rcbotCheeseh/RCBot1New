@@ -2,6 +2,8 @@
 #define __RCBOT_PROFILE_H__
 
 #include <vector>
+#include "extdll.h"
+#include "meta_api.h"
 
 #define RCBOT_PROFILE_SKILL_INVALID -1.0
 #define RCBOT_PROFILE_VIS_REVS_DEFAULT 200
@@ -68,6 +70,19 @@ public:
 	RCBotProfile* getRandomUnused();
 	RCBotProfile* UseProfile(int iIndex);
 	void UnuseProfiles(RCBotProfile* profile);
+	void addProfile(RCBotProfile* profile)
+	{
+		m_ProfilePool.push_back(profile);
+		m_UnusedProfiles.push_back(profile);
+	}
+
+	void removeProfile(RCBotProfile* profile)
+	{
+		
+	}
+
+	void List(edict_t* pClient);
+
 	void Reset();
 
 	bool Load( const char *szFilename );

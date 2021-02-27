@@ -18,6 +18,20 @@ const char* RCBotUtils::GetClassname(edict_t* pEdict)
 	return STRING(pEdict->v.classname);
 }
 
+Vector RCBotUtils::VectorToAngles(Vector& vec)
+{
+	Vector vOut;
+
+	VEC_TO_ANGLES(vec, vOut);
+
+	return vOut;
+}
+
+void RCBotUtils::MakeVectors(Vector &vec)
+{
+	MAKE_VECTORS(vec);
+}
+
 void RCBotUtils:: Message(edict_t* pEntity, MessageErrorLevel errorlevel, char* fmt, ...)
 {
 	va_list argptr;

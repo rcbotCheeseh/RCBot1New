@@ -109,6 +109,53 @@ public:
 	static edict_t* m_pClient;
 };
 
+
+class RCBotCommand_AddProfileCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_AddProfileCommand() : RCBotCommand("add", "adds a profile", "<name>,<skill>,<model>,<visrevs>")
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+
+class RCBotCommand_RemoveProfileCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_RemoveProfileCommand() : RCBotCommand("remove", "removes a profile", "<id>")
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+class RCBotCommand_ListProfilesCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_ListProfilesCommand() : RCBotCommand("list", "lists profile","")
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+
+class RCBotCommands_ProfileCommand : public RCBotCommands
+{
+public:
+	RCBotCommands_ProfileCommand() : RCBotCommands("profile")
+	{
+		addCommand(new RCBotCommand_AddProfileCommand());
+		//addCommand(new RCBotCommand_RemoveProfileCommand());
+		addCommand(new RCBotCommand_ListProfilesCommand());
+	}
+};
+
 class RCBotCommands_BotCommand : public RCBotCommands
 {
 public:

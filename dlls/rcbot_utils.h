@@ -31,6 +31,9 @@ public:
 	{
 		return (fRadians * 180.0) / M_PI;
 	}
+	static Vector VectorToAngles(Vector& vec);
+
+	static void MakeVectors(Vector& vec);
 
 	static const char* GetClassname(edict_t* pEdict);
 

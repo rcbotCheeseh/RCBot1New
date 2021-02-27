@@ -242,12 +242,14 @@
     <ClCompile Include="rcbot_mod.cpp" />
     <ClCompile Include="rcbot_navigator.cpp" />
     <ClCompile Include="rcbot_profile.cpp" />
+    <ClCompile Include="rcbot_specialists.cpp" />
     <ClCompile Include="rcbot_strings.cpp" />
     <ClCompile Include="rcbot_util.cpp" />
     <ClCompile Include="rcbot_visibles.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cdll_dll.h" />
+    <ClInclude Include="dll.h" />
     <ClInclude Include="enginecallback.h" />
     <ClInclude Include="extdll.h" />
     <ClInclude Include="h_export_meta.h" />
