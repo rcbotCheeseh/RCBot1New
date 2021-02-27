@@ -4,6 +4,7 @@
 #include "h_export_meta.h"
 #include "meta_api.h"
 #include "rcbot_specialists.h"
+#include "rcbot_hldm.h"
 
 RCBotModifications gRCBotModifications;
 
@@ -30,6 +31,7 @@ RCBotBase* RCBotModification_TheSpecialists::createBot()
 RCBotModifications::RCBotModifications()
 {
 	m_Mods.push_back(new RCBotModification_TheSpecialists());
+	m_Mods.push_back(new RCBotModification_HLDM());
 }
 
 RCBotModifications::~RCBotModifications()
@@ -52,3 +54,10 @@ void RCBotModifications::GameInit()
 		}
 	}
 }
+
+
+RCBotBase* RCBotModification_HLDM :: createBot()
+{
+	return new RCBotHLDM();
+}
+

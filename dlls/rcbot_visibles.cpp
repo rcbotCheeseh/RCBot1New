@@ -11,9 +11,15 @@ extern DLL_FUNCTIONS gFunctionTable;
 
 RCBotVisibles::RCBotVisibles(RCBotBase* pBot)
 {
-	memset(m_bVisibleBool, 0, sizeof(bool) * RCBOT_VISIBLES_MAX);
+	m_bVisibleBool = new bool[gpGlobals->maxEntities];
+	memset(m_bVisibleBool, 0, sizeof(bool) * gpGlobals->maxEntities);
 	m_pBot = pBot;
 	m_iCurrentIndex = 0;
+}
+
+RCBotVisibles::~RCBotVisibles()
+{
+	delete[] m_bVisibleBool;
 }
 /// <summary>
 /// does an actual POV / multi traceline check
@@ -28,9 +34,6 @@ bool RCBotVisibles::checkVisible(edict_t* pEnt)
 		return false;
 	// not being used by engine
 	if (pEnt->free) 
-		return false;
-	// not being used by engine
-	if (pEnt->serialnumber == 0) 
 		return false;
 	// not being drawn by engine
 	if (pEnt->v.effects & EF_NODRAW)

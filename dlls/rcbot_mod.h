@@ -41,8 +41,6 @@ private:
 	std::vector< RCBotModification*> m_Mods;
 };
 
-extern RCBotModifications gRCBotModifications;
-
 class RCBotModification_TheSpecialists : public RCBotModification
 {
 public:
@@ -55,5 +53,21 @@ public:
 private:
 };
 
+
+class RCBotModification_HLDM : public RCBotModification
+{
+public:
+	RCBotModification_HLDM() : RCBotModification("valve")
+	{
+
+	}
+
+	RCBotBase* createBot();
+private:
+};
+
+
+
+extern RCBotModifications gRCBotModifications;
 
 #endif 

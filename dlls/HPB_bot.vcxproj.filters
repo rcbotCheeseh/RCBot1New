@@ -60,6 +60,9 @@
     <ClCompile Include="rcbot_specialists.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rcbot_hldm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cdll_dll.h">
@@ -138,6 +141,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rcbot_hldm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

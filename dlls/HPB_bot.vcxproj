@@ -236,6 +236,7 @@
     <ClCompile Include="rcbot_base.cpp" />
     <ClCompile Include="rcbot_commands.cpp" />
     <ClCompile Include="rcbot_file.cpp" />
+    <ClCompile Include="rcbot_hldm.cpp" />
     <ClCompile Include="rcbot_manager.cpp" />
     <ClCompile Include="rcbot_message.cpp" />
     <ClCompile Include="rcbot_meta_api.cpp" />
@@ -260,6 +261,7 @@
     <ClInclude Include="rcbot_const.h" />
     <ClInclude Include="rcbot_engine_funcs.h" />
     <ClInclude Include="rcbot_file.h" />
+    <ClInclude Include="rcbot_hldm.h" />
     <ClInclude Include="rcbot_learner.h" />
     <ClInclude Include="rcbot_manager.h" />
     <ClInclude Include="rcbot_message.h" />

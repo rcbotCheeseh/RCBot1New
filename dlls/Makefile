@@ -20,7 +20,7 @@ CPPFLAGS = ${BASEFLAGS} -mtune=generic -march=i686 -mmmx -msse -msse2 -mfpmath=s
 		
 OBJ = dll.o engine.o rcbot_base.o rcbot_commands.o rcbot_file.o rcbot_manager.o rcbot_message.o \
     rcbot_meta_api.o rcbot_mod.o rcbot_profile.o rcbot_strings.o rcbot_util.o  rcbot_visibles.o \
-	rcbot_specialists.o rcbot_navigator.o
+	rcbot_specialists.o rcbot_navigator.o rcbot_hldm.o
 
 rcbot_mm.so: ${OBJ}
 	${CPP} -fPIC -shared -o $@ ${OBJ} -ldl -lm

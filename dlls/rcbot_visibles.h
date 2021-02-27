@@ -7,11 +7,11 @@
 
 class RCBotBase;
 
-#define RCBOT_VISIBLES_MAX 1024
-
 class RCBotVisibles
 {
 public:
+
+	~RCBotVisibles();
 
 	RCBotVisibles(RCBotBase* pBot);
 	/// <summary>
@@ -38,7 +38,7 @@ private:
 	/// <summary>
 	/// Let's just use a boolean array - memory not an issue - let's focus on speed
 	/// </summary>
-	bool m_bVisibleBool[RCBOT_VISIBLES_MAX];
+	bool *m_bVisibleBool;
 	/// <summary>
 	/// current entity index being updated
 	/// </summary>

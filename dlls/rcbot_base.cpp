@@ -102,9 +102,10 @@ void RCBotBase::RunPlayerMove()
 	{
 		Vector vComponent = m_vMoveTo.getValue() - vOrigin;
 		Vector vMove = RCBotUtils::VectorToAngles(vComponent);
+		vMove = vMove.Normalize();
 
-		fForwardSpeed = vMove.x/180;
-		fSideSpeed = vMove.y/180;
+		fForwardSpeed = vMove.x * 320.0f;
+		fSideSpeed = vMove.y * 320.0f;
 
 		fUpSpeed = 0;
 	}
