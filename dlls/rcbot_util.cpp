@@ -133,6 +133,13 @@ edict_t* RCBotUtils::findPlayer(const char* szName)
 	
 }
 
+void RCBotUtils::FixAngles(Vector *vAngles)
+{
+	FixAngle(&vAngles->x);
+	FixAngle(&vAngles->y);
+	FixAngle(&vAngles->z);
+}
+
 void RCBotUtils::FixAngle(float* fAngle)
 {
 	if (*fAngle < -180)

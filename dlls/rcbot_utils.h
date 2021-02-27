@@ -44,7 +44,7 @@ public:
 	static void ChangeAngle(float* fSpeed, const float* fIdeal, float* fCurrent, float* fUpdate);
 
 	static void FixAngle(float* fAngle);
-
+	static void FixAngles(Vector* vAngles);
 	static edict_t* findPlayer(const char* szName);
 };
 

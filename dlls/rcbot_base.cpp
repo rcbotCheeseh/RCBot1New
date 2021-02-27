@@ -93,9 +93,45 @@ void RCBotBase::RunPlayerMove()
 
 	if (m_vLookAt.isValid() )
 	{
+		float fTurnSpeed = 10.0f;
+		entvars_t* pev = &m_pEdict->v;
 		Vector vLook = m_vLookAt.getValue() - vOrigin;
+		Vector vAngles = RCBotUtils::VectorToAngles(vLook);
+		RCBotUtils::FixAngles(&vAngles);
 
-		m_pEdict->v.v_angle = m_pEdict->v.angles = RCBotUtils::VectorToAngles(vLook);
+		pev->idealpitch = -vAngles.x;
+		pev->ideal_yaw = vAngles.y;
+
+		vAngles.z = 0;
+		pev->v_angle.z = pev->v_angle.z = 0;
+
+		pev->ideal_yaw = vAngles.y;
+
+		// change angles smoothly
+
+		float temp;
+
+		//temp = 1/1+exp(-fabs((pev->ideal_yaw+180.0f)-(pev->v_angle.y+180.0f))/180);
+		temp = fabs(pev->ideal_yaw + 180.0f - (pev->v_angle.y + 180.0f));
+
+		fTurnSpeed = temp / fTurnSpeed;//fabs((pev->ideal_yaw+180.0f)-(pev->v_angle.y+180.0f))/20;//m_fTurnSpeed;
+		// change yaw
+		RCBotUtils::ChangeAngle(&fTurnSpeed, &pev->ideal_yaw, &pev->v_angle.y, &pev->angles.y); // 5 degrees
+
+		//temp = 1/1+exp(-fabs((pev->idealpitch+180.0f)-(pev->v_angle.x+180.0f))/180);
+		temp = fabs(pev->idealpitch + 180.0f - (pev->v_angle.x + 180.0f));
+
+		// set by ChangeAngles... remove this functionality soon...
+		fTurnSpeed = temp / fTurnSpeed;
+		//fTurnSpeed = fabs((pev->idealpitch+180.0f)-(pev->v_angle.x+180.0f))/20;//m_fTurnSpeed;
+
+		// change pitch
+		RCBotUtils::ChangeAngle(&fTurnSpeed, &pev->idealpitch, &pev->v_angle.x, &pev->angles.x);
+
+		//pev->v_angle.x = -pev->v_angle.x;
+		pev->angles.x = -pev->v_angle.x / 3;
+
+		pev->angles.y = pev->v_angle.y;//*/
 	}
 
 	if (m_vMoveTo.isValid())
