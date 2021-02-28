@@ -3,7 +3,10 @@
 #include "rcbot_const.h"
 #include "extdll.h"
 #include "rcbot_message.h"
+#include "rcbot_colour.h"
 #include <string.h>
+
+int RCBotUtils:: m_iWaypointTexture = 0;
 
 TraceResult *RCBotUtils::Traceline (const Vector& vecStart, const Vector& vecEnd, IGNORE_MONSTERS igmon, IGNORE_GLASS ignoreGlass, edict_t* pentIgnore)
 {
@@ -94,6 +97,49 @@ void RCBotUtils:: Message(edict_t* pEntity, MessageErrorLevel errorlevel, char* 
 	}
 }
 
+void RCBotUtils::mapInit()
+{
+	m_iWaypointTexture = PRECACHE_MODEL("sprites/lgtning.spr");
+}
+/// <summary>
+/// Once a second lifetime
+/// </summary>
+/// <param name="pClient"></param>
+/// <param name="vFrom"></param>
+/// <param name="vTo"></param>
+/// <param name="vColour"></param>
+void RCBotUtils::drawBeam(edict_t* pClient, const Vector& vFrom, const Vector& vTo, const Colour& vColour)
+{
+	const uint8_t beamWidth = 16;
+	const uint8_t beamNoise = 16;
+	const uint8_t beamSpeed = 16;
+
+	// PM - Use MSG_ONE_UNRELIABLE
+//    - no overflows!
+	MESSAGE_BEGIN(MSG_ONE_UNRELIABLE, SVC_TEMPENTITY, NULL, pClient);
+	WRITE_BYTE(TE_BEAMPOINTS);
+	WRITE_COORD(vFrom.x);
+	WRITE_COORD(vFrom.y);
+	WRITE_COORD(vFrom.z);
+	WRITE_COORD(vTo.x);
+	WRITE_COORD(vTo.y);
+	WRITE_COORD(vTo.z);
+	WRITE_SHORT(m_iWaypointTexture);
+	WRITE_BYTE(1); // framestart
+	WRITE_BYTE(10); // framerate
+	WRITE_BYTE(10); // life in 0.1's
+	WRITE_BYTE(beamWidth); // width
+	WRITE_BYTE(beamNoise);  // noise
+
+	WRITE_BYTE(vColour.r);   // r, g, b
+	WRITE_BYTE(vColour.g);   // r, g, b
+	WRITE_BYTE(vColour.b);   // r, g, b
+
+	WRITE_BYTE(vColour.a);   // brightness
+	WRITE_BYTE(beamSpeed);    // speed
+	MESSAGE_END();
+}
+
 edict_t* RCBotUtils::findPlayer(const char* szName)
 {
 	edict_t* pent = NULL;
@@ -118,8 +164,8 @@ edict_t* RCBotUtils::findPlayer(const char* szName)
 				strncpy(pent_lwr, STRING(pent->v.netname),127);
 				pent_lwr[127] = 0;
 
-				strlwr(arg_lwr);
-				strlwr(pent_lwr);
+				_strlwr(arg_lwr);
+				_strlwr(pent_lwr);
 
 				if (strncmp(arg_lwr, pent_lwr, length) == 0)
 				{

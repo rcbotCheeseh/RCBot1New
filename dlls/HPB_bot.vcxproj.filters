@@ -146,6 +146,9 @@
     <ClInclude Include="rcbot_hldm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="rcbot_colour.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="notes.txt" />

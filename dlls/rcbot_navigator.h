@@ -4,8 +4,17 @@
 #include <stdint.h>
 
 #include "rcbot_base.h"
+#include "rcbot_file.h"
+#include "rcbot_colour.h"
 
 #define RCBOT_MAX_NAVIGATOR_NODES 1024
+#define RCBOT_NAVIGATOR_DEFAULT_RADIUS 48
+
+#define RCBOT_NAVIGATOR_VERSION 1
+
+#define RCBOT_NAVIGATOR_NODE_HEIGHT 32
+
+class RCBotNodeTypes;
 
 class RCBotNavigatorNode
 {
@@ -15,33 +24,58 @@ public:
 		m_vOrigin = Vector(0,0,0);
 		m_fRadius = 0;
 		m_bIsUsed = false;
-		iFlags = 0;
-		iIndex = 0;
+		m_iFlags = 0;
+		m_iIndex = 0;
 	}
 
-	void AddPathTo(RCBotNavigatorNode* pNode)
+	void draw(edict_t* pClient, bool bDrawPaths, RCBotNodeTypes *types );
+
+	float distanceFrom(const Vector& vOrigin);
+
+	bool Load(RCBotFile* file, uint8_t iVersion, uint16_t iIndex);
+
+	bool Save(RCBotFile* file);
+
+	void Add( const Vector &vOrigin )
 	{
-		m_PathsTo.push_back(pNode);
+		m_bIsUsed = true;
+		m_vOrigin = vOrigin;
+		m_iFlags = 0;
+		m_fRadius = RCBOT_NAVIGATOR_DEFAULT_RADIUS;
+		m_Paths.clear();
+		//m_PathsFrom.clear();
 	}
+
+	void Delete()
+	{
+		m_bIsUsed = false;
+		m_Paths.clear();
+		//m_PathsFrom.clear();
+	}
+
+	/*void AddPathTo(RCBotNavigatorNode* pNode)
+	{
+		m_Paths.push_back(pNode);
+	}*/
 
 	void AddPathFrom(RCBotNavigatorNode* pNode)
 	{
-		m_PathsFrom.push_back(pNode);
+		m_Paths.push_back(pNode->getIndex());
 	}
 
 	void RemovePathFrom(RCBotNavigatorNode* pNode)
 	{
-		for (unsigned int i = 0; i < m_PathsFrom.size(); i++)
+		for (unsigned int i = 0; i < m_Paths.size(); i++)
 		{
-			if (m_PathsFrom[i] == pNode)
+			if (m_Paths[i] == pNode->getIndex() )
 			{
-				m_PathsFrom.erase(m_PathsFrom.begin() + i);
+				m_Paths.erase(m_Paths.begin() + i);
 				return;
 			}
 		}
 	}
 
-	void RemovePathTo(RCBotNavigatorNode* pNode)
+	/*void RemovePathTo(RCBotNavigatorNode* pNode)
 	{
 		for (unsigned int i = 0; i < m_PathsTo.size(); i++)
 		{
@@ -51,44 +85,136 @@ public:
 				return;
 			}
 		}
+	}*/
+
+	Vector getOrigin() const 
+	{
+		return m_vOrigin;
 	}
 
-	bool Execute(RCBotBase* pBot)
+	bool isUsed()
 	{
-		pBot->setMoveTo(m_vOrigin);
+		return m_bIsUsed;
+	}
 
-		if (pBot->distanceFrom(m_vOrigin) < m_fRadius)
-		{
-			return true;
-		}
-
-		return false;
+	uint16_t getIndex()
+	{
+		return m_iIndex;
 	}
 
 private:
-	std::vector<RCBotNavigatorNode*> m_PathsTo;
-	std::vector<RCBotNavigatorNode*> m_PathsFrom;
+	std::vector<uint16_t> m_Paths;
 	Vector m_vOrigin;
 	float m_fRadius;
 	bool m_bIsUsed;
-	uint32_t iFlags;
-	uint16_t iIndex;
+	uint32_t m_iFlags;
+	uint16_t m_iIndex;
+	static const Colour defaultNodeColour;
+	static const Colour defaultPathColour;
 };
 
-class RCBotNavigator
+class RCBotNavigatorNodes
 {
 public:
 
-private:
-	RCBotNavigatorNode Nodes[RCBOT_MAX_NAVIGATOR_NODES];
+	RCBotNavigatorNodes();
+
+	virtual bool Load(const char* szFilename);
+	virtual bool Save(const char* szFilename);
+
+	virtual RCBotNavigatorNode* Add(const Vector& vOrigin);
+	virtual bool Remove(const Vector& vOrigin, float fDistance);
+
+	RCBotNavigatorNode* nextFree()
+	{
+		for (uint16_t i = 0; i < RCBOT_MAX_NAVIGATOR_NODES; i++)
+		{
+			if (m_Nodes[i].isUsed())
+				return &m_Nodes[i];
+		}
+
+		return nullptr;
+	}
+
+	RCBotNavigatorNode* Nearest(const Vector& vOrigin, float fDistance);
+protected:
+	RCBotNavigatorNode m_Nodes[RCBOT_MAX_NAVIGATOR_NODES];
+	uint8_t m_iVersion;
+	
+};
+
+
+#define WAYPOINT_VERSION 4
+//#define WAYPOINT_VERSION 5
+
+#define W_FILE_FL_READ_VISIBILITY (1<<0) // require to read visibility file
+
+// define the waypoint file header structure...
+typedef struct
+{
+	char filetype[8];  // should be "RC_bot\0"
+	int  waypoint_file_version;
+	int  waypoint_file_flags;  // used for visualisation
+	int  number_of_waypoints;
+	char mapname[32];  // name of map for these waypoints
+} RCBot1WaypointHeader;
+
+class RCBotNavigatorWaypoints_Old :public  RCBotNavigatorNodes
+{
+public:
+	bool Load(const char* szFilename);
+
+	bool Save(const char* szFilename)
+	{
+		return RCBotNavigatorNodes::Save(szFilename);
+	}
+
+};
+
+enum class RCBotNodeTypeBitMasks
+{
+	 // defines for waypoint flags field (32 bits are available)
+	 W_FL_TEAM	=			((1<<0) + (1<<1)), /* allow for 4 teams (0-3) */
+	 W_FL_TEAM_SPECIFIC=	(1<<2),  /* waypoint only for specified team */
+	 W_FL_CROUCH=			(1<<3),  /* must crouch to reach this waypoint */
+	 W_FL_LADDER=			(1<<4),  /* waypoint on a ladder */
+	 W_FL_LIFT=				(1<<5),  // lift button
+	 W_FL_DOOR=				(1<<6),  /* wait for door to open */
+	 W_FL_HEALTH=			(1<<7),  /* health kit (or wall mounted) location */
+	 W_FL_ARMOR=			(1<<8),  /* armor (or HEV) location */
+	 W_FL_AMMO=				(1<<9),  /* ammo location */
+	 W_FL_CHECK_LIFT=		(1<<10), /* checks for lift at this point */
+	 W_FL_IMPORTANT=		(1<<11), /* flag position (or hostage or president) */
+	 W_FL_RESCUE=			(1<<12), /* flag return position (or rescue zone) */
+	 W_FL_MARINE_BUILDING=	(1<<12), // Ns: marine building put here
+	 W_FL_SCIENTIST_POINT=	(1<<11),
+	 W_FL_BARNEY_POINT=		(1<<12),
+	 W_FL_DEFEND_ZONE=		(1<<13),
+	 W_FL_AIMING=			(1<<14), /* aiming waypoint */
+	 W_FL_CROUCHJUMP=		(1<<16), // }
+	 W_FL_WAIT_FOR_LIFT=	(1<<17),/* wait for lift to be down before approaching this waypoint */
+	 W_FL_WALL_STICK=		(1<<18),
+	 W_FL_STUNT=			(1<<18),
+	 W_FL_PAIN=				(1<<18),
+	 W_FL_JUMP=				(1<<19),
+	 W_FL_WEAPON=			(1<<20), // Crouch and jump
+	 W_FL_TELEPORT=			(1<<21),
+	 W_FL_TANK=				(1<<22), // func_tank near waypoint
+	 W_FL_FLY=				(1<<23),
+	 W_FL_STAY_NEAR=		(1<<24),
+	 W_FL_ENDLEVEL=			(1<<25), // end of level, in svencoop etc
+	 W_FL_OPENS_LATER=		(1<<26),
+	 W_FL_HUMAN_TOWER=		(1<<27), // bot will crouch & wait for a player to jump on them
+	 W_FL_UNREACHABLE=		(1<<28), // not reachable by bot, used as a reference point for visibility only
+	 W_FL_PUSHABLE=			(1<<29),
+	 W_FL_GREN_THROW=		(1<<30),
+	 W_FL_DELETED=			(1<<31) /* used by waypoint allocation code */
 };
 
 class RCBotNodeType
 {
 public:
-	enum class RCBotNodeMovement { Touch, Walk };
-
-	RCBotNodeType(uint8_t iIndex, const char* szName, const char* szDescription, Vector vColour);
+	RCBotNodeType(RCBotNodeTypeBitMasks iBitMask, const char* szName, const char* szDescription, Colour vColour);
 
 	virtual void Touched(RCBotBase* pBot)
 	{
@@ -100,22 +226,37 @@ public:
 		// do nothing
 	}
 
-	uint32_t getBitMask()
+	bool hasType ( uint32_t iFlags )
 	{
-		return 1 << m_iIndex;
+		return (iFlags & ((uint32_t)m_iBitMask)) == ((uint32_t)m_iBitMask);
+	}
+
+	uint32_t setType( uint32_t iFlags )
+	{
+		return iFlags | ((uint32_t)m_iBitMask);
+	}
+
+	uint32_t removeType(uint32_t iFlags)
+	{
+		return iFlags & ~((uint32_t)m_iBitMask);
+	}
+
+	Colour getColour() const
+	{
+		return m_vColour;
 	}
 private:
 	const char * m_szName;
 	const char* m_szDescription;
-	Vector m_vColour;
-	uint8_t m_iIndex;
+	Colour m_vColour;
+	RCBotNodeTypeBitMasks m_iBitMask;
 };
 
 class RCBotNodeJump : public RCBotNodeType
 {
 public:
 
-	RCBotNodeJump(uint8_t iIndex) : RCBotNodeType(iIndex,"jump", "bot will jump here", Vector(170, 180, 200))
+	RCBotNodeJump(RCBotNodeTypeBitMasks bitMask) : RCBotNodeType(bitMask,"jump", "bot will jump here", Colour(170, 180, 200))
 	{
 
 	}
@@ -132,7 +273,7 @@ class RCBotNodeCrouch : public RCBotNodeType
 {
 public:
 
-	RCBotNodeCrouch(uint8_t iIndex) : RCBotNodeType(iIndex, "crouch", "bot will crouch here", Vector(200, 160, 100))
+	RCBotNodeCrouch(RCBotNodeTypeBitMasks bitMask) : RCBotNodeType(bitMask, "crouch", "bot will crouch here", Colour(200, 160, 100))
 	{
 
 	} 
@@ -149,33 +290,60 @@ class RCBotNodeTypes
 public:
 	RCBotNodeTypes()
 	{
-		m_NodeTypes.push_back(new RCBotNodeJump(0));
-		m_NodeTypes.push_back(new RCBotNodeCrouch(1));
+		// Basic Types
+		m_NodeTypes.push_back(new RCBotNodeJump(RCBotNodeTypeBitMasks::W_FL_JUMP));
+		m_NodeTypes.push_back(new RCBotNodeCrouch(RCBotNodeTypeBitMasks::W_FL_CROUCH));
+		m_NodeTypes.push_back(new RCBotNodeJump(RCBotNodeTypeBitMasks::W_FL_TEAM_SPECIFIC));
+		m_NodeTypes.push_back(new RCBotNodeCrouch(RCBotNodeTypeBitMasks::W_FL_TEAM));
 	}
 
-	void Touched( RCBotBase *pBot, int iFlags )
+	void Touched( RCBotBase *pBot, uint32_t iFlags )
 	{
 		if (iFlags)
 		{
 			for (auto* node : m_NodeTypes)
 			{
-				if (iFlags&node->getBitMask() )
+				if (node->hasType(iFlags) )
 					node->Touched(pBot);
 			}
 		}
 	}
 
-	void MovingTowards(RCBotBase* pBot, int iFlags)
+	void MovingTowards(RCBotBase* pBot, uint32_t iFlags)
 	{
 		if (iFlags)
 		{
 			for (auto* node : m_NodeTypes)
 			{
-				if (iFlags & node->getBitMask())
+				if (node->hasType(iFlags))
 					node->MovingTowards(pBot);
 			}
 		}
 	}
+
+
+	Colour getColour( uint32_t iFlags )
+	{
+		Colour ret;
+		bool bValid = false;
+
+		for (auto* pNode : m_NodeTypes)
+		{
+			if (pNode->hasType(iFlags))
+			{
+				if (bValid == false)
+				{
+					ret = pNode->getColour();
+					bValid = true;
+				}
+				else
+					ret.mix(pNode->getColour());
+			}
+		}
+
+		return ret;
+	}
+
 private:
 	std::vector<RCBotNodeType*> m_NodeTypes;
 };

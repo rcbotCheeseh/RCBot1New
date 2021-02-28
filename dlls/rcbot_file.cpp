@@ -39,6 +39,27 @@ void RCBotFile::writeByte(uint8_t b)
 	fwrite(&b, sizeof(uint8_t), 1, fp);
 }
 
+uint32_t RCBotFile::readBytes(uint8_t* pBuffer, uint32_t len)
+{
+	return fread(pBuffer, 1, len, fp);
+}
+
+
+void RCBotFile::writeUInt16(uint16_t v)
+{
+	fwrite(&v, sizeof(uint16_t), 1, fp);
+}
+
+void RCBotFile::writeBool(bool v)
+{
+	fwrite(&v, sizeof(bool), 1, fp);
+}
+
+void RCBotFile::writeUInt32(uint32_t v)
+{
+	fwrite(&v, sizeof(uint32_t), 1, fp);
+}
+
 void RCBotFile::writeFloat(float f)
 {
 	fwrite(&f, sizeof(float), 1, fp);
@@ -62,6 +83,15 @@ const char *RCBotFile::readLine()
 	line[RCBOT_FILE_MAX_LINE_LENGTH - 1] = 0;
 
 	return line;
+}
+
+bool RCBotFile::readBool()
+{
+	bool ret;
+
+	fread(&ret, sizeof(bool), 1, fp);
+
+	return ret;
 }
 
 uint8_t RCBotFile::readByte()
@@ -109,7 +139,7 @@ char RCBotFile::readChar()
 /// </summary>
 /// <param name="len">uint32 length</param>
 /// <returns></returns>
-const char* RCBotFile::readString(uint32_t len)
+const char* RCBotFile::readString(uint8_t len)
 {
 	char* str = new char[len + 1];
 
@@ -127,7 +157,7 @@ const char* RCBotFile::readString(uint32_t len)
 const char* RCBotFile::readString()
 {
 	// read length
-	uint32_t len = readUInt32();
+	uint8_t len = readByte();
 
 	return readString(len);
 }

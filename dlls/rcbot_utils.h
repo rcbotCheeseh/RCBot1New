@@ -5,6 +5,7 @@
 #include "vector.h"
 #include "h_export_meta.h"
 #include "meta_api.h"
+#include "rcbot_colour.h"
 
  enum class MessageErrorLevel
 {
@@ -46,6 +47,10 @@ public:
 	static void FixAngle(float* fAngle);
 	static void FixAngles(Vector* vAngles);
 	static edict_t* findPlayer(const char* szName);
+	static void drawBeam(edict_t* pClient, const Vector& vFrom, const Vector& vTo, const Colour& vColour);
+	static void mapInit();
+private:
+	static int m_iWaypointTexture;
 };
 
 #endif 

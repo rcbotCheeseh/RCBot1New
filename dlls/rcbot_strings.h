@@ -41,9 +41,9 @@ public:
 
     static void stringCopy(const char* source, char* dest)
     {
-//#pragma warning(disable:4706)
-        while (*dest++ = *source++);
-//#pragma warning(default:4706)
+
+        while ( (*dest++ = *source++) != '\0' );
+
     }
 
     bool stringMatch(const char* a, const char* b)

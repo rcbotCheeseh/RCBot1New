@@ -258,6 +258,7 @@
     <ClInclude Include="meta_api.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="rcbot_base.h" />
+    <ClInclude Include="rcbot_colour.h" />
     <ClInclude Include="rcbot_commands.h" />
     <ClInclude Include="rcbot_const.h" />
     <ClInclude Include="rcbot_engine_funcs.h" />
