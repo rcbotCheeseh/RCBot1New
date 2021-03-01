@@ -219,6 +219,112 @@ public:
 	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
 };
 
+
+class RCBotCommands_WaypointCommand : public RCBotCommands
+{
+public:
+	RCBotCommands_WaypointCommand();
+};
+
+class RCBotCommand_WaypointOnCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_WaypointOnCommand() : RCBotCommand("on", "show waypoints", nullptr)
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+class RCBotCommand_WaypointOffCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_WaypointOffCommand() : RCBotCommand("off", "stop showing waypoints", nullptr)
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+
+class RCBotCommand_WaypointLoadCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_WaypointLoadCommand() : RCBotCommand("load", "load waypoints", nullptr)
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+class RCBotCommand_WaypointSaveCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_WaypointSaveCommand() : RCBotCommand("save", "save waypoints", nullptr)
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+
+class RCBotCommands_PathWaypointCommand : public RCBotCommands
+{
+public:
+	RCBotCommands_PathWaypointCommand();
+};
+
+class RCBotCommand_PathWaypoint_Create1_Command : public RCBotCommand
+{
+public:
+	RCBotCommand_PathWaypoint_Create1_Command() : RCBotCommand("create1", "create a path from current waypoint", nullptr)
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+class RCBotCommand_PathWaypoint_Create2_Command : public RCBotCommand
+{
+public:
+	RCBotCommand_PathWaypoint_Create2_Command() : RCBotCommand("create2", "create a path to current waypoint", nullptr)
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+
+
+class RCBotCommand_PathWaypoint_Remove1_Command : public RCBotCommand
+{
+public:
+	RCBotCommand_PathWaypoint_Remove1_Command() : RCBotCommand("remove1", "delete a path from current waypoint", nullptr)
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+class RCBotCommand_PathWaypoint_Remove2_Command : public RCBotCommand
+{
+public:
+	RCBotCommand_PathWaypoint_Remove2_Command() : RCBotCommand("remove2", "delete a path to current waypoint", nullptr)
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+
 extern RCBotCommands_MainCommand gRCBotCommands;
 
 

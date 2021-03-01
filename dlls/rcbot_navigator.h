@@ -21,18 +21,14 @@ class RCBotNavigatorNode
 public:
 	RCBotNavigatorNode()
 	{
-		m_vOrigin = Vector(0,0,0);
-		m_fRadius = 0;
-		m_bIsUsed = false;
-		m_iFlags = 0;
-		m_iIndex = 0;
+		init(0);
 	}
 
 	void draw(edict_t* pClient, bool bDrawPaths, RCBotNodeTypes *types );
 
 	float distanceFrom(const Vector& vOrigin);
 
-	bool Load(RCBotFile* file, uint8_t iVersion, uint16_t iIndex);
+	bool Load(RCBotFile* file, uint8_t iVersion, uint16_t iIndex, RCBotNavigatorNode *nodes);
 
 	bool Save(RCBotFile* file);
 
@@ -58,21 +54,39 @@ public:
 		m_Paths.push_back(pNode);
 	}*/
 
-	void AddPathFrom(RCBotNavigatorNode* pNode)
+	bool AddPathTo(RCBotNavigatorNode* pNode)
 	{
-		m_Paths.push_back(pNode->getIndex());
+		// can't add path to self
+		if (pNode == this)
+			return false;
+
+		for (unsigned int i = 0; i < m_Paths.size(); i++)
+		{
+			if (m_Paths[i] == pNode)
+			{
+				// path already exists
+				return false;
+			}
+		}
+
+		m_Paths.push_back(pNode);
+
+		return true;
 	}
 
-	void RemovePathFrom(RCBotNavigatorNode* pNode)
+	bool RemovePathTo(RCBotNavigatorNode* pNode)
 	{
 		for (unsigned int i = 0; i < m_Paths.size(); i++)
 		{
-			if (m_Paths[i] == pNode->getIndex() )
+			if (m_Paths[i] == pNode)
 			{
+				// path found
 				m_Paths.erase(m_Paths.begin() + i);
-				return;
+				return true;
 			}
 		}
+
+		return false; // path not found
 	}
 
 	/*void RemovePathTo(RCBotNavigatorNode* pNode)
@@ -102,8 +116,17 @@ public:
 		return m_iIndex;
 	}
 
+	void init(uint16_t iIndex)
+	{
+		m_iIndex = iIndex;
+		m_vOrigin = Vector(0, 0, 0);
+		m_fRadius = 0;
+		m_bIsUsed = false;
+		m_iFlags = 0;
+	}
+
 private:
-	std::vector<uint16_t> m_Paths;
+	std::vector<RCBotNavigatorNode*> m_Paths;
 	Vector m_vOrigin;
 	float m_fRadius;
 	bool m_bIsUsed;
@@ -125,6 +148,11 @@ public:
 	virtual RCBotNavigatorNode* Add(const Vector& vOrigin);
 	virtual bool Remove(const Vector& vOrigin, float fDistance);
 
+	void RemovePathsTo(RCBotNavigatorNode* pNode);
+
+	void draw(edict_t* pClient, bool drawPaths = false);
+
+
 	RCBotNavigatorNode* nextFree()
 	{
 		for (uint16_t i = 0; i < RCBOT_MAX_NAVIGATOR_NODES; i++)
@@ -140,6 +168,8 @@ public:
 protected:
 	RCBotNavigatorNode m_Nodes[RCBOT_MAX_NAVIGATOR_NODES];
 	uint8_t m_iVersion;
+
+	std::vector<RCBotNavigatorNode*> m_UsedNodes;
 	
 };
 
@@ -293,8 +323,8 @@ public:
 		// Basic Types
 		m_NodeTypes.push_back(new RCBotNodeJump(RCBotNodeTypeBitMasks::W_FL_JUMP));
 		m_NodeTypes.push_back(new RCBotNodeCrouch(RCBotNodeTypeBitMasks::W_FL_CROUCH));
-		m_NodeTypes.push_back(new RCBotNodeJump(RCBotNodeTypeBitMasks::W_FL_TEAM_SPECIFIC));
-		m_NodeTypes.push_back(new RCBotNodeCrouch(RCBotNodeTypeBitMasks::W_FL_TEAM));
+		//m_NodeTypes.push_back(new RCBotNodeJump(RCBotNodeTypeBitMasks::W_FL_TEAM_SPECIFIC));
+		//m_NodeTypes.push_back(new RCBotNodeCrouch(RCBotNodeTypeBitMasks::W_FL_TEAM));
 	}
 
 	void Touched( RCBotBase *pBot, uint32_t iFlags )
@@ -362,5 +392,7 @@ private:
 
 	
 };
+
+extern RCBotNavigatorNodes *gRCBotNavigatorNodes;
 
 #endif 

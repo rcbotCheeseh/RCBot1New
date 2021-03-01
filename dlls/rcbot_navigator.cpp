@@ -8,6 +8,8 @@
 const Colour RCBotNavigatorNode::defaultNodeColour = Colour(0, 0, 255);
 const Colour RCBotNavigatorNode::defaultPathColour = Colour(255, 255, 255);
 
+RCBotNavigatorNodes* gRCBotNavigatorNodes = new RCBotNavigatorNodes();
+
 RCBotNodeType :: RCBotNodeType (RCBotNodeTypeBitMasks iBitMask, const char* szName, const char* szDescription, Colour vColour)
 {
 	m_szName = gRCBotStrings.add(szName);
@@ -19,6 +21,14 @@ RCBotNodeType :: RCBotNodeType (RCBotNodeTypeBitMasks iBitMask, const char* szNa
 float RCBotNavigatorNode::distanceFrom(const Vector& vOrigin)
 {
 	return (m_vOrigin - vOrigin).Length();
+}
+
+void RCBotNavigatorNodes::RemovePathsTo(RCBotNavigatorNode* pNode)
+{
+	for (auto* pNode : m_UsedNodes)
+	{
+		pNode->RemovePathTo(pNode);
+	}
 }
 
 void RCBotNavigatorNode::draw(edict_t* pClient, bool bDrawPaths, RCBotNodeTypes *nodeTypes )
@@ -41,11 +51,15 @@ void RCBotNavigatorNode::draw(edict_t* pClient, bool bDrawPaths, RCBotNodeTypes 
 
 	if (bDrawPaths)
 	{
-
+		for (auto* pNode : m_Paths)
+		{
+			RCBotUtils::drawBeam(pClient, m_vOrigin, pNode->getOrigin(), defaultPathColour);
+		}
+	
 	}
 }
 
-bool RCBotNavigatorNode::Load( RCBotFile* file, uint8_t iVersion, uint16_t iIndex )
+bool RCBotNavigatorNode::Load( RCBotFile* file, uint8_t iVersion, uint16_t iIndex, RCBotNavigatorNode *nodes)
 {
 	uint16_t iNumPaths = 0;
 
@@ -64,7 +78,7 @@ bool RCBotNavigatorNode::Load( RCBotFile* file, uint8_t iVersion, uint16_t iInde
 
 	for (uint16_t i = 0; i < iNumPaths; i++)
 	{
-		m_Paths.push_back(file->readUInt16());
+		m_Paths.push_back(&nodes[file->readUInt16()]);
 	}
 
 	return true;
@@ -82,7 +96,7 @@ bool RCBotNavigatorNode::Save(RCBotFile* file)
 
 	for (uint16_t i = 0; i < m_Paths.size(); i++)
 	{
-		file->writeUInt16(m_Paths[i]);
+		file->writeUInt16(m_Paths[i]->getIndex());
 	}
 
 	return true;
@@ -93,8 +107,12 @@ RCBotNavigatorNode * RCBotNavigatorNodes::Add(const Vector& vOrigin)
 {
 	RCBotNavigatorNode *node = nextFree();
 
-	if ( node != nullptr )
+	if (node != nullptr)
+	{
 		node->Add(vOrigin);
+
+		m_UsedNodes.push_back(node);
+	}
 
 	return node;
 }
@@ -103,14 +121,14 @@ RCBotNavigatorNode* RCBotNavigatorNodes::Nearest(const Vector& vOrigin,float fDi
 {
 	RCBotNavigatorNode* pRet = nullptr;
 
-	for (auto node : m_Nodes)
+	for (auto *node : m_UsedNodes)
 	{
-		float fNodeDistance = node.distanceFrom(vOrigin);
+		float fNodeDistance = node->distanceFrom(vOrigin);
 
 		if (fNodeDistance < fDistance)
 		{
 			fDistance = fNodeDistance;
-			pRet = &node;
+			pRet = node;
 		}
 	}
 
@@ -124,19 +142,40 @@ bool RCBotNavigatorNodes::Remove(const Vector& vOrigin, float fDistance)
 
 	if (pNode != nullptr)
 	{
+		uint32_t i;
+
+		for (i = 0; i < m_UsedNodes.size(); i++)
+		{
+			if (m_UsedNodes.at(i) == pNode)
+			{
+				m_UsedNodes.erase(m_UsedNodes.begin() + i);
+				break;
+			}
+		}
+
 		pNode->Delete();
+
 		return true;
 	}
 
 	return false;
 }
 
+void RCBotNavigatorNodes::draw(edict_t* pClient, bool bDrawPaths)
+{
+	Vector vOrigin = RCBotUtils::entityOrigin(pClient);
+
+	//for ( )
+}
+
 RCBotNavigatorNodes::RCBotNavigatorNodes()
 {
-	for (uint32_t i = 0; i < RCBOT_MAX_NAVIGATOR_NODES; i++)
+	for (uint16_t i = 0; i < RCBOT_MAX_NAVIGATOR_NODES; i++)
 	{
-
+		m_Nodes[i].init(i);
 	}
+
+	m_iVersion = 0;
 }
 
 bool RCBotNavigatorNodes::Load(const char* szFilename)
@@ -154,7 +193,12 @@ bool RCBotNavigatorNodes::Load(const char* szFilename)
 
 		for (uint16_t i = 0; i < iNumWaypoints; i++)
 		{
-			m_Nodes[i].Load(file, m_iVersion,i);
+			m_Nodes[i].Load(file, m_iVersion,i,m_Nodes);
+
+			if (m_Nodes[i].isUsed())
+			{
+				m_UsedNodes.push_back(&m_Nodes[i]);
+			}
 		}
 
 		return iNumWaypoints > 0;

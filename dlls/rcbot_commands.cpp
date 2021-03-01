@@ -9,6 +9,7 @@
 #include "rcbot_file.h"
 #include "rcbot_utils.h"
 #include "rcbot_manager.h"
+#include "rcbot_navigator.h"
 #include <stdint.h>
 
 
@@ -280,6 +281,132 @@ RCBotCommandReturn RCBotCommand_GodModeCommand::execute(edict_t* pClient, const 
 	}
 	else 
 		showUsage(pClient);
+
+	return RCBotCommandReturn::Ok;
+}
+
+//////////////////////////////////////////////////
+// WAYPOINT COMMANDS
+//////////////////////////////////////////////////
+
+RCBotCommands_WaypointCommand :: RCBotCommands_WaypointCommand() : RCBotCommands("waypoint")
+{
+	addCommand(new RCBotCommand_WaypointOnCommand());
+	addCommand(new RCBotCommand_WaypointOffCommand());
+	addCommand(new RCBotCommand_WaypointLoadCommand());
+	addCommand(new RCBotCommand_WaypointSaveCommand());
+}
+
+RCBotCommandReturn RCBotCommand_WaypointOnCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	if (pClient != nullptr)
+	{
+		// to do
+	}
+
+	return RCBotCommandReturn::Ok;
+}
+
+RCBotCommandReturn RCBotCommand_WaypointOffCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	if (pClient != nullptr)
+	{
+		// to do
+	}
+
+	return RCBotCommandReturn::Ok;
+}
+
+RCBotCommandReturn RCBotCommand_WaypointLoadCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	if (*arg1 && arg1)
+		gRCBotNavigatorNodes->Load(arg1);
+	else
+		gRCBotNavigatorNodes->Load(STRING(gpGlobals->mapname));
+
+	return RCBotCommandReturn::Ok;
+}
+
+RCBotCommandReturn RCBotCommand_WaypointSaveCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	if (*arg1 && arg1)
+		gRCBotNavigatorNodes->Save(arg1);
+	else
+		gRCBotNavigatorNodes->Save(STRING(gpGlobals->mapname));
+
+	return RCBotCommandReturn::Ok;
+}
+
+
+//////////////////////////////////////////////////
+// PATH WAYPOINT COMMANDS
+//////////////////////////////////////////////////
+
+RCBotCommands_PathWaypointCommand::RCBotCommands_PathWaypointCommand() : RCBotCommands("pathwaypoint")
+{
+	addCommand(new RCBotCommand_PathWaypoint_Create1_Command());
+	addCommand(new RCBotCommand_PathWaypoint_Create2_Command());
+	addCommand(new RCBotCommand_PathWaypoint_Remove1_Command());
+	addCommand(new RCBotCommand_PathWaypoint_Remove2_Command());
+}
+
+RCBotCommandReturn RCBotCommand_PathWaypoint_Create1_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	if (pClient != nullptr)
+	{
+		RCBotNavigatorNode *pNode = gRCBotNavigatorNodes->Nearest(RCBotUtils::entityOrigin(pClient), RCBOT_NAVIGATOR_DEFAULT_RADIUS*2);
+
+		if (pNode != nullptr)
+		{
+
+		}
+	}
+
+	return RCBotCommandReturn::Ok;
+}
+
+RCBotCommandReturn RCBotCommand_PathWaypoint_Create2_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	if (pClient != nullptr)
+	{
+		RCBotNavigatorNode* pNode = gRCBotNavigatorNodes->Nearest(RCBotUtils::entityOrigin(pClient), RCBOT_NAVIGATOR_DEFAULT_RADIUS * 2);
+
+		if (pNode != nullptr)
+		{
+
+		}
+	}
+
+	return RCBotCommandReturn::Ok;
+}
+
+
+RCBotCommandReturn RCBotCommand_PathWaypoint_Remove1_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	if (pClient != nullptr)
+	{
+		RCBotNavigatorNode* pNode = gRCBotNavigatorNodes->Nearest(RCBotUtils::entityOrigin(pClient), RCBOT_NAVIGATOR_DEFAULT_RADIUS * 2);
+
+		if (pNode != nullptr)
+		{
+
+		}
+	}
+
+	return RCBotCommandReturn::Ok;
+}
+
+RCBotCommandReturn RCBotCommand_PathWaypoint_Remove2_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	if (pClient != nullptr)
+	{
+		RCBotNavigatorNode* pNode = gRCBotNavigatorNodes->Nearest(RCBotUtils::entityOrigin(pClient), RCBOT_NAVIGATOR_DEFAULT_RADIUS * 2);
+
+		if (pNode != nullptr)
+		{
+
+		}
+	}
 
 	return RCBotCommandReturn::Ok;
 }
