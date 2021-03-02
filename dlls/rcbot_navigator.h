@@ -9,10 +9,11 @@
 
 #define RCBOT_MAX_NAVIGATOR_NODES 1024
 #define RCBOT_NAVIGATOR_DEFAULT_RADIUS 48
-
 #define RCBOT_NAVIGATOR_VERSION 1
-
 #define RCBOT_NAVIGATOR_NODE_HEIGHT 32
+
+#define RCBOT_NAVIGATOR_NODES_FOLDER "nodes"
+#define RCBOT_NAVIGATOR_NODES_EXTENSION "rcn"
 
 class RCBotNodeTypes;
 
@@ -136,6 +137,7 @@ private:
 	static const Colour defaultPathColour;
 };
 
+
 class RCBotNavigatorNodes
 {
 public:
@@ -145,13 +147,16 @@ public:
 	virtual bool Load(const char* szFilename);
 	virtual bool Save(const char* szFilename);
 
+	void Clear();
+
 	virtual RCBotNavigatorNode* Add(const Vector& vOrigin);
 	virtual bool Remove(const Vector& vOrigin, float fDistance);
 
 	void RemovePathsTo(RCBotNavigatorNode* pNode);
 
-	void draw(edict_t* pClient, bool drawPaths = false);
+	void mapInit();
 
+	void draw(edict_t* pClient, bool drawPaths, RCBotNodeTypes* pNodeTypes);
 
 	RCBotNavigatorNode* nextFree()
 	{
@@ -165,18 +170,28 @@ public:
 	}
 
 	RCBotNavigatorNode* Nearest(const Vector& vOrigin, float fDistance);
+
+	bool isDrawing() const
+	{
+		return m_bDrawingOn;
+	}
+
+	void setDrawing(bool bDrawing)
+	{
+		m_bDrawingOn = bDrawing;
+	}
+
 protected:
 	RCBotNavigatorNode m_Nodes[RCBOT_MAX_NAVIGATOR_NODES];
 	uint8_t m_iVersion;
+	bool m_bDrawingOn;
 
 	std::vector<RCBotNavigatorNode*> m_UsedNodes;
 	
 };
 
-
+// For RCBot1 Waypoint compatibility
 #define WAYPOINT_VERSION 4
-//#define WAYPOINT_VERSION 5
-
 #define W_FILE_FL_READ_VISIBILITY (1<<0) // require to read visibility file
 
 // define the waypoint file header structure...
@@ -282,6 +297,17 @@ private:
 	RCBotNodeTypeBitMasks m_iBitMask;
 };
 
+class RCBotNodePickup : public RCBotNodeType
+{
+public:
+	RCBotNodePickup(RCBotNodeTypeBitMasks bitMask, const char* szName, const char* szDescription, Colour colour, const char* szPickupEntityName);
+
+	void Touched(RCBotBase* pBot);
+
+private:
+	const char* m_szPickupEntityName;
+};
+
 class RCBotNodeJump : public RCBotNodeType
 {
 public:
@@ -323,8 +349,9 @@ public:
 		// Basic Types
 		m_NodeTypes.push_back(new RCBotNodeJump(RCBotNodeTypeBitMasks::W_FL_JUMP));
 		m_NodeTypes.push_back(new RCBotNodeCrouch(RCBotNodeTypeBitMasks::W_FL_CROUCH));
-		//m_NodeTypes.push_back(new RCBotNodeJump(RCBotNodeTypeBitMasks::W_FL_TEAM_SPECIFIC));
-		//m_NodeTypes.push_back(new RCBotNodeCrouch(RCBotNodeTypeBitMasks::W_FL_TEAM));
+		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_AMMO,"ammo","bot will pick up ammo here",Colour(100,200,100), "item_ammo"));
+		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_HEALTH,"health","bot will pick up health here",Colour(200,200,200), "item_health"));
+		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_ARMOR,"armour","bot will pick up armour here",Colour(255,100,0),"item_battery"));
 	}
 
 	void Touched( RCBotBase *pBot, uint32_t iFlags )
@@ -374,25 +401,15 @@ public:
 		return ret;
 	}
 
+	void addType (RCBotNodeType* pType)
+	{
+		m_NodeTypes.push_back(pType);
+	}
 private:
 	std::vector<RCBotNodeType*> m_NodeTypes;
 };
 
-
-
-class RCBotWaypoint : RCBotNavigatorNode
-{
-public:
-	RCBotWaypoint()
-	{
-		
-	}
-
-private:
-
-	
-};
-
 extern RCBotNavigatorNodes *gRCBotNavigatorNodes;
+extern RCBotNodeTypes *gRCBotNavigatorNodeTypes;
 
 #endif 

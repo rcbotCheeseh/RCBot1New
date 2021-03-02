@@ -9,15 +9,18 @@
 class RCBotModification
 {
 public:
-	RCBotModification(const char *gameFolder);
+	RCBotModification(const char *gameFolder, const char *szName);
 
 	virtual RCBotBase* createBot() = 0;
 
 	bool isModification(const char* gameFolder);
 
-	void setUpBotClientInfo (edict_t* pEdict);
+	virtual void GameInit();
 
-	void putClientInServer(edict_t* pEdict);
+	const char* getName() const
+	{
+		return m_szName;
+	}
 
 private:
 	const char* m_szName;
@@ -44,10 +47,12 @@ private:
 class RCBotModification_TheSpecialists : public RCBotModification
 {
 public:
-	RCBotModification_TheSpecialists() : RCBotModification("ts")
+	RCBotModification_TheSpecialists() : RCBotModification("ts","The Specialists")
 	{
 
 	}
+
+	void GameInit();
 
 	RCBotBase* createBot();
 private:
@@ -57,10 +62,12 @@ private:
 class RCBotModification_HLDM : public RCBotModification
 {
 public:
-	RCBotModification_HLDM() : RCBotModification("valve")
+	RCBotModification_HLDM() : RCBotModification("valve","Half-life: Deathmatch")
 	{
 
 	}
+
+	void GameInit();
 
 	RCBotBase* createBot();
 private:

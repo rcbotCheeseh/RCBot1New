@@ -91,7 +91,7 @@ public:
 
             m_Strings[hash].push_back(newString);
 
-            return m_Strings[hash][m_Strings[hash].size() - 1];
+            return newString;
 
         }
 

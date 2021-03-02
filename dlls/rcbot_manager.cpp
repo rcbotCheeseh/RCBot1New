@@ -6,6 +6,7 @@
 #include "meta_api.h"
 #include "rcbot_engine_funcs.h"
 #include "rcbot_utils.h"
+#include "rcbot_navigator.h"
 
 RCBotManager gRCBotManager;
 
@@ -59,6 +60,18 @@ void RCBotManager::Think()
 			}
 		}
 	}
+
+	if (m_fNodeDrawTime < gpGlobals->time)
+	{
+		edict_t* pPlayer = INDEXENT(1);
+
+		m_fNodeDrawTime = gpGlobals->time + RCBOT_NODE_DRAW_PERIOD;
+
+		if (!FNullEnt(pPlayer))
+		{
+			gRCBotNavigatorNodes->draw(pPlayer, true, gRCBotNavigatorNodeTypes);
+		}
+	}
 }
 
 bool RCBotManager::SetQuota(uint8_t iQuota)
@@ -73,7 +86,7 @@ bool RCBotManager::SetQuota(uint8_t iQuota)
 
 RCBotBase *RCBotManager::AddBot()
 {
-	RCBotProfile * profile = gRCBotProfiles.getRandomUnused();
+	RCBotProfile * profile = gRCBotProfiles->getRandomUnused();
 
 	if (profile != nullptr)
 	{

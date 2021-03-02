@@ -8,7 +8,9 @@
 #define RCBOT_PROFILE_SKILL_INVALID -1.0
 #define RCBOT_PROFILE_VIS_REVS_DEFAULT 200
 
-#define RCBOT_PROFILES_FILENAME "rcbot_profiles.ini"
+#define RCBOT_PROFILES_FILENAME "rcbot_profiles"
+#define RCBOT_PROFILES_FOLDER "profiles"
+#define RCBOT_PROFILES_EXTENSION "ini"
 
 class RCBotProfile
 {
@@ -87,13 +89,16 @@ public:
 
 	bool Load( const char *szFilename );
 
+	static void GameInit();
+
 private:
 	std::vector<RCBotProfile*> m_ProfilePool;
 
 	std::vector<RCBotProfile*> m_UnusedProfiles;
+
 };
 
-extern RCBotProfiles gRCBotProfiles;
+extern RCBotProfiles *gRCBotProfiles;
 
 #endif 
 

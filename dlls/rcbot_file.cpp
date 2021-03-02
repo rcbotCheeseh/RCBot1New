@@ -3,6 +3,8 @@
 #include "rcbot_utils.h"
 #include <stdio.h>
 
+char RCBotFile::m_szFileName[RCBOT_FILE_MAX_FILENAME_LENGTH] = "";
+
 RCBotFile::RCBotFile(FILE* _fp)
 {
 	this->fp = _fp;
@@ -18,16 +20,24 @@ void RCBotFile::close()
 {
 	if (fp != nullptr)
 		fclose(fp);
+
 	fp = nullptr;
 }
 
-RCBotFile* RCBotFile::Open(const char* filename, const char* mode)
+#define RCBOT_FILE_FOLDER_NODES "../rcbot/nodes"
+#define RCBOT_FILE_FOLDER_PROFILES "../rcbot/profiles"
+
+RCBotFile* RCBotFile::Open(const char *szFolder, const char* szFilename, const char *szExtension, const char* mode)
 {
-	FILE* fp = fopen(filename, mode);
+	FILE* fp; 
+
+	snprintf(m_szFileName, RCBOT_FILE_MAX_FILENAME_LENGTH, "%s/%s.%s", szFolder, szFilename, szExtension);
+
+	fp = fopen(m_szFileName, mode);
 
 	if (fp == nullptr)
 	{ 
-		RCBotUtils::Message(NULL, MessageErrorLevel::Information, "WARNING: Attempt to open file \"%s\" mode \"%d\" failed", filename, mode);
+		RCBotUtils::Message(NULL, MessageErrorLevel::Information, "WARNING: Attempt to open file \"%s\" mode \"%d\" failed", szFilename, mode);
 		return nullptr;
 	}
 

@@ -6,7 +6,12 @@
 #include "rcbot_utils.h"
 #include <vector>
 
-RCBotProfiles gRCBotProfiles;
+RCBotProfiles* gRCBotProfiles = nullptr;
+
+void RCBotProfiles::GameInit()
+{
+	gRCBotProfiles = new RCBotProfiles();
+}
 
 void RCBotProfiles::List(edict_t *pClient)
 {
@@ -53,7 +58,7 @@ void RCBotProfiles::Reset()
 
 bool RCBotProfiles::Load(const char* szFilename)
 {
-	RCBotFile* file = RCBotFile::Open(szFilename, "r");
+	RCBotFile* file = RCBotFile::Open(RCBOT_PROFILES_FOLDER,szFilename, RCBOT_PROFILES_EXTENSION, "r");
 
 	if (file != nullptr)
 	{

@@ -394,6 +394,7 @@ C_DLLEXPORT int Meta_Attach(PLUG_LOADTIME now, META_FUNCTIONS* pFunctionTable, m
 	REG_SVR_COMMAND((char*)gRCBotCommands.getCommand(), Meta_ClientCommand);
 
 	gRCBotModifications.GameInit();
+	RCBotProfiles::GameInit();
 
 	return TRUE; // returning TRUE enables metamod to attach this plugin
 }

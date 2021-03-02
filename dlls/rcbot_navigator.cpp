@@ -9,6 +9,7 @@ const Colour RCBotNavigatorNode::defaultNodeColour = Colour(0, 0, 255);
 const Colour RCBotNavigatorNode::defaultPathColour = Colour(255, 255, 255);
 
 RCBotNavigatorNodes* gRCBotNavigatorNodes = new RCBotNavigatorNodes();
+RCBotNodeTypes* gRCBotNavigatorNodeTypes; 
 
 RCBotNodeType :: RCBotNodeType (RCBotNodeTypeBitMasks iBitMask, const char* szName, const char* szDescription, Colour vColour)
 {
@@ -25,10 +26,15 @@ float RCBotNavigatorNode::distanceFrom(const Vector& vOrigin)
 
 void RCBotNavigatorNodes::RemovePathsTo(RCBotNavigatorNode* pNode)
 {
-	for (auto* pNode : m_UsedNodes)
+	for (auto* pUsedNode : m_UsedNodes)
 	{
-		pNode->RemovePathTo(pNode);
+		pUsedNode->RemovePathTo(pNode);
 	}
+}
+
+void RCBotNavigatorNodes::mapInit()
+{
+	Load(STRING(gpGlobals->mapname));
 }
 
 void RCBotNavigatorNode::draw(edict_t* pClient, bool bDrawPaths, RCBotNodeTypes *nodeTypes )
@@ -161,13 +167,18 @@ bool RCBotNavigatorNodes::Remove(const Vector& vOrigin, float fDistance)
 	return false;
 }
 
-void RCBotNavigatorNodes::draw(edict_t* pClient, bool bDrawPaths)
+void RCBotNavigatorNodes::draw(edict_t* pClient, bool bDrawPaths, RCBotNodeTypes *pNodeTypes )
 {
 	Vector vOrigin = RCBotUtils::entityOrigin(pClient);
 
-	//for ( )
+	for (auto* pNode : m_UsedNodes)
+	{
+		pNode->draw(pClient, bDrawPaths, pNodeTypes);
+	}
 }
-
+/// <summary>
+/// Initialise nodes
+/// </summary>
 RCBotNavigatorNodes::RCBotNavigatorNodes()
 {
 	for (uint16_t i = 0; i < RCBOT_MAX_NAVIGATOR_NODES; i++)
@@ -175,54 +186,102 @@ RCBotNavigatorNodes::RCBotNavigatorNodes()
 		m_Nodes[i].init(i);
 	}
 
+	m_bDrawingOn = false;
 	m_iVersion = 0;
 }
 
+#define RCBOT_NAVIGATOR_FILE_HEADER "RCBOT1NODES"
+
+/// <summary>
+/// Clear all nodes
+/// </summary>
+void RCBotNavigatorNodes::Clear()
+{
+	for (uint16_t i = 0; i < RCBOT_MAX_NAVIGATOR_NODES; i++)
+	{
+		m_Nodes[i].Delete();
+		m_Nodes[i].init(i);
+	}
+
+	m_UsedNodes.clear();
+}
+/// <summary>
+/// RCBotNavigatorNodes::Load
+/// Load Nodes
+/// </summary>
+/// <param name="szFilename">absolute path name</param>
+/// <returns>true: success, false: failure</returns>
 bool RCBotNavigatorNodes::Load(const char* szFilename)
 {
-	RCBotFile* file = RCBotFile::Open(szFilename, "r");
+	RCBotFile* file = RCBotFile::Open(RCBOT_NAVIGATOR_NODES_FOLDER, szFilename, RCBOT_NAVIGATOR_NODES_EXTENSION, "rb");
 
-	const char* szHeader = file->readString();
-
-	m_iVersion = file->readByte();
-
-	if (gRCBotStrings.stringMatch(szHeader, "RCBOT1N"))
+	if (file != nullptr)
 	{
-		// Header OK
-		uint16_t iNumWaypoints = file->readUInt16();
+		const char* szHeader = file->readString();
 
-		for (uint16_t i = 0; i < iNumWaypoints; i++)
+		// read the file header
+		if (gRCBotStrings.stringMatch(szHeader, RCBOT_NAVIGATOR_FILE_HEADER))
 		{
-			m_Nodes[i].Load(file, m_iVersion,i,m_Nodes);
+			// read the file version
+			m_iVersion = file->readByte();
 
-			if (m_Nodes[i].isUsed())
+			// read the number of used nodes
+			uint16_t iNumNodes = file->readUInt16();
+
+			Clear();
+			// read all used nodes
+			for (uint16_t i = 0; i < iNumNodes; i++)
 			{
-				m_UsedNodes.push_back(&m_Nodes[i]);
-			}
-		}
+				// read the index
+				uint16_t iIndex = file->readUInt16();
+				RCBotNavigatorNode* pNode = nullptr;
+				// invalid index
+				if (iIndex >= RCBOT_MAX_NAVIGATOR_NODES)
+				{
+					// error
+					return false;
+				}
+				// get the node at the index
+				pNode = &m_Nodes[iIndex];
+				// load the node details
+				pNode->Load(file, m_iVersion, i, m_Nodes);
+				// add the node to the used list
+				m_UsedNodes.push_back(pNode);
 
-		return iNumWaypoints > 0;
+			}
+
+			return m_UsedNodes.size() > 0;
+		}
 	}
 
 	return false;
 }
-
+/// <summary>
+/// RCBotNavigatorNodes::Save
+/// Save nodes
+/// </summary>
+/// <param name="szFilename">absolute path name</param>
+/// <returns>true: success, false : failure</returns>
 bool RCBotNavigatorNodes::Save(const char* szFilename)
 {
-	RCBotFile* file = RCBotFile::Open(szFilename, "w");
+	RCBotFile* file = RCBotFile::Open(RCBOT_NAVIGATOR_NODES_FOLDER,szFilename, RCBOT_NAVIGATOR_NODES_EXTENSION, "wb");
 
 	if (file != nullptr)
 	{
-		file->writeString("RCBOT1N");
-
+		// write the file header
+		file->writeString(RCBOT_NAVIGATOR_FILE_HEADER);
+		// write the file version
 		file->writeByte(RCBOT_NAVIGATOR_VERSION);
 
-		// Header OK
-		file->writeUInt16(RCBOT_MAX_NAVIGATOR_NODES);
+		// Write the number of nodes
+		file->writeUInt16((uint16_t)m_UsedNodes.size());
 
-		for (uint16_t i = 0; i < RCBOT_MAX_NAVIGATOR_NODES; i++)
+		for (auto* pNode : m_UsedNodes)
 		{
-			m_Nodes[i].Save(file);
+			// Write the node's index
+			file->writeUInt16(pNode->getIndex());
+			// Write the node's details
+			pNode->Save(file);
 		}
 
 		return true;
@@ -230,3 +289,16 @@ bool RCBotNavigatorNodes::Save(const char* szFilename)
 
 	return false;
 }
+
+
+RCBotNodePickup::RCBotNodePickup(RCBotNodeTypeBitMasks bitMask, const char* szName, const char* szDescription, Colour colour, const char* szPickupEntityName) : RCBotNodeType(bitMask, szName, szDescription, colour)
+{
+	m_szPickupEntityName = gRCBotStrings.add(szPickupEntityName);
+}
+
+void RCBotNodePickup::Touched(RCBotBase* pBot)
+{
+	// TO DO - search for entity classname m_szPickupEntityName
+	// add pickup task to bot
+}
+

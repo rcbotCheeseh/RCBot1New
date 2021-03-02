@@ -13,7 +13,9 @@
 #include <stdint.h>
 
 
-#define RCBOT_ACCESSORS_FILE "rcbot_accesslevels.ini"
+#define RCBOT_ACCESSORS_FILE "rcbot_accesslevels"
+#define RCBOT_ACCESSORS_FOLDER "accessors"
+#define RCBOT_ACCESSORS_EXTENSION "ini"
 
 bool RCBotCommands_MainCommand::IsFakeClientCommand = false;
 int RCBotCommands_MainCommand::NumArgs = 0;
@@ -46,7 +48,7 @@ RCBotCommandAccessor::RCBotCommandAccessor(const char* szSteamID, uint32_t iLeve
 RCBotCommandAccessors :: RCBotCommandAccessors()
 {
 	// Load From File
-	RCBotFile* file = RCBotFile::Open(RCBOT_ACCESSORS_FILE, "r");
+	RCBotFile* file = RCBotFile::Open(RCBOT_ACCESSORS_FOLDER,RCBOT_ACCESSORS_FILE, RCBOT_ACCESSORS_EXTENSION, "r");
 	const char* szLine;
 
 	while ((szLine = file->readLine()) != nullptr)
@@ -125,7 +127,7 @@ RCBotCommandReturn RCBotCommand_AddProfileCommand:: execute(edict_t* pClient, co
 
 		if (profile != nullptr)
 		{
-			gRCBotProfiles.addProfile(profile);
+			gRCBotProfiles->addProfile(profile);
 
 			RCBotUtils::Message(pClient,MessageErrorLevel::Information,"Bot Profile Added");
 		}
@@ -162,7 +164,7 @@ RCBotCommandReturn RCBotCommand_RemoveProfileCommand::execute(edict_t* pClient, 
 RCBotCommandReturn RCBotCommand_ListProfilesCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
 	RCBotUtils::Message(pClient, MessageErrorLevel::Information, "Listing profiles...\n");
-	gRCBotProfiles.List(pClient);
+	gRCBotProfiles->List(pClient);
 	return RCBotCommandReturn::Ok;
 };
 
@@ -301,7 +303,7 @@ RCBotCommandReturn RCBotCommand_WaypointOnCommand::execute(edict_t* pClient, con
 {
 	if (pClient != nullptr)
 	{
-		// to do
+		gRCBotNavigatorNodes->setDrawing(true);
 	}
 
 	return RCBotCommandReturn::Ok;
@@ -311,7 +313,7 @@ RCBotCommandReturn RCBotCommand_WaypointOffCommand::execute(edict_t* pClient, co
 {
 	if (pClient != nullptr)
 	{
-		// to do
+		gRCBotNavigatorNodes->setDrawing(false);
 	}
 
 	return RCBotCommandReturn::Ok;
