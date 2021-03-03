@@ -391,9 +391,9 @@ bool RCBotNodeEditor::Remove2()
 
 	RCBotNavigatorNode* node = m_Nodes->Nearest(vOrigin, RCBOT_WAYPOINT_NEAR_DISTANCE);
 
-	if (m_Create1 != nullptr && node != nullptr)
+	if (m_Remove1 != nullptr && node != nullptr)
 	{
-		return m_Create1->RemovePathTo(node);
+		return m_Remove1->RemovePathTo(node);
 	}
 
 	return false;
