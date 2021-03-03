@@ -7,10 +7,13 @@
 #include "rcbot_file.h"
 #include "rcbot_colour.h"
 
+#define RCBOT_NAVIGATOR_DRAW_DISTANCE 512.0f
 #define RCBOT_MAX_NAVIGATOR_NODES 1024
 #define RCBOT_NAVIGATOR_DEFAULT_RADIUS 48
 #define RCBOT_NAVIGATOR_VERSION 1
 #define RCBOT_NAVIGATOR_NODE_HEIGHT 32
+
+#define RCBOT_WAYPOINT_NEAR_DISTANCE 200.0f
 
 #define RCBOT_NAVIGATOR_NODES_FOLDER "nodes"
 #define RCBOT_NAVIGATOR_NODES_EXTENSION "rcn"
@@ -351,7 +354,10 @@ public:
 		return m_pPlayer.Get();
 	}
 
-	void Create1();
+	bool Create1();
+	bool Create2();
+	bool Remove1();
+	bool Remove2();
 
 	bool AddNode();
 

@@ -381,30 +381,22 @@ RCBotCommands_PathWaypointCommand::RCBotCommands_PathWaypointCommand() : RCBotCo
 
 RCBotCommandReturn RCBotCommand_PathWaypoint_Create1_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
-	if (pClient != nullptr)
-	{
-		RCBotNavigatorNode *pNode = gRCBotNavigatorNodes->Nearest(RCBotUtils::entityOrigin(pClient), RCBOT_NAVIGATOR_DEFAULT_RADIUS*2);
+	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
 
-		if (pNode != nullptr)
-		{
+	if (pEditor != nullptr)
+		pEditor->Create1();
 
-		}
-	}
 
 	return RCBotCommandReturn::Ok;
 }
 
 RCBotCommandReturn RCBotCommand_PathWaypoint_Create2_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
-	if (pClient != nullptr)
-	{
-		RCBotNavigatorNode* pNode = gRCBotNavigatorNodes->Nearest(RCBotUtils::entityOrigin(pClient), RCBOT_NAVIGATOR_DEFAULT_RADIUS * 2);
+	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
 
-		if (pNode != nullptr)
-		{
+	if (pEditor != nullptr)
+		pEditor->Create2();
 
-		}
-	}
 
 	return RCBotCommandReturn::Ok;
 }
@@ -412,30 +404,22 @@ RCBotCommandReturn RCBotCommand_PathWaypoint_Create2_Command::execute(edict_t* p
 
 RCBotCommandReturn RCBotCommand_PathWaypoint_Remove1_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
-	if (pClient != nullptr)
-	{
-		RCBotNavigatorNode* pNode = gRCBotNavigatorNodes->Nearest(RCBotUtils::entityOrigin(pClient), RCBOT_NAVIGATOR_DEFAULT_RADIUS * 2);
+	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
 
-		if (pNode != nullptr)
-		{
+	if (pEditor != nullptr)
+		pEditor->Remove1();
 
-		}
-	}
 
 	return RCBotCommandReturn::Ok;
 }
 
 RCBotCommandReturn RCBotCommand_PathWaypoint_Remove2_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
-	if (pClient != nullptr)
-	{
-		RCBotNavigatorNode* pNode = gRCBotNavigatorNodes->Nearest(RCBotUtils::entityOrigin(pClient), RCBOT_NAVIGATOR_DEFAULT_RADIUS * 2);
+	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
 
-		if (pNode != nullptr)
-		{
+	if (pEditor != nullptr)
+		pEditor->Remove2();
 
-		}
-	}
 
 	return RCBotCommandReturn::Ok;
 }

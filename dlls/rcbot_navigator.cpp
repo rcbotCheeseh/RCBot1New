@@ -192,9 +192,14 @@ void RCBotNavigatorNodes::draw(edict_t* pClient, bool bDrawPaths, RCBotNodeTypes
 {
 	Vector vOrigin = RCBotUtils::entityOrigin(pClient);
 
+	RCBotNavigatorNode* pNearest = Nearest(vOrigin, RCBOT_NAVIGATOR_DEFAULT_RADIUS);
+
 	for (auto* pNode : m_UsedNodes)
 	{
-		pNode->draw(pClient, bDrawPaths, pNodeTypes,m_iWaypointTexture);
+		if (pNode->distanceFrom(vOrigin) < RCBOT_NAVIGATOR_DRAW_DISTANCE)
+		{
+			pNode->draw(pClient, pNode== pNearest, pNodeTypes, m_iWaypointTexture);
+		}
 	}
 }
 /// <summary>
@@ -342,16 +347,54 @@ bool RCBotNodeEditor::AddNode()
 
 bool RCBotNodeEditor::RemoveNode()
 {
-	edict_t* pPlayer = m_pPlayer.Get();
 
-	if (pPlayer != nullptr)
+	Vector vOrigin = RCBotUtils::entityOrigin(m_pPlayer.Get());
+
+	return m_Nodes->Remove(vOrigin, 200.0f);
+}
+
+bool RCBotNodeEditor::Create1()
+{
+	Vector vOrigin = RCBotUtils::entityOrigin(m_pPlayer.Get());
+
+	m_Create1 = m_Nodes->Nearest(vOrigin, RCBOT_WAYPOINT_NEAR_DISTANCE);
+
+	return m_Create1 != nullptr;
+}
+
+bool RCBotNodeEditor::Create2()
+{
+	Vector vOrigin = RCBotUtils::entityOrigin(m_pPlayer.Get());
+
+	RCBotNavigatorNode *node = m_Nodes->Nearest(vOrigin, RCBOT_WAYPOINT_NEAR_DISTANCE);
+
+	if (m_Create1 != nullptr && node != nullptr )
 	{
-		Vector vOrigin = RCBotUtils::entityOrigin(pPlayer);
-
-		return m_Nodes->Remove(vOrigin, 200.0f);
+		return m_Create1->AddPathTo(node);
 	}
 
 	return false;
 }
 
-bool RemoveNode();
+bool RCBotNodeEditor::Remove1()
+{
+	Vector vOrigin = RCBotUtils::entityOrigin(m_pPlayer.Get());
+
+	m_Remove1 = m_Nodes->Nearest(vOrigin, RCBOT_WAYPOINT_NEAR_DISTANCE);
+
+	return m_Remove1 != nullptr;
+}
+
+bool RCBotNodeEditor::Remove2()
+{
+	Vector vOrigin = RCBotUtils::entityOrigin(m_pPlayer.Get());
+
+	RCBotNavigatorNode* node = m_Nodes->Nearest(vOrigin, RCBOT_WAYPOINT_NEAR_DISTANCE);
+
+	if (m_Create1 != nullptr && node != nullptr)
+	{
+		return m_Create1->RemovePathTo(node);
+	}
+
+	return false;
+}
