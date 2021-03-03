@@ -54,6 +54,7 @@
 #include "rcbot_const.h"
 #include "rcbot_commands.h"
 #include "rcbot_mod.h"
+#include "rcbot_navigator.h"
 
 meta_globals_t* gpMetaGlobals;      // metamod globals
 
@@ -395,6 +396,8 @@ C_DLLEXPORT int Meta_Attach(PLUG_LOADTIME now, META_FUNCTIONS* pFunctionTable, m
 
 	gRCBotModifications.GameInit();
 	RCBotProfiles::GameInit();
+
+	gRCBotNavigatorNodes = new RCBotNavigatorNodes();
 
 	return TRUE; // returning TRUE enables metamod to attach this plugin
 }

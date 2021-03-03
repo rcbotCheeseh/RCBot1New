@@ -61,17 +61,7 @@ void RCBotManager::Think()
 		}
 	}
 
-	if (m_fNodeDrawTime < gpGlobals->time)
-	{
-		edict_t* pPlayer = INDEXENT(1);
-
-		m_fNodeDrawTime = gpGlobals->time + RCBOT_NODE_DRAW_PERIOD;
-
-		if (!FNullEnt(pPlayer))
-		{
-			gRCBotNavigatorNodes->draw(pPlayer, true, gRCBotNavigatorNodeTypes);
-		}
-	}
+	gRCBotNavigatorNodes->gameFrame();
 }
 
 bool RCBotManager::SetQuota(uint8_t iQuota)
@@ -157,4 +147,6 @@ void RCBotManager::KickBot()
 void RCBotManager::LevelInit()
 {
 	ChangeLevel();
+
+	gRCBotNavigatorNodes->mapInit();
 }

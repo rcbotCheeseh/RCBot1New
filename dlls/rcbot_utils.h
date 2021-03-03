@@ -47,10 +47,9 @@ public:
 	static void FixAngle(float* fAngle);
 	static void FixAngles(Vector* vAngles);
 	static edict_t* findPlayer(const char* szName);
-	static void drawBeam(edict_t* pClient, const Vector& vFrom, const Vector& vTo, const Colour& vColour);
+	static void drawBeam(edict_t* pClient, const Vector& vFrom, const Vector& vTo, const Colour& vColour, int iTexture);
 	static void mapInit();
-private:
-	static int m_iWaypointTexture;
+
 };
 
 #endif 

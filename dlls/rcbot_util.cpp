@@ -6,8 +6,6 @@
 #include "rcbot_colour.h"
 #include <string.h>
 
-int RCBotUtils:: m_iWaypointTexture = 0;
-
 TraceResult *RCBotUtils::Traceline (const Vector& vecStart, const Vector& vecEnd, IGNORE_MONSTERS igmon, IGNORE_GLASS ignoreGlass, edict_t* pentIgnore)
 {
 	static TraceResult ptr;
@@ -99,7 +97,7 @@ void RCBotUtils:: Message(edict_t* pEntity, MessageErrorLevel errorlevel, char* 
 
 void RCBotUtils::mapInit()
 {
-	m_iWaypointTexture = PRECACHE_MODEL("sprites/lgtning.spr");
+	
 }
 /// <summary>
 /// Once a second lifetime
@@ -108,7 +106,7 @@ void RCBotUtils::mapInit()
 /// <param name="vFrom"></param>
 /// <param name="vTo"></param>
 /// <param name="vColour"></param>
-void RCBotUtils::drawBeam(edict_t* pClient, const Vector& vFrom, const Vector& vTo, const Colour& vColour)
+void RCBotUtils::drawBeam(edict_t* pClient, const Vector& vFrom, const Vector& vTo, const Colour& vColour, int iTexture)
 {
 	const uint8_t beamWidth = 16;
 	const uint8_t beamNoise = 16;
@@ -124,7 +122,7 @@ void RCBotUtils::drawBeam(edict_t* pClient, const Vector& vFrom, const Vector& v
 	WRITE_COORD(vTo.x);
 	WRITE_COORD(vTo.y);
 	WRITE_COORD(vTo.z);
-	WRITE_SHORT(m_iWaypointTexture);
+	WRITE_SHORT(iTexture);
 	WRITE_BYTE(1); // framestart
 	WRITE_BYTE(10); // framerate
 	WRITE_BYTE(10); // life in 0.1's

@@ -12,7 +12,6 @@
 #include "rcbot_navigator.h"
 #include <stdint.h>
 
-
 #define RCBOT_ACCESSORS_FILE "rcbot_accesslevels"
 #define RCBOT_ACCESSORS_FOLDER "accessors"
 #define RCBOT_ACCESSORS_EXTENSION "ini"
@@ -175,6 +174,8 @@ RCBotCommands_MainCommand::RCBotCommands_MainCommand() : RCBotCommands("rcbot")
 	addCommand(new RCBotCommands_BotCommand());
 	addCommand(new RCBotCommands_ProfileCommand());
 	addCommand(new RCBotCommands_UtilCommand());
+	addCommand(new RCBotCommands_WaypointCommand());
+	addCommand(new RCBotCommands_PathWaypointCommand());
 }
 
 RCBotCommands_BotCommand::RCBotCommands_BotCommand() : RCBotCommands("bot")
@@ -297,13 +298,39 @@ RCBotCommands_WaypointCommand :: RCBotCommands_WaypointCommand() : RCBotCommands
 	addCommand(new RCBotCommand_WaypointOffCommand());
 	addCommand(new RCBotCommand_WaypointLoadCommand());
 	addCommand(new RCBotCommand_WaypointSaveCommand());
+	addCommand(new RCBotCommand_WaypointAddCommand());
+	addCommand(new RCBotCommand_WaypointDeleteCommand());
 }
+
+
+RCBotCommandReturn RCBotCommand_WaypointAddCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	RCBotNodeEditor *pEditor = gRCBotNavigatorNodes->getEditor(pClient);
+
+	if (pEditor != nullptr)
+		pEditor->AddNode();
+
+	return RCBotCommandReturn::Ok;
+}
+
+RCBotCommandReturn RCBotCommand_WaypointDeleteCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
+
+	if (pEditor != nullptr)
+		pEditor->RemoveNode();
+
+	return RCBotCommandReturn::Ok;
+}
+
+
 
 RCBotCommandReturn RCBotCommand_WaypointOnCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
 	if (pClient != nullptr)
 	{
-		gRCBotNavigatorNodes->setDrawing(true);
+		gRCBotNavigatorNodes->removeEditor(pClient);
+		gRCBotNavigatorNodes->addEditor(pClient);
 	}
 
 	return RCBotCommandReturn::Ok;
@@ -313,7 +340,7 @@ RCBotCommandReturn RCBotCommand_WaypointOffCommand::execute(edict_t* pClient, co
 {
 	if (pClient != nullptr)
 	{
-		gRCBotNavigatorNodes->setDrawing(false);
+		gRCBotNavigatorNodes->removeEditor(pClient);
 	}
 
 	return RCBotCommandReturn::Ok;

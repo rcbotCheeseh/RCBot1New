@@ -8,8 +8,7 @@
 const Colour RCBotNavigatorNode::defaultNodeColour = Colour(0, 0, 255);
 const Colour RCBotNavigatorNode::defaultPathColour = Colour(255, 255, 255);
 
-RCBotNavigatorNodes* gRCBotNavigatorNodes = new RCBotNavigatorNodes();
-RCBotNodeTypes* gRCBotNavigatorNodeTypes; 
+RCBotNavigatorNodes* gRCBotNavigatorNodes;
 
 RCBotNodeType :: RCBotNodeType (RCBotNodeTypeBitMasks iBitMask, const char* szName, const char* szDescription, Colour vColour)
 {
@@ -17,6 +16,24 @@ RCBotNodeType :: RCBotNodeType (RCBotNodeTypeBitMasks iBitMask, const char* szNa
 	m_szDescription = gRCBotStrings.add(szDescription);
 	m_vColour = vColour;
 	m_iBitMask = iBitMask;
+}
+
+void RCBotNavigatorNodes::gameFrame()
+{
+	if (m_fDrawNodes < gpGlobals->time)
+	{
+		for ( auto *pEditor : m_Editors )
+		{
+			edict_t* pPlayer = pEditor->getPlayer();
+
+			if (pPlayer != nullptr)
+			{
+				draw(pPlayer, true, m_NodeTypes);
+			}
+		}
+
+		m_fDrawNodes = gpGlobals->time + RCBOT_NODE_DRAW_PERIOD;
+	}
 }
 
 float RCBotNavigatorNode::distanceFrom(const Vector& vOrigin)
@@ -34,10 +51,14 @@ void RCBotNavigatorNodes::RemovePathsTo(RCBotNavigatorNode* pNode)
 
 void RCBotNavigatorNodes::mapInit()
 {
+	m_iWaypointTexture = PRECACHE_MODEL("sprites/lgtning.spr");
+	m_Editors.clear();
+	m_fDrawNodes = 0.0f;
 	Load(STRING(gpGlobals->mapname));
+
 }
 
-void RCBotNavigatorNode::draw(edict_t* pClient, bool bDrawPaths, RCBotNodeTypes *nodeTypes )
+void RCBotNavigatorNode::draw(edict_t* pClient, bool bDrawPaths, RCBotNodeTypes *nodeTypes , int iWaypointTexture )
 {
 	Vector vFrom;
 	Vector vTo;
@@ -46,20 +67,20 @@ void RCBotNavigatorNode::draw(edict_t* pClient, bool bDrawPaths, RCBotNodeTypes 
 	vFrom = m_vOrigin - Vector(0, 0, RCBOT_NAVIGATOR_NODE_HEIGHT);
 	vTo = m_vOrigin + Vector(0, 0, RCBOT_NAVIGATOR_NODE_HEIGHT);
 	
-	if (m_iFlags)
+	if (m_iFlags==0)
 		vColour = defaultNodeColour;
 	else
 	{
 		vColour = nodeTypes->getColour(m_iFlags);
 	}
 
-	RCBotUtils::drawBeam(pClient, vFrom, vTo, vColour );
+	RCBotUtils::drawBeam(pClient, vFrom, vTo, vColour, iWaypointTexture);
 
 	if (bDrawPaths)
 	{
 		for (auto* pNode : m_Paths)
 		{
-			RCBotUtils::drawBeam(pClient, m_vOrigin, pNode->getOrigin(), defaultPathColour);
+			RCBotUtils::drawBeam(pClient, m_vOrigin, pNode->getOrigin(), defaultPathColour, iWaypointTexture);
 		}
 	
 	}
@@ -173,7 +194,7 @@ void RCBotNavigatorNodes::draw(edict_t* pClient, bool bDrawPaths, RCBotNodeTypes
 
 	for (auto* pNode : m_UsedNodes)
 	{
-		pNode->draw(pClient, bDrawPaths, pNodeTypes);
+		pNode->draw(pClient, bDrawPaths, pNodeTypes,m_iWaypointTexture);
 	}
 }
 /// <summary>
@@ -186,8 +207,10 @@ RCBotNavigatorNodes::RCBotNavigatorNodes()
 		m_Nodes[i].init(i);
 	}
 
-	m_bDrawingOn = false;
 	m_iVersion = 0;
+	m_fDrawNodes = 0;
+
+	m_NodeTypes = new RCBotNodeTypes();
 }
 
 #define RCBOT_NAVIGATOR_FILE_HEADER "RCBOT1NODES"
@@ -302,3 +325,33 @@ void RCBotNodePickup::Touched(RCBotBase* pBot)
 	// add pickup task to bot
 }
 
+bool RCBotNodeEditor::AddNode()
+{
+	edict_t* pPlayer = m_pPlayer.Get();
+
+	if (pPlayer != nullptr)
+	{
+		Vector vOrigin = RCBotUtils::entityOrigin(pPlayer);
+
+		return m_Nodes->Add(vOrigin);
+	}
+
+	return false;
+}
+
+
+bool RCBotNodeEditor::RemoveNode()
+{
+	edict_t* pPlayer = m_pPlayer.Get();
+
+	if (pPlayer != nullptr)
+	{
+		Vector vOrigin = RCBotUtils::entityOrigin(pPlayer);
+
+		return m_Nodes->Remove(vOrigin, 200.0f);
+	}
+
+	return false;
+}
+
+bool RemoveNode();

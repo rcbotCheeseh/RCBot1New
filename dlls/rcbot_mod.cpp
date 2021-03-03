@@ -32,7 +32,7 @@ public:
 
 void RCBotModification::GameInit()
 {
-   gRCBotNavigatorNodeTypes	= new RCBotNodeTypes();
+
 }
 
 bool RCBotModification::isModification(const char* gameFolder)
@@ -42,9 +42,11 @@ bool RCBotModification::isModification(const char* gameFolder)
 
 void RCBotModification_TheSpecialists::GameInit()
 {
+	RCBotNodeTypes* nodeTypes = gRCBotNavigatorNodes->getNodeTypes();
+
 	RCBotModification::GameInit();
 
-	gRCBotNavigatorNodeTypes->addType(new RCBotStuntNodeType());
+	nodeTypes->addType(new RCBotStuntNodeType());
 }
 
 RCBotBase* RCBotModification_TheSpecialists::createBot()

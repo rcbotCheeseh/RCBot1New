@@ -272,6 +272,30 @@ public:
 };
 
 
+class RCBotCommand_WaypointAddCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_WaypointAddCommand() : RCBotCommand("add", "add a waypoint", nullptr)
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+class RCBotCommand_WaypointDeleteCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_WaypointDeleteCommand() : RCBotCommand("delete", "delete nearest waypoint", nullptr)
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+
+
 class RCBotCommands_PathWaypointCommand : public RCBotCommands
 {
 public:
