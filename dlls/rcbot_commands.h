@@ -260,6 +260,30 @@ public:
 	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
 };
 
+
+class RCBotCommand_WaypointInfoCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_WaypointInfoCommand() : RCBotCommand("info", "show waypoint info", nullptr)
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+
+class RCBotCommand_WaypointLoadOldCommand : public RCBotCommand
+{
+public:
+	RCBotCommand_WaypointLoadOldCommand() : RCBotCommand("load_old", "load old waypoints", nullptr)
+	{
+
+	}
+
+	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
 class RCBotCommand_WaypointSaveCommand : public RCBotCommand
 {
 public:
@@ -349,7 +373,7 @@ public:
 };
 
 
-extern RCBotCommands_MainCommand gRCBotCommands;
+extern RCBotCommands_MainCommand *gRCBotCommands;
 
 
 #endif 

@@ -15,6 +15,9 @@
 
 #define RCBOT_WAYPOINT_NEAR_DISTANCE 200.0f
 
+#define RCBOT_NAVIGATOR_NODES_RCBOT1_FOLDER "waypoints"
+#define RCBOT_NAVIGATOR_NODES_RCBOT1_EXTENSION "rcw"
+
 #define RCBOT_NAVIGATOR_NODES_FOLDER "nodes"
 #define RCBOT_NAVIGATOR_NODES_EXTENSION "rcn"
 #define RCBOT_NODE_DRAW_PERIOD 1.0f
@@ -59,6 +62,9 @@ enum class RCBotNodeTypeBitMasks
 	W_FL_DELETED = (1 << 31) /* used by waypoint allocation code */
 };
 
+#define RCBOT_WAYPOINT_OK_SOUND ""
+#define RCBOT_WAYPOINT_BAD_SOUND ""
+
 class RCBotNodeType
 {
 public:
@@ -93,6 +99,11 @@ public:
 	{
 		return m_vColour;
 	}
+
+	const char* getDescription() const 
+	{
+		return m_szDescription;
+	}
 private:
 	const char* m_szName;
 	const char* m_szDescription;
@@ -109,6 +120,18 @@ public:
 
 private:
 	const char* m_szPickupEntityName;
+};
+
+
+class RCBotNodeLadder : public RCBotNodeType
+{
+public:
+
+	RCBotNodeLadder(RCBotNodeTypeBitMasks bitMask) : RCBotNodeType(bitMask, "ladder", "bot will climb ladder here", Colour(255, 255, 0))
+	{
+
+	}
+
 };
 
 class RCBotNodeJump : public RCBotNodeType
@@ -151,11 +174,13 @@ public:
 	RCBotNodeTypes()
 	{
 		// Basic Types
+		m_NodeTypes.push_back(new RCBotNodeLadder(RCBotNodeTypeBitMasks::W_FL_LADDER));
 		m_NodeTypes.push_back(new RCBotNodeJump(RCBotNodeTypeBitMasks::W_FL_JUMP));
 		m_NodeTypes.push_back(new RCBotNodeCrouch(RCBotNodeTypeBitMasks::W_FL_CROUCH));
 		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_AMMO, "ammo", "bot will pick up ammo here", Colour(100, 200, 100), "item_ammo"));
 		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_HEALTH, "health", "bot will pick up health here", Colour(200, 200, 200), "item_health"));
 		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_ARMOR, "armour", "bot will pick up armour here", Colour(255, 100, 0), "item_battery"));
+		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_WEAPON, "weapon", "bot will pick up a weapon here", Colour(255, 0, 0), "item_weapon"));
 	}
 
 	void Touched(RCBotBase* pBot, uint32_t iFlags)
@@ -209,6 +234,17 @@ public:
 	{
 		m_NodeTypes.push_back(pType);
 	}
+
+	void getNodeTypes(std::vector< RCBotNodeType*> *pNodeTypes, uint32_t iFlags)
+	{
+		for (auto* pNodeType : m_NodeTypes)
+		{
+			if (pNodeType->hasType(iFlags))
+			{
+				pNodeTypes->push_back(pNodeType);
+			}
+		}
+	}
 private:
 	std::vector<RCBotNodeType*> m_NodeTypes;
 };
@@ -227,6 +263,7 @@ public:
 
 	bool Load(RCBotFile* file, uint8_t iVersion, uint16_t iIndex, RCBotNavigatorNode *nodes);
 
+
 	bool Save(RCBotFile* file);
 
 	void Add( const Vector &vOrigin )
@@ -237,6 +274,16 @@ public:
 		m_fRadius = RCBOT_NAVIGATOR_DEFAULT_RADIUS;
 		m_Paths.clear();
 		//m_PathsFrom.clear();
+	}
+
+	void setFlags(uint32_t flags)
+	{
+		m_iFlags = flags;
+	}
+
+	uint32_t getFlags() const
+	{
+		return m_iFlags;
 	}
 
 	void Delete()
@@ -363,6 +410,8 @@ public:
 
 	bool RemoveNode();
 
+	void showNearestNodeInfo();
+
 private:
 	EHandle m_pPlayer;
 	RCBotNavigatorNode* m_Create1;
@@ -380,7 +429,11 @@ public:
 	virtual bool Load(const char* szFilename);
 	virtual bool Save(const char* szFilename);
 
+	bool LoadRCBot1Waypoints(const char* szFilename);
+
 	void Clear();
+
+	void playSound(edict_t *pClient,bool bGoodSound);
 
 	virtual RCBotNavigatorNode* Add(const Vector& vOrigin);
 	virtual bool Remove(const Vector& vOrigin, float fDistance);
@@ -454,11 +507,10 @@ protected:
 	float m_fDrawNodes;
 	int m_iWaypointTexture;
 
-};
+	char* m_szGoodSoundCommand;
+	char* m_szBadSoundCommand;
 
-// For RCBot1 Waypoint compatibility
-#define WAYPOINT_VERSION 4
-#define W_FILE_FL_READ_VISIBILITY (1<<0) // require to read visibility file
+};
 
 // define the waypoint file header structure...
 typedef struct
@@ -470,16 +522,14 @@ typedef struct
 	char mapname[32];  // name of map for these waypoints
 } RCBot1WaypointHeader;
 
-class RCBotNavigatorWaypoints_Old :public  RCBotNavigatorNodes
+// nothing special here
+class RCBot1Waypoint
 {
 public:
-	bool Load(const char* szFilename);
+	int  flags;		// button, lift, flag, health, ammo, etc.
+	Vector origin;   // location
 
-	bool Save(const char* szFilename)
-	{
-		return RCBotNavigatorNodes::Save(szFilename);
-	}
-
+	RCBot1Waypoint() { flags = 0; Vector(0, 0, 0); };
 };
 
 

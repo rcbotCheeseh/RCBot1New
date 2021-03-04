@@ -1,6 +1,7 @@
 #include "rcbot_file.h"
 #include "rcbot_strings.h"
 #include "rcbot_utils.h"
+#include "rcbot_mod.h"
 #include <stdio.h>
 
 char RCBotFile::m_szFileName[RCBOT_FILE_MAX_FILENAME_LENGTH] = "";
@@ -24,20 +25,22 @@ void RCBotFile::close()
 	fp = nullptr;
 }
 
-#define RCBOT_FILE_FOLDER_NODES "../rcbot/nodes"
-#define RCBOT_FILE_FOLDER_PROFILES "../rcbot/profiles"
-
-RCBotFile* RCBotFile::Open(const char *szFolder, const char* szFilename, const char *szExtension, const char* mode)
+RCBotFile* RCBotFile::Open(const char *szFolder, const char* szFilename, const char *szExtension, const char* mode, bool bUseModFolder)
 {
 	FILE* fp; 
 
-	snprintf(m_szFileName, RCBOT_FILE_MAX_FILENAME_LENGTH, "%s/%s.%s", szFolder, szFilename, szExtension);
+	RCBotModification *pMod = gRCBotModifications.getCurrentMod();
+
+	if (bUseModFolder && (pMod != nullptr))
+		snprintf(m_szFileName, RCBOT_FILE_MAX_FILENAME_LENGTH, "%s/%s/%s/%s.%s", RCBOT_FILES_FOLDER, szFolder, pMod->getFolder(), szFilename, szExtension);
+	else 
+		snprintf(m_szFileName, RCBOT_FILE_MAX_FILENAME_LENGTH, "%s/%s/%s.%s", RCBOT_FILES_FOLDER, szFolder, szFilename, szExtension);
 
 	fp = fopen(m_szFileName, mode);
 
 	if (fp == nullptr)
 	{ 
-		RCBotUtils::Message(NULL, MessageErrorLevel::Information, "WARNING: Attempt to open file \"%s\" mode \"%d\" failed", szFilename, mode);
+		RCBotUtils::Message(NULL, MessageErrorLevel::Information, "WARNING: Attempt to open file \"%s\" mode \"%s\" failed", szFilename, mode);
 		return nullptr;
 	}
 
@@ -49,7 +52,7 @@ void RCBotFile::writeByte(uint8_t b)
 	fwrite(&b, sizeof(uint8_t), 1, fp);
 }
 
-uint32_t RCBotFile::readBytes(uint8_t* pBuffer, uint32_t len)
+uint32_t RCBotFile::readBytes(void* pBuffer, uint32_t len)
 {
 	return fread(pBuffer, 1, len, fp);
 }

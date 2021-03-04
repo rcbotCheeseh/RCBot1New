@@ -216,9 +216,26 @@ RCBotNavigatorNodes::RCBotNavigatorNodes()
 	m_fDrawNodes = 0;
 
 	m_NodeTypes = new RCBotNodeTypes();
+
+	m_iWaypointTexture = 0;
+
+	m_szBadSoundCommand = (char*)gRCBotStrings.add("play common/wpn_denyselect.wav\n");
+	m_szGoodSoundCommand = (char*)gRCBotStrings.add("play common/wpn_hudon.wav\n");
+	
 }
 
 #define RCBOT_NAVIGATOR_FILE_HEADER "RCBOT1NODES"
+
+
+void RCBotNavigatorNodes::playSound(edict_t *pClient, bool goodSound)
+{
+	if (goodSound)
+	{
+		CLIENT_COMMAND(pClient, m_szGoodSoundCommand);
+	}
+	else
+		CLIENT_COMMAND(pClient, m_szBadSoundCommand);
+}
 
 /// <summary>
 /// Clear all nodes
@@ -330,6 +347,8 @@ void RCBotNodePickup::Touched(RCBotBase* pBot)
 	// add pickup task to bot
 }
 
+
+
 bool RCBotNodeEditor::AddNode()
 {
 	edict_t* pPlayer = m_pPlayer.Get();
@@ -351,6 +370,22 @@ bool RCBotNodeEditor::RemoveNode()
 	Vector vOrigin = RCBotUtils::entityOrigin(m_pPlayer.Get());
 
 	return m_Nodes->Remove(vOrigin, 200.0f);
+}
+
+void RCBotNodeEditor::showNearestNodeInfo()
+{
+	edict_t* pPlayer = m_pPlayer.Get();
+	Vector vOrigin = RCBotUtils::entityOrigin(pPlayer);
+	RCBotNavigatorNode* pNearest = m_Nodes->Nearest(vOrigin, RCBOT_WAYPOINT_NEAR_DISTANCE);
+	
+	std::vector< RCBotNodeType*> nodeTypes;
+
+	m_Nodes->getNodeTypes()->getNodeTypes(&nodeTypes, pNearest->getFlags());
+
+	for (auto* pNodeTypes : nodeTypes)
+	{
+		RCBotUtils::Message(pPlayer, MessageErrorLevel::Information, (char*)pNodeTypes->getDescription());
+	}
 }
 
 bool RCBotNodeEditor::Create1()
@@ -394,6 +429,57 @@ bool RCBotNodeEditor::Remove2()
 	if (m_Remove1 != nullptr && node != nullptr)
 	{
 		return m_Remove1->RemovePathTo(node);
+	}
+
+	return false;
+}
+
+bool RCBotNavigatorNodes::LoadRCBot1Waypoints(const char* szFilename)
+{
+	RCBotFile* file = RCBotFile::Open(RCBOT_NAVIGATOR_NODES_RCBOT1_FOLDER, szFilename, RCBOT_NAVIGATOR_NODES_RCBOT1_EXTENSION, "rb",true);
+
+	if (file != nullptr)
+	{
+		RCBot1WaypointHeader header;
+
+		file->readBytes(&header, sizeof(RCBot1WaypointHeader));
+
+		if (RCBotStrings::stringMatch(header.filetype, "RCBot"))
+		{
+			int i;
+
+			if (header.number_of_waypoints < RCBOT_MAX_NAVIGATOR_NODES)
+			{
+				Clear();
+
+				for (i = 0; i < header.number_of_waypoints; i++)
+				{
+					RCBot1Waypoint waypoint;
+
+					file->readBytes(&waypoint, sizeof(RCBot1Waypoint));
+
+					RCBotNavigatorNode* pNode = Add(waypoint.origin);
+
+					pNode->setFlags(waypoint.flags);
+				}
+
+				// read and add waypoint paths...
+				for (i = 0; i < header.number_of_waypoints; i++)
+				{
+					uint16_t num = file->readUInt16();
+
+					while ( num -- > 0 )
+					{
+						uint16_t path_index = file->readUInt16();
+
+						if (path_index < RCBOT_MAX_NAVIGATOR_NODES)
+							m_Nodes[i].AddPathTo(&m_Nodes[path_index]);
+					}
+				}
+			}
+
+			return m_UsedNodes.size() > 0;
+		}
 	}
 
 	return false;

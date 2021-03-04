@@ -20,7 +20,7 @@ bool RCBotCommands_MainCommand::IsFakeClientCommand = false;
 int RCBotCommands_MainCommand::NumArgs = 0;
 edict_t *RCBotCommands_MainCommand::m_pClient = nullptr;
 
-RCBotCommands_MainCommand gRCBotCommands;
+RCBotCommands_MainCommand *gRCBotCommands;
 
 bool RCBotCommand::isCommand(const char* szCommand)
 {
@@ -207,9 +207,9 @@ RCBotCommandReturn RCBotCommands_MainCommand::ClientCommand()
 		{
 			// Do Stuff
 
-			if (gRCBotCommands.isCommand(pcmd))
+			if (gRCBotCommands->isCommand(pcmd))
 			{
-				ret = gRCBotCommands.execute(m_pClient, arg1, arg2, arg3, arg4, arg5);
+				ret = gRCBotCommands->execute(m_pClient, arg1, arg2, arg3, arg4, arg5);
 			}
 		}
 	}
@@ -297,18 +297,31 @@ RCBotCommands_WaypointCommand :: RCBotCommands_WaypointCommand() : RCBotCommands
 	addCommand(new RCBotCommand_WaypointOnCommand());
 	addCommand(new RCBotCommand_WaypointOffCommand());
 	addCommand(new RCBotCommand_WaypointLoadCommand());
+	addCommand(new RCBotCommand_WaypointLoadOldCommand());
 	addCommand(new RCBotCommand_WaypointSaveCommand());
 	addCommand(new RCBotCommand_WaypointAddCommand());
 	addCommand(new RCBotCommand_WaypointDeleteCommand());
+	addCommand(new RCBotCommand_WaypointInfoCommand());
 }
 
+RCBotCommandReturn RCBotCommand_WaypointInfoCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
+
+	if (pEditor != nullptr)
+	{
+		pEditor->showNearestNodeInfo();
+	}
+
+	return RCBotCommandReturn::Ok;
+}
 
 RCBotCommandReturn RCBotCommand_WaypointAddCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
 	RCBotNodeEditor *pEditor = gRCBotNavigatorNodes->getEditor(pClient);
 
 	if (pEditor != nullptr)
-		pEditor->AddNode();
+		gRCBotNavigatorNodes->playSound(pClient,pEditor->AddNode());
 
 	return RCBotCommandReturn::Ok;
 }
@@ -318,7 +331,7 @@ RCBotCommandReturn RCBotCommand_WaypointDeleteCommand::execute(edict_t* pClient,
 	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
 
 	if (pEditor != nullptr)
-		pEditor->RemoveNode();
+		gRCBotNavigatorNodes->playSound(pClient,pEditor->RemoveNode());
 
 	return RCBotCommandReturn::Ok;
 }
@@ -356,6 +369,16 @@ RCBotCommandReturn RCBotCommand_WaypointLoadCommand::execute(edict_t* pClient, c
 	return RCBotCommandReturn::Ok;
 }
 
+RCBotCommandReturn RCBotCommand_WaypointLoadOldCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
+{
+	if (*arg1 && arg1)
+		gRCBotNavigatorNodes->LoadRCBot1Waypoints(arg1);
+	else
+		gRCBotNavigatorNodes->LoadRCBot1Waypoints(STRING(gpGlobals->mapname));
+
+	return RCBotCommandReturn::Ok;
+}
+
 RCBotCommandReturn RCBotCommand_WaypointSaveCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
 	if (*arg1 && arg1)
@@ -384,7 +407,7 @@ RCBotCommandReturn RCBotCommand_PathWaypoint_Create1_Command::execute(edict_t* p
 	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
 
 	if (pEditor != nullptr)
-		pEditor->Create1();
+		gRCBotNavigatorNodes->playSound(pClient,pEditor->Create1());
 
 
 	return RCBotCommandReturn::Ok;
@@ -395,7 +418,7 @@ RCBotCommandReturn RCBotCommand_PathWaypoint_Create2_Command::execute(edict_t* p
 	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
 
 	if (pEditor != nullptr)
-		pEditor->Create2();
+		gRCBotNavigatorNodes->playSound(pClient,pEditor->Create2());
 
 
 	return RCBotCommandReturn::Ok;
@@ -407,7 +430,7 @@ RCBotCommandReturn RCBotCommand_PathWaypoint_Remove1_Command::execute(edict_t* p
 	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
 
 	if (pEditor != nullptr)
-		pEditor->Remove1();
+		gRCBotNavigatorNodes->playSound(pClient,pEditor->Remove1());
 
 
 	return RCBotCommandReturn::Ok;
@@ -418,7 +441,7 @@ RCBotCommandReturn RCBotCommand_PathWaypoint_Remove2_Command::execute(edict_t* p
 	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
 
 	if (pEditor != nullptr)
-		pEditor->Remove2();
+		gRCBotNavigatorNodes->playSound(pClient,pEditor->Remove2());
 
 
 	return RCBotCommandReturn::Ok;

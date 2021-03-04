@@ -22,6 +22,11 @@ public:
 		return m_szName;
 	}
 
+	const char* getFolder() const
+	{
+		return m_szGameFolder;
+	}
+
 private:
 	const char* m_szName;
 	const char* m_szGameFolder;

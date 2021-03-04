@@ -391,8 +391,9 @@ C_DLLEXPORT int Meta_Attach(PLUG_LOADTIME now, META_FUNCTIONS* pFunctionTable, m
 	// ask the engine to register the server commands this plugin uses
 	REG_SVR_COMMAND ("cheesys_command_1", TheFunctionToHandleCheesysCommand1);
 	REG_SVR_COMMAND ("cheesys_command_2", TheFunctionToHandleCheesysCommand2); */
+	gRCBotCommands = new RCBotCommands_MainCommand();
 
-	REG_SVR_COMMAND((char*)gRCBotCommands.getCommand(), Meta_ClientCommand);
+	REG_SVR_COMMAND((char*)gRCBotCommands->getCommand(), Meta_ClientCommand);
 
 	gRCBotModifications.GameInit();
 	RCBotProfiles::GameInit();

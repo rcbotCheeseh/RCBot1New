@@ -29,7 +29,7 @@ public:
         }
     }
 
-    int stringLength(const char* str)
+    static int stringLength(const char* str)
     {
         int ret = 0;
 
@@ -46,7 +46,7 @@ public:
 
     }
 
-    bool stringMatch(const char* a, const char* b)
+    static bool stringMatch(const char* a, const char* b)
     {
         while (*a && *b && *a == *b)
         {

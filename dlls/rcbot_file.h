@@ -8,13 +8,15 @@
 #define RCBOT_FILE_MAX_LINE_LENGTH 256
 #define RCBOT_FILE_MAX_FILENAME_LENGTH 512
 
+#define RCBOT_FILES_FOLDER "rcbot"
+
 class RCBotFile
 {
 public:
 
 	RCBotFile(FILE* _fp);
 	~RCBotFile();
-	static RCBotFile* Open(const char* szFolder, const char* szFilename, const char* szExtension, const char* mode);
+	static RCBotFile* Open(const char* szFolder, const char* szFilename, const char* szExtension, const char* mode, bool bUseModFolder = false);
 	void close();
 	void writeByte(uint8_t b);
 	void writeFloat(float f);
@@ -31,7 +33,7 @@ public:
 	char readChar();
 	const char* readString();
 	const char* readString(uint8_t len);
-	uint32_t readBytes(uint8_t* pBuffer, uint32_t len);
+	uint32_t readBytes(void* pBuffer, uint32_t len);
 	
 private:
 	FILE* fp;
