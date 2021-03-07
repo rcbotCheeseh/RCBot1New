@@ -63,6 +63,9 @@
     <ClCompile Include="rcbot_hldm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rcbot_task_utility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cdll_dll.h">
@@ -147,6 +150,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rcbot_colour.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rcbot_ehandle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

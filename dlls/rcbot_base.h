@@ -1,9 +1,14 @@
 #ifndef __RCBOT_BASE_H__
 #define __RCBOT_BASE_H__
 
-#include "rcbot_profile.h"
 #include "extdll.h"
-#include "rcbot_visibles.h"
+#include "rcbot_ehandle.h"
+#include <stdint.h>
+
+class RCBotProfile;
+class RCBotVisibles;
+class RCBotSchedule;
+class RCBotUtilities;
 
 #define RCBOT_DEFAULT_FOV 100
 
@@ -43,63 +48,6 @@ private:
 	T m_Value;
 	uint8_t m_iPriority;
 };
-
-// use EHandle for storing edicts in tasks
-// incase edict changes when the task eventually gets to work.
-class EHandle
-{
-private:
-	int m_iSerialNumber;
-	edict_t* m_pEdict;
-public:
-	EHandle()
-	{
-		m_iSerialNumber = 0;
-		m_pEdict = nullptr;
-	}
-
-	edict_t* Get()
-	{
-		try
-		{
-			if (m_pEdict)
-			{
-				if (m_iSerialNumber == m_pEdict->serialnumber)
-					return m_pEdict;
-			}
-		}
-
-		catch (...)
-		{
-		}
-
-		m_pEdict = nullptr;
-
-		return NULL;
-	}
-
-	void Set(edict_t* pEdict)
-	{
-		try
-		{
-			m_pEdict = pEdict;
-
-			if (pEdict != nullptr)
-			{
-				m_iSerialNumber = m_pEdict->serialnumber;
-			}
-			else
-				m_iSerialNumber = 0;
-		}
-
-		catch (...)
-		{
-			m_pEdict = nullptr;
-			m_iSerialNumber = 0;
-		}
-	}
-};
-
 
 class RCBotBase
 {
@@ -189,6 +137,8 @@ protected:
 private:
 	RCBotProfile* m_pProfile;
 	RCBotVisibles* m_pVisibles;
+	RCBotSchedule* m_pSchedule;
+	RCBotUtilities *m_Utils;
 
 	float m_fFovCos;
 

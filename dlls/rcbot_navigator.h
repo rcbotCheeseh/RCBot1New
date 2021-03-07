@@ -6,6 +6,9 @@
 #include "rcbot_base.h"
 #include "rcbot_file.h"
 #include "rcbot_colour.h"
+#include "rcbot_ehandle.h"
+
+#define RCBOT_NAVIGATOR_REACHABLE_RANGE 300.0f
 
 #define RCBOT_NAVIGATOR_DRAW_DISTANCE 512.0f
 #define RCBOT_MAX_NAVIGATOR_NODES 1024
@@ -104,6 +107,11 @@ public:
 	{
 		return m_szDescription;
 	}
+
+	virtual float extraCost() const
+	{
+		return 0;
+	}
 private:
 	const char* m_szName;
 	const char* m_szDescription;
@@ -165,6 +173,10 @@ public:
 		pBot->duck();
 	}
 
+	float extraCost() const
+	{
+		return 100;
+	}
 };
 
 
@@ -181,6 +193,22 @@ public:
 		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_HEALTH, "health", "bot will pick up health here", Colour(200, 200, 200), "item_health"));
 		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_ARMOR, "armour", "bot will pick up armour here", Colour(255, 100, 0), "item_battery"));
 		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_WEAPON, "weapon", "bot will pick up a weapon here", Colour(255, 0, 0), "item_weapon"));
+	}
+
+	float extraCost(RCBotBase* pBot, uint32_t iFlags)
+	{
+		float fExtraCost = 0;
+
+		if (iFlags)
+		{
+			for (auto* node : m_NodeTypes)
+			{
+				if (node->hasType(iFlags))
+					fExtraCost += node->extraCost();
+			}
+		}
+
+		return fExtraCost;
 	}
 
 	void Touched(RCBotBase* pBot, uint32_t iFlags)
@@ -286,6 +314,11 @@ public:
 		return m_iFlags;
 	}
 
+	float getRadius() const
+	{
+		return m_fRadius;
+	}
+
 	void Delete()
 	{
 		m_bIsUsed = false;
@@ -331,6 +364,19 @@ public:
 		}
 
 		return false; // path not found
+	}
+
+	uint16_t getNumPaths()
+	{
+		return (uint16_t)m_Paths.size();
+	}
+
+	RCBotNavigatorNode* getPath(uint16_t index)
+	{
+		if ( index < m_Paths.size() )
+			return m_Paths[index];
+
+		return nullptr;
 	}
 
 	/*void RemovePathTo(RCBotNavigatorNode* pNode)
@@ -433,6 +479,8 @@ public:
 
 	void Clear();
 
+	RCBotNavigatorNode* randomFlagged(uint32_t iFlags);
+
 	void playSound(edict_t *pClient,bool bGoodSound);
 
 	virtual RCBotNavigatorNode* Add(const Vector& vOrigin);
@@ -455,7 +503,7 @@ public:
 		return nullptr;
 	}
 
-	RCBotNavigatorNode* Nearest(const Vector& vOrigin, float fDistance);
+	RCBotNavigatorNode* Nearest(const Vector& vOrigin, float fDistance, bool bMustBeVisible);
 
 	void addEditor(edict_t* pClient)
 	{
@@ -494,7 +542,17 @@ public:
 
 	void gameFrame();
 
+	void generateFlaggedNodesList()
+	{
+		m_FlaggedNodes.clear();
 
+		// for use with quickly finding flagged nodes
+		for (auto* pNode : m_UsedNodes)
+		{
+			if (pNode->getFlags() > 0)
+				m_FlaggedNodes.push_back(pNode);
+		}
+	}
 
 protected:
 	RCBotNodeTypes* m_NodeTypes;
@@ -502,6 +560,7 @@ protected:
 	RCBotNavigatorNode m_Nodes[RCBOT_MAX_NAVIGATOR_NODES];
 	uint8_t m_iVersion;
 
+	std::vector<RCBotNavigatorNode*> m_FlaggedNodes;
 	std::vector<RCBotNavigatorNode*> m_UsedNodes;
 	std::vector<RCBotNodeEditor*> m_Editors;
 	float m_fDrawNodes;
@@ -534,5 +593,216 @@ public:
 
 
 extern RCBotNavigatorNodes *gRCBotNavigatorNodes;
+
+enum class RCBotNavigatorTaskState
+{
+	FindingPath,
+	PathNotFound,
+	PathFound,
+	FollowingPath,
+	Complete
+};
+
+enum class RCBotAStarNodeFlag
+{
+	Closed = 1,
+	Open = 2,
+	Heuristic_set = 4,
+	Parent = 8
+};
+
+class RCBotAStarNode
+{
+public:
+	RCBotAStarNode() { m_fCost = 0; m_fHeuristic = 0; m_iFlags = 0; m_pParent = nullptr;  m_pNode = nullptr; }
+	///////////////////////////////////////////////////////
+	void close() { setFlag(RCBotAStarNodeFlag::Closed); }
+	void unClose() { removeFlag(RCBotAStarNodeFlag::Closed); }
+	bool isOpen() { return hasFlag(RCBotAStarNodeFlag::Open); }
+	void unOpen() { removeFlag(RCBotAStarNodeFlag::Open); }
+	bool isClosed() { return hasFlag(RCBotAStarNodeFlag::Closed); }
+	void open() { setFlag(RCBotAStarNodeFlag::Open); }
+	//////////////////////////////////////////////////////	
+	void setHeuristic(float fHeuristic) { m_fHeuristic = fHeuristic; setFlag(RCBotAStarNodeFlag::Heuristic_set); }
+	bool heuristicSet() { return hasFlag(RCBotAStarNodeFlag::Heuristic_set); }
+	float getHeuristic() { return m_fHeuristic; }
+
+	////////////////////////////////////////////////////////
+	void setFlag(RCBotAStarNodeFlag iFlag) { m_iFlags |= (int)iFlag; }
+	bool hasFlag(RCBotAStarNodeFlag iFlag) { return ((m_iFlags & (int)iFlag) == (int)iFlag); }
+	void removeFlag(RCBotAStarNodeFlag iFlag) { m_iFlags &= ~(int)iFlag; }
+	/////////////////////////////////////////////////////////
+	RCBotNavigatorNode* getParent() { if (hasFlag(RCBotAStarNodeFlag::Parent)) return m_pParent; else return nullptr; }
+	void setParent(RCBotNavigatorNode *pParent)
+	{
+		m_pParent = pParent; 
+
+		if (m_pParent == nullptr)
+			removeFlag(RCBotAStarNodeFlag::Parent); // no parent
+		else
+			setFlag(RCBotAStarNodeFlag::Parent);
+	}
+	////////////////////////////////////////////////////////
+	float getCost() { return m_fCost; }
+	void setCost(float fCost) { m_fCost = fCost; }
+	////////////////////////////////////////////////////////
+	// for comparison
+	bool precedes(RCBotAStarNode *other) const
+	{
+		return (m_fCost + m_fHeuristic) < (other->getCost() + other->getHeuristic());
+	}
+	void setNode(RCBotNavigatorNode *pNode) { m_pNode = pNode; }
+	RCBotNavigatorNode *getNode() { return m_pNode; }
+private:
+	float m_fCost;
+	float m_fHeuristic;
+	int  m_iFlags;
+	RCBotNavigatorNode* m_pParent;
+	RCBotNavigatorNode* m_pNode;
+};
+
+// Insertion sorted list
+class RCBotNavigatorAStarListNode
+{
+public:
+	RCBotNavigatorAStarListNode(RCBotAStarNode *data)
+	{
+		m_Data = data;
+		m_Next = nullptr;
+	}
+	~RCBotNavigatorAStarListNode()
+	{
+		// don't need to delete
+		//delete m_Data;
+	}
+	RCBotAStarNode *m_Data;
+	RCBotNavigatorAStarListNode *m_Next;
+};
+
+class RCBotNavigatorAStarOpenList
+{
+public:
+	RCBotNavigatorAStarOpenList()
+	{
+		m_Head = nullptr;
+	}
+
+
+	~RCBotNavigatorAStarOpenList()
+	{
+		RCBotNavigatorAStarListNode *t;
+
+		while (m_Head != nullptr)
+		{
+			t = m_Head;
+
+			m_Head = m_Head->m_Next;
+
+			delete t;
+
+			t = nullptr;
+		}
+	}
+
+	bool empty()
+	{
+		return (m_Head == nullptr);
+	}
+
+	RCBotAStarNode *top()
+	{
+		if (m_Head != nullptr )
+			return m_Head->m_Data;
+
+		return nullptr;
+	}
+
+	void pop()
+	{
+		if (m_Head != nullptr)
+		{
+			RCBotNavigatorAStarListNode *t = m_Head;
+
+			m_Head = m_Head->m_Next;
+
+			delete t;
+		}
+	}
+
+	void add(RCBotAStarNode *data)
+	{
+		RCBotNavigatorAStarListNode* newNode = new RCBotNavigatorAStarListNode(data);
+		RCBotNavigatorAStarListNode* t;
+		RCBotNavigatorAStarListNode* p;
+
+		if (m_Head == nullptr)
+			m_Head = newNode;
+		else
+		{
+			if (data->precedes(m_Head->m_Data))
+			{
+				newNode->m_Next = m_Head;
+				m_Head = newNode;
+			}
+			else
+			{
+				p = m_Head;
+				t = m_Head->m_Next;
+
+				while (t != nullptr)
+				{
+					if (data->precedes(t->m_Data))
+					{
+						p->m_Next = newNode;
+						newNode->m_Next = t;
+						break;
+					}
+
+					p = t;
+					t = t->m_Next;
+				}
+
+				if (t != nullptr)
+					p->m_Next = newNode;
+
+			}
+		}
+	}
+
+
+private:
+	RCBotNavigatorAStarListNode *m_Head;
+};
+
+class RCBotNavigator
+{
+public:
+
+	RCBotNavigator(RCBotNavigatorNode* pFrom, RCBotNavigatorNode* pTo, Vector& vGoal, RCBotBase *pBot);
+
+	RCBotNavigatorTaskState findPath();
+
+	// returns null if no nearby or goal waypoints found
+	static RCBotNavigator* createPath(RCBotBase* pBot, Vector& vTo);
+	// returns null if no nearby waypoint found
+	static RCBotNavigator* createPath(RCBotBase* pBot, RCBotNavigatorNode *pGoal, Vector &vTo);
+
+	void RCBotNavigator::open(RCBotAStarNode* pNode);
+
+	// AStar Algorithm : get the waypoint with lowest cost
+	RCBotAStarNode* RCBotNavigator::nextNode();
+
+private:
+	RCBotNavigatorTaskState m_State;
+	Vector m_vGoal;
+	RCBotNavigatorNode* m_pStart;
+	RCBotNavigatorNode* m_pGoal;
+	RCBotNavigatorAStarOpenList m_OpenList;
+	uint16_t m_iNavRevs;
+	RCBotAStarNode m_Nodes[RCBOT_MAX_NAVIGATOR_NODES];
+	std::vector<RCBotNavigatorNode*> m_Route;
+	uint16_t m_CurrentRouteIndex;
+	RCBotBase* m_pBot;
+};
 
 #endif 

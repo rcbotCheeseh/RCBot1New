@@ -3,11 +3,16 @@
 #include "h_export_meta.h"
 #include "meta_api.h"
 #include "rcbot_utils.h"
+#include "rcbot_task_utility.h"
+#include "rcbot_profile.h"
+#include "rcbot_visibles.h"
+
 #include <math.h>
 
 RCBotBase ::RCBotBase()
 {
 	m_pVisibles = new RCBotVisibles(this);
+	m_Utils = new RCBotUtilities();
 	setFOV(RCBOT_DEFAULT_FOV);
 
 	Init();
@@ -73,6 +78,26 @@ void RCBotBase::Think()
 	}
 
 	m_pVisibles->tasks(m_pProfile->getVisRevs());
+
+	if (m_pSchedule != nullptr)
+	{
+		switch (m_pSchedule->Execute(this))
+		{
+		case RCBotTaskState::RCBotTaskState_Complete:
+		case RCBotTaskState::RCBotTaskState_Fail:
+			m_pSchedule = nullptr;
+			break;
+		}
+	}
+	else
+	{
+		RCBotUtility *pUtil = m_Utils->getBestUtility(this);
+
+		if (pUtil != nullptr)
+		{
+			m_pSchedule = pUtil->execute(this);
+		}
+	}
 }
 
 #define BOT_MOVE_TO_MIN_DISTANCE 16.0f
@@ -144,8 +169,11 @@ void RCBotBase::RunPlayerMove()
 			Vector vMove = RCBotUtils::VectorToAngles(vComponent);
 			vMove = vMove.Normalize();
 
-			fForwardSpeed = vMove.x * m_fSpeedPercent * BOT_MOVE_TO_MAX_SPEED;
-			fSideSpeed = vMove.y * m_fSpeedPercent * BOT_MOVE_TO_MAX_SPEED;
+			float fAngle = RCBotUtils::yawAngle(m_pEdict, vMoveTo);
+
+			float radians = fAngle * 3.141592f / 180.f; // degrees to radians
+			fForwardSpeed = cos(radians) * BOT_MOVE_TO_MAX_SPEED;
+			fSideSpeed = sin(radians) * BOT_MOVE_TO_MAX_SPEED;
 
 			fUpSpeed = 0;
 		}

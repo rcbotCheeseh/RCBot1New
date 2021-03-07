@@ -10,6 +10,7 @@
 #include "rcbot_utils.h"
 #include "rcbot_manager.h"
 #include "rcbot_navigator.h"
+#include "rcbot_profile.h"
 #include <stdint.h>
 
 #define RCBOT_ACCESSORS_FILE "rcbot_accesslevels"

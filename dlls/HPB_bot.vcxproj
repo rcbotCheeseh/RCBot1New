@@ -246,6 +246,7 @@
     <ClCompile Include="rcbot_profile.cpp" />
     <ClCompile Include="rcbot_specialists.cpp" />
     <ClCompile Include="rcbot_strings.cpp" />
+    <ClCompile Include="rcbot_task_utility.cpp" />
     <ClCompile Include="rcbot_util.cpp" />
     <ClCompile Include="rcbot_visibles.cpp" />
   </ItemGroup>
@@ -261,6 +262,7 @@
     <ClInclude Include="rcbot_colour.h" />
     <ClInclude Include="rcbot_commands.h" />
     <ClInclude Include="rcbot_const.h" />
+    <ClInclude Include="rcbot_ehandle.h" />
     <ClInclude Include="rcbot_engine_funcs.h" />
     <ClInclude Include="rcbot_file.h" />
     <ClInclude Include="rcbot_hldm.h" />

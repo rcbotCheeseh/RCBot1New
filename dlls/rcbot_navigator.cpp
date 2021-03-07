@@ -41,6 +41,24 @@ float RCBotNavigatorNode::distanceFrom(const Vector& vOrigin)
 	return (m_vOrigin - vOrigin).Length();
 }
 
+RCBotNavigatorNode* RCBotNavigatorNodes::randomFlagged(uint32_t iFlags)
+{
+	std::vector<RCBotNavigatorNode*> pNodes;
+
+	for (auto* pNode : m_FlaggedNodes)
+	{
+		if (iFlags == 0 || ((pNode->getFlags() & iFlags) == iFlags) )
+			pNodes.push_back(pNode);
+	}
+
+	if (pNodes.size() > 0)
+	{
+		return pNodes[RANDOM_LONG(0, pNodes.size()-1)];
+	}
+
+	return nullptr;
+}
+
 void RCBotNavigatorNodes::RemovePathsTo(RCBotNavigatorNode* pNode)
 {
 	for (auto* pUsedNode : m_UsedNodes)
@@ -144,7 +162,7 @@ RCBotNavigatorNode * RCBotNavigatorNodes::Add(const Vector& vOrigin)
 	return node;
 }
 
-RCBotNavigatorNode* RCBotNavigatorNodes::Nearest(const Vector& vOrigin,float fDistance)
+RCBotNavigatorNode* RCBotNavigatorNodes::Nearest(const Vector& vOrigin,float fDistance,bool bMustBeVisible = false)
 {
 	RCBotNavigatorNode* pRet = nullptr;
 
@@ -154,6 +172,12 @@ RCBotNavigatorNode* RCBotNavigatorNodes::Nearest(const Vector& vOrigin,float fDi
 
 		if (fNodeDistance < fDistance)
 		{
+			if (bMustBeVisible)
+			{
+				if (RCBotUtils::Traceline(vOrigin, node->getOrigin(), ignore_monsters, ignore_glass, nullptr)->flFraction < 1.0f)
+					continue; // not visible
+			}
+
 			fDistance = fNodeDistance;
 			pRet = node;
 		}
@@ -294,6 +318,8 @@ bool RCBotNavigatorNodes::Load(const char* szFilename)
 				m_UsedNodes.push_back(pNode);
 
 			}
+
+			generateFlaggedNodesList();
 
 			return m_UsedNodes.size() > 0;
 		}
@@ -478,9 +504,239 @@ bool RCBotNavigatorNodes::LoadRCBot1Waypoints(const char* szFilename)
 				}
 			}
 
+			generateFlaggedNodesList();
+
 			return m_UsedNodes.size() > 0;
 		}
 	}
 
 	return false;
+}
+
+RCBotNavigator::RCBotNavigator(RCBotNavigatorNode *pFrom, RCBotNavigatorNode *pTo, Vector &vGoal, RCBotBase *pBot)
+{
+	m_pBot = pBot;
+	m_State = RCBotNavigatorTaskState::FindingPath;
+	m_vGoal = vGoal;
+	m_pStart = pFrom;
+	m_pGoal = pTo;
+	m_CurrentRouteIndex = 0;
+
+	//m_iNavRevs = pBot->getNavRevs();
+	m_iNavRevs = 100;
+
+	m_Nodes[pFrom->getIndex()].setNode(pFrom);
+
+	m_OpenList.add(&m_Nodes[pFrom->getIndex()]);
+}
+
+void RCBotNavigator::open(RCBotAStarNode* pNode)
+{
+	if (pNode->isOpen() == false)
+	{
+		pNode->open();
+		//m_theOpenList.push_back(pNode);
+		m_OpenList.add(pNode);
+	}
+}
+
+// AStar Algorithm : get the waypoint with lowest cost
+RCBotAStarNode * RCBotNavigator::nextNode()
+{
+	RCBotAStarNode* pNode = nullptr;
+
+	pNode = m_OpenList.top();
+	m_OpenList.pop();
+
+	return pNode;
+}
+
+RCBotNavigatorTaskState RCBotNavigator::findPath()
+{
+	uint16_t iNavRevs = m_iNavRevs;
+	RCBotAStarNode* pCurr;
+	RCBotNavigatorNode* pCurrNode;
+	switch (m_State)
+	{
+	case RCBotNavigatorTaskState::FindingPath:
+		while (iNavRevs-- > 0 && m_State == RCBotNavigatorTaskState::FindingPath)
+		{
+			if (m_OpenList.empty())
+			{
+				// failed to find goal
+				m_State = RCBotNavigatorTaskState::PathNotFound;
+				return m_State;
+			}
+
+			pCurr = nextNode();
+
+			if (pCurr == nullptr)
+			{
+				// error
+				m_State = RCBotNavigatorTaskState::PathNotFound;
+				return m_State;
+			}
+
+			pCurrNode = pCurr->getNode();
+
+			if (pCurrNode == m_pGoal)
+			{
+				m_State = RCBotNavigatorTaskState::PathFound;
+				return m_State;
+			}
+
+			for (uint16_t i = 0; i < pCurrNode->getNumPaths(); i++)
+			{
+				float fCost;
+				RCBotNavigatorNode* pSuccNode = pCurrNode->getPath(i);
+				RCBotAStarNode* pSucc;
+
+				if (pSuccNode == nullptr || pSuccNode == pCurrNode)
+				{
+					// error
+					m_State = RCBotNavigatorTaskState::PathNotFound;
+					return m_State;
+				}
+
+				pSucc = &m_Nodes[pSuccNode->getIndex()];
+
+				/*if (!m_pBot->canUseNode(pSuccNode))
+				{
+					continue;
+				}*/
+				fCost = pCurr->getCost();
+
+				if (pSucc->isOpen() || pSucc->isClosed())
+				{
+					if (pSucc->getParent() != nullptr)
+					{
+						if (fCost >= pSucc->getCost())
+							continue; // ignore route for now
+					}
+					else
+						continue;
+				}
+
+				pSucc->unClose();
+
+				pSucc->setParent(pCurrNode);
+
+				//BotMessage("Succ " + iSucc + " parent = " + iCurrentNode);
+				pSucc->setCost(fCost);
+				pSucc->setNode(pSuccNode);
+
+				if (pSucc->heuristicSet() == false)
+				{
+					float h;
+
+					h = pSuccNode->distanceFrom(m_pStart->getOrigin());
+					h += pSuccNode->distanceFrom(m_pGoal->getOrigin());
+					h += gRCBotNavigatorNodes->getNodeTypes()->extraCost(m_pBot,pSuccNode->getFlags());
+					pSucc->setHeuristic(h);
+				}
+
+				// Fix: do this AFTER setting heuristic and cost!!!!
+				if (pSucc->isOpen() == false)
+				{
+					open(pSucc);
+				}
+
+			}
+
+			pCurr->close();
+		}
+		break;
+	case RCBotNavigatorTaskState::PathFound:
+	{
+		RCBotAStarNode* pNode = &m_Nodes[m_pGoal->getIndex()];
+
+		while (pNode != nullptr)
+		{
+			RCBotNavigatorNode* pParent;
+
+			m_Route.push_back(pNode->getNode());
+
+			pParent = pNode->getParent();
+			pNode = nullptr;
+
+			if (pParent != nullptr)
+			{
+				pNode = &m_Nodes[pParent->getIndex()];
+			}
+		}
+		
+		std::reverse(m_Route.begin(), m_Route.end());
+
+		m_State = RCBotNavigatorTaskState::FollowingPath;
+	}
+	break;
+	case RCBotNavigatorTaskState::FollowingPath:
+		// Follow the path
+	{
+		RCBotBase* pBot = m_pBot;
+
+		if (m_CurrentRouteIndex < m_Route.size())
+		{
+			RCBotNavigatorNode* node = m_Route[m_CurrentRouteIndex];
+
+			gRCBotNavigatorNodes->getNodeTypes()->MovingTowards(pBot, node->getFlags());
+
+			pBot->setMoveTo(node->getOrigin(),2);
+			pBot->setLookAt(node->getOrigin(), 2);
+
+			if (pBot->distanceFrom(node->getOrigin()) < node->getRadius())
+			{
+				gRCBotNavigatorNodes->getNodeTypes()->Touched(pBot, node->getFlags());
+
+				m_CurrentRouteIndex++;
+			}
+			else
+			{
+				TraceResult* tr = RCBotUtils::Traceline(pBot->getViewOrigin(), node->getOrigin(), ignore_monsters, ignore_glass, pBot->getEdict());
+
+				if (tr->flFraction < 1.0f) // waypoint not visible
+				{
+					m_State = RCBotNavigatorTaskState::PathNotFound;
+					return m_State;
+				}
+
+			}
+		}
+		else
+		{
+			// complete
+			m_State = RCBotNavigatorTaskState::Complete;
+		}
+	}
+		break;
+	default:
+		break;
+	}
+
+
+	return m_State;
+}
+
+// returns null if no nearby waypoint found
+RCBotNavigator* RCBotNavigator::createPath(RCBotBase* pBot, RCBotNavigatorNode* pGoal, Vector& vTo)
+{
+	RCBotNavigatorNode* pStart = gRCBotNavigatorNodes->Nearest(pBot->getViewOrigin(), RCBOT_NAVIGATOR_REACHABLE_RANGE, true);
+
+	if (pStart == nullptr)
+		return nullptr;
+
+	return new RCBotNavigator(pStart, pGoal, vTo, pBot);
+}
+
+
+// returns null if no nearby or goal waypoints found
+RCBotNavigator* RCBotNavigator::createPath(RCBotBase* pBot, Vector& vTo)
+{
+	RCBotNavigatorNode* pGoal = gRCBotNavigatorNodes->Nearest(vTo, RCBOT_NAVIGATOR_REACHABLE_RANGE, true);
+
+	if (pGoal == nullptr)
+		return nullptr;
+
+	return RCBotNavigator::createPath(pBot, pGoal, vTo);
+
 }

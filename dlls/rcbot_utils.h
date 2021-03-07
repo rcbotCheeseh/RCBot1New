@@ -50,6 +50,7 @@ public:
 	static void drawBeam(edict_t* pClient, const Vector& vFrom, const Vector& vTo, const Colour& vColour, int iTexture);
 	static void mapInit();
 
+	static float yawAngle(edict_t* pEdict, Vector & vOrigin);
 };
 
 #endif 

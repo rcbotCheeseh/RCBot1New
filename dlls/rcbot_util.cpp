@@ -6,6 +6,24 @@
 #include "rcbot_colour.h"
 #include <string.h>
 
+float RCBotUtils::yawAngle(edict_t* pEdict, Vector& vOrigin)
+{
+	float fAngle;
+	Vector vBotAngles = pEdict->v.v_angle;
+	Vector vAngles;
+
+	MakeVectors(vBotAngles);
+
+	vAngles = vOrigin - pEdict->v.origin;
+	vAngles = VectorToAngles(vAngles);
+
+	fAngle = vBotAngles.y - vAngles.y;
+
+	FixAngle(&fAngle);
+
+	return fAngle;
+}
+
 TraceResult *RCBotUtils::Traceline (const Vector& vecStart, const Vector& vecEnd, IGNORE_MONSTERS igmon, IGNORE_GLASS ignoreGlass, edict_t* pentIgnore)
 {
 	static TraceResult ptr;

@@ -2,6 +2,9 @@
 #define __RCBOT_TASK_UTILITY_H__
 
 #include "rcbot_base.h"
+#include "rcbot_navigator.h"
+
+class RCBotSchedule;
 
 enum class RCBotTaskState
 {
@@ -20,18 +23,50 @@ public:
 class RCBotUtility
 {
 public:
+
+	RCBotUtility(const char* szDebugName);
+
 	virtual float getUtility(RCBotBase* pBot) = 0;
 
 	virtual bool canDo(RCBotBase* pBot) = 0;
 
-	virtual void execute(RCBotBase* pBot) = 0;
-private:
+	virtual RCBotSchedule *execute(RCBotBase* pBot) = 0;
 
+private:
+	float m_fUtility;
+	float m_fNextDo;
+	const char* m_szDebugName;
+};
+
+class RCBotUtility_Roam : public RCBotUtility
+{
+public:
+	RCBotUtility_Roam() : RCBotUtility("Roam")
+	{
+
+	}
+
+	float getUtility(RCBotBase* pBot)
+	{
+		return 0.001;
+	}
+
+	bool canDo(RCBotBase* pBot)
+	{
+		return true;
+	}
+
+	RCBotSchedule* execute(RCBotBase* pBot);
 };
 
 class RCBotUtilities
 {
 public:
+	RCBotUtilities()
+	{
+		addUtility(new RCBotUtility_Roam());
+	}
+
 	void addUtility(RCBotUtility* pUtil)
 	{
 		m_Utilities.push_back(pUtil);
@@ -66,10 +101,7 @@ class RCBotTask
 {
 public:
 
-	RCBotTask(RCBotTaskInterrupt* interrupt = nullptr)
-	{
-		m_pInterrupt = interrupt;
-	}
+	RCBotTask(const char* m_szDebugName, RCBotTaskInterrupt* interrupt = nullptr);
 
 	~RCBotTask()
 	{
@@ -78,8 +110,6 @@ public:
 	}
 
 	virtual RCBotTaskState Execute(RCBotBase* pBot) = 0;
-
-public:
 
 	RCBotTaskState ExecuteTask(RCBotBase* pBot)
 	{
@@ -97,9 +127,25 @@ public:
 private:
 
 	RCBotTaskInterrupt* m_pInterrupt;
+	const char *m_szDebugName;
 };
 
-class RCBotSchedule : RCBotTask
+class RCBotFindPathTask : public RCBotTask
+{
+public:
+	~RCBotFindPathTask()
+	{
+		delete m_pNav;
+	}
+
+	RCBotFindPathTask(RCBotNavigator* pNav, RCBotTaskInterrupt *interrupt = nullptr);
+
+	RCBotTaskState Execute(RCBotBase* pBot);
+private:
+	RCBotNavigator* m_pNav;
+};
+
+class RCBotSchedule
 {
 public:
 
@@ -145,6 +191,8 @@ private:
 	unsigned int m_iTaskIndex;
 	std::vector<RCBotTask*> m_Tasks;
 };
+
+
 
 
 

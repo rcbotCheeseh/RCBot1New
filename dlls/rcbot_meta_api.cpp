@@ -55,6 +55,7 @@
 #include "rcbot_commands.h"
 #include "rcbot_mod.h"
 #include "rcbot_navigator.h"
+#include "rcbot_profile.h"
 
 meta_globals_t* gpMetaGlobals;      // metamod globals
 
@@ -382,15 +383,6 @@ C_DLLEXPORT int Meta_Attach(PLUG_LOADTIME now, META_FUNCTIONS* pFunctionTable, m
 
 	CVAR_REGISTER(&bot_ver_cvar);
 
-
-	// ask the engine to register the CVARs this plugin uses
-	/*CVAR_REGISTER (&cheesys_cvar_1);
-	CVAR_REGISTER (&cheesys_cvar_2);
-	CVAR_REGISTER (&and_so_on);
-
-	// ask the engine to register the server commands this plugin uses
-	REG_SVR_COMMAND ("cheesys_command_1", TheFunctionToHandleCheesysCommand1);
-	REG_SVR_COMMAND ("cheesys_command_2", TheFunctionToHandleCheesysCommand2); */
 	gRCBotCommands = new RCBotCommands_MainCommand();
 
 	REG_SVR_COMMAND((char*)gRCBotCommands->getCommand(), Meta_ClientCommand);
