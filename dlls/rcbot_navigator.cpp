@@ -648,9 +648,10 @@ RCBotNavigatorTaskState RCBotNavigator::findPath()
 		break;
 	case RCBotNavigatorTaskState::PathFound:
 	{
+		int iMaxLoops = gRCBotNavigatorNodes->getNumWaypoints();
 		RCBotAStarNode* pNode = &m_Nodes[m_pGoal->getIndex()];
 
-		while (pNode != nullptr)
+		while (iMaxLoops>0 && pNode != nullptr)
 		{
 			RCBotNavigatorNode* pParent;
 
@@ -663,6 +664,13 @@ RCBotNavigatorTaskState RCBotNavigator::findPath()
 			{
 				pNode = &m_Nodes[pParent->getIndex()];
 			}
+			iMaxLoops--;
+		}
+
+		if (iMaxLoops == 0) // some error occurred
+		{
+			m_State = RCBotNavigatorTaskState::PathNotFound;
+			return m_State;
 		}
 		
 		std::reverse(m_Route.begin(), m_Route.end());

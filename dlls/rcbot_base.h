@@ -120,6 +120,11 @@ public:
 		m_pEdict->v.button |= IN_ATTACK;
 	}
 
+	float getActualSpeed()
+	{
+		return m_pEdict->v.velocity.Length();
+	}
+
 	bool isAlive();
 
 	virtual void respawn();

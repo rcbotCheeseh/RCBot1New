@@ -177,6 +177,15 @@ void RCBotBase::RunPlayerMove()
 
 			fUpSpeed = 0;
 		}
+
+		if (getActualSpeed() < 1)
+		{
+			if (RANDOM_LONG(0, 100) > 50)
+				jump();
+		}
+
+		if (m_pEdict->v.movetype == MOVETYPE_FLY)
+			m_pEdict->v.button |= IN_FORWARD;
 	}
 
 	m_fLastRunPlayerMove = gpGlobals->time;

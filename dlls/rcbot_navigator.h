@@ -481,6 +481,11 @@ public:
 
 	RCBotNavigatorNode* randomFlagged(uint32_t iFlags);
 
+	uint16_t getNumWaypoints()
+	{
+		return m_UsedNodes.size();
+	}
+
 	void playSound(edict_t *pClient,bool bGoodSound);
 
 	virtual RCBotNavigatorNode* Add(const Vector& vOrigin);

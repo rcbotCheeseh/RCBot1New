@@ -5,7 +5,12 @@
 #include "rcbot_message.h"
 #include "rcbot_colour.h"
 #include <string.h>
-
+/// <summary>
+/// Gets the yaw angle between the edict and its view angle and an origin
+/// </summary>
+/// <param name="pEdict"></param>
+/// <param name="vOrigin"></param>
+/// <returns>yaw angle</returns>
 float RCBotUtils::yawAngle(edict_t* pEdict, Vector& vOrigin)
 {
 	float fAngle;
@@ -23,7 +28,15 @@ float RCBotUtils::yawAngle(edict_t* pEdict, Vector& vOrigin)
 
 	return fAngle;
 }
-
+/// <summary>
+/// Performs a traceline 
+/// </summary>
+/// <param name="vecStart"></param>
+/// <param name="vecEnd"></param>
+/// <param name="igmon"></param>
+/// <param name="ignoreGlass"></param>
+/// <param name="pentIgnore"></param>
+/// <returns></returns>
 TraceResult *RCBotUtils::Traceline (const Vector& vecStart, const Vector& vecEnd, IGNORE_MONSTERS igmon, IGNORE_GLASS ignoreGlass, edict_t* pentIgnore)
 {
 	static TraceResult ptr;
@@ -32,12 +45,20 @@ TraceResult *RCBotUtils::Traceline (const Vector& vecStart, const Vector& vecEnd
 
 	return &ptr;
 }
-
+/// <summary>
+/// returns classname of edict
+/// </summary>
+/// <param name="pEdict"></param>
+/// <returns>classname of edict</returns>
 const char* RCBotUtils::GetClassname(edict_t* pEdict)
 {
 	return STRING(pEdict->v.classname);
 }
-
+/// <summary>
+/// converts a vector to angles
+/// </summary>
+/// <param name="vec"></param>
+/// <returns></returns>
 Vector RCBotUtils::VectorToAngles(Vector& vec)
 {
 	Vector vOut;
@@ -46,12 +67,22 @@ Vector RCBotUtils::VectorToAngles(Vector& vec)
 
 	return vOut;
 }
-
+/// <summary>
+/// Converts angles to vectors
+/// </summary>
+/// <param name="vec"></param>
 void RCBotUtils::MakeVectors(Vector &vec)
 {
 	MAKE_VECTORS(vec);
 }
-
+/// <summary>
+/// displays a message to pEntity in Console
+/// if pEntity is nullptr, displays on server
+/// </summary>
+/// <param name="pEntity">client to show (may be nullptr)</param>
+/// <param name="errorlevel"></param>
+/// <param name="fmt"></param>
+/// <param name="">formatting objects</param>
 void RCBotUtils:: Message(edict_t* pEntity, MessageErrorLevel errorlevel, char* fmt, ...)
 {
 	va_list argptr;
@@ -118,7 +149,7 @@ void RCBotUtils::mapInit()
 	
 }
 /// <summary>
-/// Once a second lifetime
+/// draws a beam for one second 
 /// </summary>
 /// <param name="pClient"></param>
 /// <param name="vFrom"></param>
@@ -126,9 +157,9 @@ void RCBotUtils::mapInit()
 /// <param name="vColour"></param>
 void RCBotUtils::drawBeam(edict_t* pClient, const Vector& vFrom, const Vector& vTo, const Colour& vColour, int iTexture)
 {
-	const uint8_t beamWidth = 16;
-	const uint8_t beamNoise = 16;
-	const uint8_t beamSpeed = 16;
+	const uint8_t beamWidth = 32;
+	const uint8_t beamNoise = 8;
+	const uint8_t beamSpeed = 8;
 
 	// PM - Use MSG_ONE_UNRELIABLE
 //    - no overflows!
@@ -155,53 +186,58 @@ void RCBotUtils::drawBeam(edict_t* pClient, const Vector& vFrom, const Vector& v
 	WRITE_BYTE(beamSpeed);    // speed
 	MESSAGE_END();
 }
-
+/// <summary>
+/// finds a player with the name
+/// </summary>
+/// <param name="szName">name of play to find</param>
+/// <returns></returns>
 edict_t* RCBotUtils::findPlayer(const char* szName)
 {
 	edict_t* pent = NULL;
-
+	const int length = strlen(szName);
 	int i;
 
 	for (i = 1; i <= gpGlobals->maxClients; i++)
 	{
+
+		char arg_lwr[128];
+		char pent_lwr[128];
+
 		pent = INDEXENT(i);
 
-		if (pent != NULL)
+		if (FNullEnt(pent))
+			continue;
+
+		strncpy(arg_lwr, szName,127);
+		arg_lwr[127] = 0;
+		strncpy(pent_lwr, STRING(pent->v.netname),127);
+		pent_lwr[127] = 0;
+
+		_strlwr(arg_lwr);
+		_strlwr(pent_lwr);
+
+		if (strncmp(arg_lwr, pent_lwr, length) == 0)
 		{
-			if (!pent->free)
-			{
-				const int length = strlen(szName);
-
-				char arg_lwr[128];
-				char pent_lwr[128];
-
-				strncpy(arg_lwr, szName,127);
-				arg_lwr[127] = 0;
-				strncpy(pent_lwr, STRING(pent->v.netname),127);
-				pent_lwr[127] = 0;
-
-				_strlwr(arg_lwr);
-				_strlwr(pent_lwr);
-
-				if (strncmp(arg_lwr, pent_lwr, length) == 0)
-				{
-					return pent;
-				}
-			}
+			return pent;
 		}
 	}
 
 	return nullptr;
-	
 }
-
+/// <summary>
+/// wraps angles between -180 and 180
+/// </summary>
+/// <param name="vAngles"></param>
 void RCBotUtils::FixAngles(Vector *vAngles)
 {
 	FixAngle(&vAngles->x);
 	FixAngle(&vAngles->y);
 	FixAngle(&vAngles->z);
 }
-
+/// <summary>
+/// fix single angle between -180 and +180
+/// </summary>
+/// <param name="fAngle"></param>
 void RCBotUtils::FixAngle(float* fAngle)
 {
 	if (*fAngle < -180)
@@ -213,7 +249,13 @@ void RCBotUtils::FixAngle(float* fAngle)
 		*fAngle -= 360.0;
 	}
 }
-
+/// <summary>
+/// 
+/// </summary>
+/// <param name="fSpeed"></param>
+/// <param name="fIdeal"></param>
+/// <param name="fCurrent"></param>
+/// <param name="fUpdate"></param>
 void RCBotUtils::ChangeAngle(float* fSpeed, const float* fIdeal, float* fCurrent, float* fUpdate)
 {
 	float fCurrent180;  // current +/- 180 degrees
