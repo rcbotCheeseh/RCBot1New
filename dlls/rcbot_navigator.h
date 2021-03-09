@@ -792,10 +792,10 @@ public:
 	// returns null if no nearby waypoint found
 	static RCBotNavigator* createPath(RCBotBase* pBot, RCBotNavigatorNode *pGoal, Vector &vTo);
 
-	void RCBotNavigator::open(RCBotAStarNode* pNode);
+	void open(RCBotAStarNode* pNode);
 
 	// AStar Algorithm : get the waypoint with lowest cost
-	RCBotAStarNode* RCBotNavigator::nextNode();
+	RCBotAStarNode* nextNode();
 
 private:
 	RCBotNavigatorTaskState m_State;
