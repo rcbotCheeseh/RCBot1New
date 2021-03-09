@@ -483,7 +483,7 @@ public:
 
 	uint16_t getNumWaypoints()
 	{
-		return m_UsedNodes.size();
+		return (uint16_t)m_UsedNodes.size();
 	}
 
 	void playSound(edict_t *pClient,bool bGoodSound);

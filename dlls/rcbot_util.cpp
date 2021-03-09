@@ -4,6 +4,7 @@
 #include "extdll.h"
 #include "rcbot_message.h"
 #include "rcbot_colour.h"
+#include "rcbot_strings.h"
 #include <string.h>
 /// <summary>
 /// Gets the yaw angle between the edict and its view angle and an origin
@@ -213,8 +214,8 @@ edict_t* RCBotUtils::findPlayer(const char* szName)
 		strncpy(pent_lwr, STRING(pent->v.netname),127);
 		pent_lwr[127] = 0;
 
-		_strlwr(arg_lwr);
-		_strlwr(pent_lwr);
+		RCBotStrings::stringLower(arg_lwr);
+		RCBotStrings::stringLower(pent_lwr);
 
 		if (strncmp(arg_lwr, pent_lwr, length) == 0)
 		{

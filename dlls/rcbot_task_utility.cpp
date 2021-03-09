@@ -45,7 +45,8 @@ RCBotSchedule* RCBotUtility_Roam::execute(RCBotBase* pBot)
 
 	if (pNode != nullptr)
 	{
-		RCBotNavigator *pNav = RCBotNavigator::createPath(pBot, pNode, pNode->getOrigin());
+		Vector vOrigin = pNode->getOrigin();
+		RCBotNavigator *pNav = RCBotNavigator::createPath(pBot, pNode, vOrigin);
 
 		if (pNav != nullptr)
 		{

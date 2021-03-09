@@ -46,6 +46,10 @@ public:
 
     }
 
+    static void stringLower(char* str);
+
+    static char charLower(char ch);
+
     static bool stringMatch(const char* a, const char* b)
     {
         while (*a && *b && *a == *b)
