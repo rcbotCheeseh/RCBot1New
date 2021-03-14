@@ -8,7 +8,7 @@
 const Colour RCBotNavigatorNode::defaultNodeColour = Colour(0, 0, 255);
 const Colour RCBotNavigatorNode::defaultPathColour = Colour(255, 255, 255);
 
-RCBotNavigatorNodes* gRCBotNavigatorNodes;
+RCBotNavigatorNodes* gRCBotNavigatorNodes = nullptr;
 
 RCBotNodeType :: RCBotNodeType (RCBotNodeTypeBitMasks iBitMask, const char* szName, const char* szDescription, Colour vColour)
 {
@@ -34,6 +34,8 @@ void RCBotNavigatorNodes::gameFrame()
 
 		m_fDrawNodes = gpGlobals->time + RCBOT_NODE_DRAW_PERIOD;
 	}
+
+	DoVisibility();
 }
 
 float RCBotNavigatorNode::distanceFrom(const Vector& vOrigin)
@@ -246,6 +248,12 @@ RCBotNavigatorNodes::RCBotNavigatorNodes()
 	m_szBadSoundCommand = (char*)gRCBotStrings.add("play common/wpn_denyselect.wav\n");
 	m_szGoodSoundCommand = (char*)gRCBotStrings.add("play common/wpn_hudon.wav\n");
 	
+	m_VisibilityIndex_X = 0;
+	m_VisibilityIndex_Y = 0;
+
+	memset(m_Visibility, 0, sizeof(RCBotNodeVisibility) * RCBOT_MAX_NAVIGATOR_NODES * RCBOT_MAX_NAVIGATOR_NODES);
+
+	
 }
 
 #define RCBOT_NAVIGATOR_FILE_HEADER "RCBOT1NODES"
@@ -259,6 +267,47 @@ void RCBotNavigatorNodes::playSound(edict_t *pClient, bool goodSound)
 	}
 	else
 		CLIENT_COMMAND(pClient, m_szBadSoundCommand);
+}
+
+void RCBotNavigatorNodes::DoVisibility()
+{
+	if (m_VisibilityIndex_X < m_UsedNodes.size() )
+	{
+		TraceResult *tr;
+
+		RCBotNavigatorNode* node1 = m_UsedNodes[m_VisibilityIndex_X];
+		RCBotNavigatorNode* node2 = m_UsedNodes[m_VisibilityIndex_Y];
+
+		int index1 = node1->getIndex();
+		int index2 = node2->getIndex();
+
+		if (index1 == index2)
+		{
+			m_Visibility[index1][index2] = RCBotNodeVisibility::Checked_Visible;
+		}
+		else if (m_Visibility[index2][index1] != RCBotNodeVisibility::Unchecked)
+		{
+			// use the other node's visibility check
+			m_Visibility[index1][index2] = m_Visibility[m_VisibilityIndex_Y][m_VisibilityIndex_X];
+		}
+		else
+		{
+			// do a traceline
+			tr = RCBotUtils::Traceline(node1->getOrigin(), node2->getOrigin(), ignore_monsters, ignore_glass, nullptr);
+
+			m_Visibility[index1][index2] = (tr->flFraction >= 1.0f) ? RCBotNodeVisibility::Checked_Visible : RCBotNodeVisibility::Checked_Invisible;
+		}
+
+		m_VisibilityIndex_X++;
+	}
+	else
+	{
+		m_VisibilityIndex_X = 0;
+
+		if ( m_VisibilityIndex_Y < m_UsedNodes.size() )
+			m_VisibilityIndex_Y++;
+	}
+
 }
 
 /// <summary>
@@ -320,6 +369,9 @@ bool RCBotNavigatorNodes::Load(const char* szFilename)
 			}
 
 			generateFlaggedNodesList();
+
+			m_VisibilityIndex_X = 0;
+			m_VisibilityIndex_Y = 0;
 
 			return m_UsedNodes.size() > 0;
 		}

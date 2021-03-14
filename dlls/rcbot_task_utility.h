@@ -105,8 +105,8 @@ public:
 
 	~RCBotTask()
 	{
-		if (m_pInterrupt != nullptr)
-			delete m_pInterrupt;
+		//if (m_pInterrupt != nullptr)
+		//	delete m_pInterrupt;
 	}
 
 	virtual RCBotTaskState Execute(RCBotBase* pBot) = 0;

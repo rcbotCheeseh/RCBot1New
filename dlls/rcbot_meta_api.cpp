@@ -390,8 +390,6 @@ C_DLLEXPORT int Meta_Attach(PLUG_LOADTIME now, META_FUNCTIONS* pFunctionTable, m
 	gRCBotModifications.GameInit();
 	RCBotProfiles::GameInit();
 
-	gRCBotNavigatorNodes = new RCBotNavigatorNodes();
-
 	return TRUE; // returning TRUE enables metamod to attach this plugin
 }
 

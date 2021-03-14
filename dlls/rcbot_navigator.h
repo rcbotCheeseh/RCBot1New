@@ -465,6 +465,12 @@ private:
 	RCBotNavigatorNodes* m_Nodes;
 };
 
+enum class RCBotNodeVisibility
+{
+	Unchecked,
+	Checked_Visible,
+	Checked_Invisible
+};
 
 class RCBotNavigatorNodes
 {
@@ -559,10 +565,16 @@ public:
 		}
 	}
 
+	// do visibility etc...
+	void DoVisibility();
+
 protected:
 	RCBotNodeTypes* m_NodeTypes;
 
 	RCBotNavigatorNode m_Nodes[RCBOT_MAX_NAVIGATOR_NODES];
+	RCBotNodeVisibility m_Visibility[RCBOT_MAX_NAVIGATOR_NODES][RCBOT_MAX_NAVIGATOR_NODES];
+	uint16_t m_VisibilityIndex_X;
+	uint16_t m_VisibilityIndex_Y;
 	uint8_t m_iVersion;
 
 	std::vector<RCBotNavigatorNode*> m_FlaggedNodes;

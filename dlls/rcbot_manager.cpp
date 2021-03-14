@@ -148,5 +148,10 @@ void RCBotManager::LevelInit()
 {
 	ChangeLevel();
 
+	if (gRCBotNavigatorNodes != nullptr)
+		delete gRCBotNavigatorNodes;
+
+	gRCBotNavigatorNodes = new RCBotNavigatorNodes();
+
 	gRCBotNavigatorNodes->mapInit();
 }
