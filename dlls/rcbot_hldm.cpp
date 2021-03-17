@@ -35,7 +35,7 @@ void RCBotHLDM::Think()
 			// Enemy still alive and still an "enemy"
 			Vector vEnemy = RCBotUtils::entityOrigin(pEnemy);
 
-			setLookAt(vEnemy);
+			setLookAt(vEnemy,3);
 			setMoveTo(vEnemy);
 
 			if (RANDOM_FLOAT(0.0, 100.0) > 75.0f)

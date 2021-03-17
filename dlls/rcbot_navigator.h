@@ -25,6 +25,10 @@
 #define RCBOT_NAVIGATOR_NODES_EXTENSION "rcn"
 #define RCBOT_NODE_DRAW_PERIOD 1.0f
 
+#define RCBOT_NAVIGATOR_NODE_REACH_TIMEOUT 30.0f
+#define RCBOT_NAVIGATOR_NODE_INVISIBLE_TIMEOUT 5.0f
+#define RCBOT_NAVIGATOR_NODE_VISIBLE_CHECK_TIME 1.0f
+
 enum class RCBotNodeTypeBitMasks
 {
 	// defines for waypoint flags field (32 bits are available)
@@ -820,6 +824,9 @@ private:
 	std::vector<RCBotNavigatorNode*> m_Route;
 	uint16_t m_CurrentRouteIndex;
 	RCBotBase* m_pBot;
+	float m_fTimeout;
+	float m_fVisibleCheck;
+	float m_fVisibleTimeout;
 };
 
 #endif 

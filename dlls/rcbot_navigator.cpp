@@ -573,6 +573,9 @@ RCBotNavigator::RCBotNavigator(RCBotNavigatorNode *pFrom, RCBotNavigatorNode *pT
 	m_pStart = pFrom;
 	m_pGoal = pTo;
 	m_CurrentRouteIndex = 0;
+	m_fTimeout = 0;
+	m_fVisibleTimeout = 0;
+	m_fVisibleCheck = 0;
 
 	//m_iNavRevs = pBot->getNavRevs();
 	m_iNavRevs = 100;
@@ -728,6 +731,10 @@ RCBotNavigatorTaskState RCBotNavigator::findPath()
 		std::reverse(m_Route.begin(), m_Route.end());
 
 		m_State = RCBotNavigatorTaskState::FollowingPath;
+
+		m_fTimeout = gpGlobals->time + RCBOT_NAVIGATOR_NODE_REACH_TIMEOUT;
+		m_fVisibleCheck = 0;
+		m_fVisibleTimeout = gpGlobals->time + RCBOT_NAVIGATOR_NODE_INVISIBLE_TIMEOUT;
 	}
 	break;
 	case RCBotNavigatorTaskState::FollowingPath:
@@ -735,9 +742,36 @@ RCBotNavigatorTaskState RCBotNavigator::findPath()
 	{
 		RCBotBase* pBot = m_pBot;
 
+		if (m_fTimeout < gpGlobals->time)
+		{
+			// error
+			m_State = RCBotNavigatorTaskState::PathNotFound;
+			return m_State;
+		}
+
+
 		if (m_CurrentRouteIndex < m_Route.size())
 		{
 			RCBotNavigatorNode* node = m_Route[m_CurrentRouteIndex];
+
+			if (m_fVisibleCheck < gpGlobals->time)
+			{
+				TraceResult* tr;
+
+				tr = RCBotUtils::Traceline(pBot->getViewOrigin(), node->getOrigin(), ignore_monsters, ignore_glass, pBot->getEdict());
+
+				if (tr->flFraction >= 1.0)
+				{
+					m_fVisibleTimeout = gpGlobals->time + RCBOT_NAVIGATOR_NODE_INVISIBLE_TIMEOUT;
+				}
+			}
+
+			if (m_fVisibleTimeout < gpGlobals->time)
+			{
+				// error
+				m_State = RCBotNavigatorTaskState::PathNotFound;
+				return m_State;
+			}
 
 			gRCBotNavigatorNodes->getNodeTypes()->MovingTowards(pBot, node->getFlags());
 
@@ -746,8 +780,9 @@ RCBotNavigatorTaskState RCBotNavigator::findPath()
 
 			if (pBot->distanceFrom(node->getOrigin()) < node->getRadius())
 			{
+				// touched
 				gRCBotNavigatorNodes->getNodeTypes()->Touched(pBot, node->getFlags());
-
+				m_fTimeout = gpGlobals->time + RCBOT_NAVIGATOR_NODE_REACH_TIMEOUT;
 				m_CurrentRouteIndex++;
 			}
 			else
