@@ -66,6 +66,9 @@
     <ClCompile Include="rcbot_task_utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rcbot_weapons.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cdll_dll.h">
@@ -155,10 +158,5 @@
     <ClInclude Include="rcbot_ehandle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="notes.txt" />
-    <Text Include="todo.txt" />
-    <Text Include="version.txt" />
   </ItemGroup>
 </Project>

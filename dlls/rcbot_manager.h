@@ -16,12 +16,14 @@ public:
 
 	void KickBot();
 	void LevelInit();
-	void ChangeLevel();
+	void OnLevelChange();
 	bool SetQuota(uint8_t iQuota);
 	void IncreaseQuota()
 	{
 		m_iQuota++;
 	}
+
+	RCBotBase* getBotByEdict(edict_t* pEdict);
 
 private:
 	RCBotBase* AddBot();

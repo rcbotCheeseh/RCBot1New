@@ -173,7 +173,7 @@
       <Message />
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>copy "$(LocalDebuggerCommand)" "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\rcbot\dlls"</Command>
+      <Command>copy "C:\Users\p_mur\source\repos\rcbotnew-master\dlls\HPB_bot___Win32_MetaMod_Debug\HPB_Bot.dll" "C:\Program Files (x86)\Steam\steamapps\common\Half-Life\rcbot\dlls"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Metamod G++|Win32'">
@@ -249,6 +249,7 @@
     <ClCompile Include="rcbot_task_utility.cpp" />
     <ClCompile Include="rcbot_util.cpp" />
     <ClCompile Include="rcbot_visibles.cpp" />
+    <ClCompile Include="rcbot_weapons.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cdll_dll.h" />
@@ -280,11 +281,6 @@
     <ClInclude Include="rcbot_weapons.h" />
     <ClInclude Include="usercmd.h" />
     <ClInclude Include="vector.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="notes.txt" />
-    <Text Include="todo.txt" />
-    <Text Include="version.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

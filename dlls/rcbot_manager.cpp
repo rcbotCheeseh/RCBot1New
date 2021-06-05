@@ -30,9 +30,8 @@ RCBotManager::RCBotManager()
 
 void RCBotManager::Think()
 {
-	for (uint32_t i = 0; i < m_Bots.size(); i++)
+	for ( auto pBot : m_Bots )
 	{
-		RCBotBase* pBot = m_Bots[i];
 		pBot->Think();
 		pBot->RunPlayerMove();
 	}
@@ -116,7 +115,18 @@ RCBotBase *RCBotManager::AddBot()
 	return nullptr;
 }
 
-void RCBotManager::ChangeLevel()
+RCBotBase* RCBotManager::getBotByEdict(edict_t* pEdict)
+{
+	for (auto pBot : m_Bots)
+	{
+		if (pBot->isEdict(pEdict))
+			return pBot;
+	}
+
+	return nullptr;
+}
+
+void RCBotManager::OnLevelChange()
 {
 	for (auto* pBot : m_Bots)
 	{
@@ -146,7 +156,7 @@ void RCBotManager::KickBot()
 	
 void RCBotManager::LevelInit()
 {
-	ChangeLevel();
+	OnLevelChange();
 
 	if (gRCBotNavigatorNodes != nullptr)
 		delete gRCBotNavigatorNodes;

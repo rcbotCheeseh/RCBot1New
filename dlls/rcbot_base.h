@@ -86,6 +86,11 @@ public:
 		return m_pEdict;
 	}
 
+	bool isEdict(const edict_t* pEdict)
+	{
+		return m_pEdict == pEdict;
+	}
+
 
 	void walk()
 	{
@@ -136,6 +141,10 @@ public:
 		return (vOrigin - getViewOrigin()).Length2D();
 	}
 	void RunPlayerMove();
+
+	void pressButton(int button);
+
+	inline bool isUnderWater() { return m_pEdict->v.waterlevel > 2; }
 protected:
 	edict_t* m_pEdict;
 	EHandle m_pEnemy;

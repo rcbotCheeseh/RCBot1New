@@ -7,6 +7,7 @@
 #include "rcbot_hldm.h"
 #include "rcbot_utils.h"
 #include "rcbot_navigator.h"
+#include "rcbot_message.h"
 
 RCBotModifications gRCBotModifications;
 
@@ -27,6 +28,7 @@ public:
 	void Touched(RCBotBase* pBot)
 	{
 		// let bot do a stunt here
+		pBot->pressButton(IN_ALT1);
 	}
 };
 
@@ -43,6 +45,8 @@ bool RCBotModification::isModification(const char* gameFolder)
 void RCBotModification_TheSpecialists::GameInit()
 {
 	RCBotNodeTypes* nodeTypes = gRCBotNavigatorNodes->getNodeTypes();
+
+	g_Messages = new RCBotMessages_TheSpecialists();
 
 	RCBotModification::GameInit();
 
@@ -96,5 +100,7 @@ RCBotBase* RCBotModification_HLDM :: createBot()
 
 void RCBotModification_HLDM::GameInit()
 {
+	g_Messages = new RCBotMessages();
+
 	RCBotModification::GameInit();
 }

@@ -123,7 +123,7 @@ void pfnChangeLevel(char* s1, char* s2)
 {
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnChangeLevel:\n"); fclose(fp); }
 
-	gRCBotManager.ChangeLevel();
+	gRCBotManager.OnLevelChange();
 
 	RETURN_META(MRES_IGNORED);
 
@@ -547,15 +547,15 @@ int pfnPointContents(const float* rgflVector)
 
 void pfnMessageBegin(int msg_dest, int msg_type, const float* pOrigin, edict_t* ed)
 {
-	if (RCBotMessage::CurrentMessage != nullptr)
+	if ( g_Messages->getCurrentMessage() != nullptr)
 	{
-		delete RCBotMessage::CurrentMessage;
+		g_Messages->clearCurrentMessage();
 	}
 
-	RCBotMessage::CurrentMessage = RCBotMessage::FindMessage(msg_type);
+	g_Messages->setCurrentMessage(g_Messages->findMessageById(msg_type)); // RCBotMessage::FindMessage(msg_type);
 
-	if (RCBotMessage::CurrentMessage )
-		RCBotMessage::CurrentMessage->messageBegin(msg_dest, pOrigin, ed);
+	if (g_Messages->getCurrentMessage() != nullptr )
+		g_Messages->getCurrentMessage()->messageBegin(msg_dest, pOrigin, ed);
 
 
 	RETURN_META(MRES_IGNORED);
@@ -564,50 +564,19 @@ void pfnMessageBegin(int msg_dest, int msg_type, const float* pOrigin, edict_t* 
 
 void pfnMessageEnd(void)
 {
-	if (gpGlobals->deathmatch)
+	if (g_Messages->getCurrentMessage() != nullptr)
 	{
-		if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnMessageEnd:\n"); fclose(fp); }
-
-		/*if (gBotGlobals.m_CurrentMessage)
-		{
-			if (gBotGlobals.m_pDebugMessage == gBotGlobals.m_CurrentMessage)//gBotGlobals.IsDebugLevelOn(BOT_DEBUG_MESSAGE_LEVEL) )
-				ALERT(at_console, "---------MESSAGE_END(\"%s\")-------\n", gBotGlobals.m_CurrentMessage->getMessageName());
-
-			if (gBotGlobals.m_CurrentMessage->isStateMsg())
-				static_cast<CBotStatedNetMessage*>(gBotGlobals.m_CurrentMessage)->messageEnd();
-			else
-				gBotGlobals.m_CurrentMessage->execute(nullptr, gBotGlobals.m_iBotMsgIndex);  // nullptr indicated msg end
-		}*/
+		g_Messages->getCurrentMessage()->messageEnd();
 	}
 
-	// clear out the bot message function pointers...
-
-	/*gBotGlobals.m_CurrentMessage = nullptr;
-	gBotGlobals.m_iCurrentMessageState = 0;
-	gBotGlobals.m_iCurrentMessageState2 = 0;
-
-	gBotGlobals.m_bNetMessageStarted = FALSE;
-	*/
 	RETURN_META(MRES_IGNORED);
 
 }
 void pfnWriteByte(int iValue)
 {
-	if (gpGlobals->deathmatch)
+	if (g_Messages->getCurrentMessage() != nullptr)
 	{
-		if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnWriteByte: %d\n", iValue); fclose(fp); }
-
-		// if this message is for a bot, call the client message function...
-		/*if (gBotGlobals.m_CurrentMessage)
-		{
-			if (gBotGlobals.m_pDebugMessage == gBotGlobals.m_CurrentMessage)//gBotGlobals.IsDebugLevelOn(BOT_DEBUG_MESSAGE_LEVEL) )
-				ALERT(at_console, "WRITE_BYTE(%d)\n", iValue);
-
-			if (gBotGlobals.m_CurrentMessage->isStateMsg())
-				static_cast<CBotStatedNetMessage*>(gBotGlobals.m_CurrentMessage)->writeByte(iValue);
-			else
-				gBotGlobals.m_CurrentMessage->execute(static_cast<void*>(&iValue), gBotGlobals.m_iBotMsgIndex);
-		}*/
+		g_Messages->getCurrentMessage()->writeByte(iValue);
 	}
 
 	RETURN_META(MRES_IGNORED);
@@ -615,23 +584,9 @@ void pfnWriteByte(int iValue)
 }
 void pfnWriteChar(int iValue)
 {
-	if (gpGlobals->deathmatch)
+	if (g_Messages->getCurrentMessage())
 	{
-		//if (debug_engine) { fp=fopen("bot.txt","a"); fprintf(fp,"pfnWriteChar: %d\n",iValue); fclose(fp); }
-
-		// if this message is for a bot, call the client message function...
-		if (RCBotMessage::CurrentMessage)
-		{
-			RCBotMessage::CurrentMessage->writeChar(static_cast<char>(iValue));
-			/*
-			if (gBotGlobals.m_pDebugMessage == gBotGlobals.m_CurrentMessage)//gBotGlobals.IsDebugLevelOn(BOT_DEBUG_MESSAGE_LEVEL) )
-				ALERT(at_console, "WRITE_CHAR(%c)\n", (char)iValue);
-
-			if (gBotGlobals.m_CurrentMessage->isStateMsg())
-				static_cast<CBotStatedNetMessage*>(gBotGlobals.m_CurrentMessage)->writeChar((char)iValue);
-			else
-				gBotGlobals.m_CurrentMessage->execute(static_cast<void*>(&iValue), gBotGlobals.m_iBotMsgIndex);*/
-		}
+		g_Messages->getCurrentMessage()->writeChar(static_cast<char>(iValue));
 	}
 
 	RETURN_META(MRES_IGNORED);
@@ -639,23 +594,9 @@ void pfnWriteChar(int iValue)
 }
 void pfnWriteShort(int iValue)
 {
-	if (gpGlobals->deathmatch)
+	if (g_Messages->getCurrentMessage())
 	{
-		if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnWriteShort: %d\n", iValue); fclose(fp); }
-
-		// if this message is for a bot, call the client message function...
-		if (RCBotMessage::CurrentMessage)
-		{
-			RCBotMessage::CurrentMessage->writeShort(iValue);
-			/*
-			if (gBotGlobals.m_pDebugMessage == gBotGlobals.m_CurrentMessage)//gBotGlobals.IsDebugLevelOn(BOT_DEBUG_MESSAGE_LEVEL) )
-				ALERT(at_console, "WRITE_SHORT(%d)\n", iValue);
-
-			if (gBotGlobals.m_CurrentMessage->isStateMsg())
-				static_cast<CBotStatedNetMessage*>(gBotGlobals.m_CurrentMessage)->writeShort(iValue);
-			else
-				gBotGlobals.m_CurrentMessage->execute(static_cast<void*>(&iValue), gBotGlobals.m_iBotMsgIndex);*/
-		}
+		g_Messages->getCurrentMessage()->writeShort(iValue);
 	}
 
 	RETURN_META(MRES_IGNORED);
@@ -663,48 +604,19 @@ void pfnWriteShort(int iValue)
 }
 void pfnWriteLong(int iValue)
 {
-	if (gpGlobals->deathmatch)
+	if (g_Messages->getCurrentMessage())
 	{
-		if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnWriteLong: %d\n", iValue); fclose(fp); }
-
-		// if this message is for a bot, call the client message function...
-		if (RCBotMessage::CurrentMessage)
-		{
-			/*if (gBotGlobals.m_pDebugMessage == gBotGlobals.m_CurrentMessage)
-				//gBotGlobals.IsDebugLevelOn(BOT_DEBUG_MESSAGE_LEVEL) )
-				ALERT(at_console, "WRITE_LONG(%d)\n", iValue);
-
-			if (gBotGlobals.m_CurrentMessage->isStateMsg())
-				static_cast<CBotStatedNetMessage*>(gBotGlobals.m_CurrentMessage)->writeLong(iValue);
-			else
-				gBotGlobals.m_CurrentMessage->execute(static_cast<void*>(&iValue), gBotGlobals.m_iBotMsgIndex);*/
-
-			RCBotMessage::CurrentMessage->writeLong(iValue);
-		}
+		g_Messages->getCurrentMessage()->writeLong(iValue);
 	}
-
 	RETURN_META(MRES_IGNORED);
 
 }
 void pfnWriteAngle(float flValue)
 {
-	if (gpGlobals->deathmatch)
+	// if this message is for a bot, call the client message function...
+	if (g_Messages->getCurrentMessage())
 	{
-		if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnWriteAngle: %f\n", flValue); fclose(fp); }
-
-		// if this message is for a bot, call the client message function...
-		if (RCBotMessage::CurrentMessage)
-		{
-			RCBotMessage::CurrentMessage->writeAngle(flValue);
-			/*if (gBotGlobals.m_pDebugMessage == gBotGlobals.m_CurrentMessage)
-				//gBotGlobals.IsDebugLevelOn(BOT_DEBUG_MESSAGE_LEVEL) )
-				ALERT(at_console, "WRITE_ANGLE(%0.3f)\n", flValue);
-
-			if (gBotGlobals.m_CurrentMessage->isStateMsg())
-				static_cast<CBotStatedNetMessage*>(gBotGlobals.m_CurrentMessage)->writeAngle(flValue);
-			else
-				gBotGlobals.m_CurrentMessage->execute(static_cast<void*>(&flValue), gBotGlobals.m_iBotMsgIndex);*/
-		}
+		g_Messages->getCurrentMessage()->writeAngle(flValue);
 	}
 
 	RETURN_META(MRES_IGNORED);
@@ -712,49 +624,19 @@ void pfnWriteAngle(float flValue)
 }
 void pfnWriteCoord(float flValue)
 {
-	if (gpGlobals->deathmatch)
+	if (g_Messages->getCurrentMessage())
 	{
-		if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnWriteCoord: %f\n", flValue); fclose(fp); }
-
-		// if this message is for a bot, call the client message function...
-		if (RCBotMessage::CurrentMessage)
-		{
-			RCBotMessage::CurrentMessage->writeCoord(flValue);
-			/*
-			if (gBotGlobals.m_pDebugMessage == gBotGlobals.m_CurrentMessage)
-				//gBotGlobals.IsDebugLevelOn(BOT_DEBUG_MESSAGE_LEVEL) )
-				ALERT(at_console, "WRITE_COORD(%0.3f)\n", flValue);
-
-			if (gBotGlobals.m_CurrentMessage->isStateMsg())
-				static_cast<CBotStatedNetMessage*>(gBotGlobals.m_CurrentMessage)->writeCoord(flValue);
-			else
-				gBotGlobals.m_CurrentMessage->execute(static_cast<void*>(&flValue), gBotGlobals.m_iBotMsgIndex);*/
-		}
+		g_Messages->getCurrentMessage()->writeCoord(flValue);
 	}
-
+	
 	RETURN_META(MRES_IGNORED);
 
 }
 void pfnWriteString(const char* sz)
 {
-	if (gpGlobals->deathmatch)
+	if (g_Messages->getCurrentMessage())
 	{
-		if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnWriteString: %s\n", sz); fclose(fp); }
-
-		// if this message is for a bot, call the client message function...
-		if (RCBotMessage::CurrentMessage)
-		{
-			RCBotMessage::CurrentMessage->writeString(sz);
-			/*
-			if (gBotGlobals.m_pDebugMessage == gBotGlobals.m_CurrentMessage)
-				//gBotGlobals.IsDebugLevelOn(BOT_DEBUG_MESSAGE_LEVEL) )
-				ALERT(at_console, "WRITE_STRING(%s)\n", sz);
-
-			if (gBotGlobals.m_CurrentMessage->isStateMsg())
-				static_cast<CBotStatedNetMessage*>(gBotGlobals.m_CurrentMessage)->writeString(sz);
-			else
-				gBotGlobals.m_CurrentMessage->execute((void*)sz, gBotGlobals.m_iBotMsgIndex);*/
-		}
+		g_Messages->getCurrentMessage()->writeString(sz);
 	}
 
 	RETURN_META(MRES_IGNORED);
@@ -762,24 +644,10 @@ void pfnWriteString(const char* sz)
 }
 void pfnWriteEntity(int iValue)
 {
-	if (gpGlobals->deathmatch)
+	// if this message is for a bot, call the client message function...
+	if (g_Messages->getCurrentMessage())
 	{
-		if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnWriteEntity: %d\n", iValue); fclose(fp); }
-
-		// if this message is for a bot, call the client message function...
-		if (RCBotMessage::CurrentMessage)
-		{
-			RCBotMessage::CurrentMessage->writeEntity(iValue);
-
-			/*if (gBotGlobals.m_pDebugMessage == gBotGlobals.m_CurrentMessage)
-				//gBotGlobals.IsDebugLevelOn(BOT_DEBUG_MESSAGE_LEVEL) )
-				ALERT(at_console, "WRITE_ENTITY(%d)\n", iValue);
-
-			if (gBotGlobals.m_CurrentMessage->isStateMsg())
-				static_cast<CBotStatedNetMessage*>(gBotGlobals.m_CurrentMessage)->writeEntity(INDEXENT(iValue));
-			else
-				gBotGlobals.m_CurrentMessage->execute(static_cast<void*>(&iValue), gBotGlobals.m_iBotMsgIndex);*/
-		}
+		g_Messages->getCurrentMessage()->writeEntity(iValue);
 	}
 
 	RETURN_META(MRES_IGNORED);
@@ -907,11 +775,6 @@ int pfnRegUserMsg(const char* pszName, int iSize)
 	int msg = 0;
 
 	extern plugin_info_t Plugin_info;
-
-	msg = GET_USER_MSG_ID(&Plugin_info, pszName, &iSize);
-
-	//gBotGlobals.m_NetEntityMessages.UpdateMessage(pszName, msg, iSize);
-	//gBotGlobals.m_NetAllMessages.UpdateMessage(pszName, msg, iSize);
 
 	RETURN_META_VALUE(MRES_IGNORED, 0);
 
@@ -1140,7 +1003,7 @@ void pfnSetKeyValue(char* infobuffer, char* key, char* value)
 }
 void pfnSetClientKeyValue(int clientIndex, char* infobuffer, char* key, char* value)
 {
-	edict_t* pEdict = INDEXENT(clientIndex);
+	//edict_t* pEdict = INDEXENT(clientIndex);
 
 	if (debug_engine) { fp = fopen("bot.txt", "a"); fprintf(fp, "pfnSetClientKeyValue: %s %s\n", key, value); fclose(fp); }
 
@@ -1412,13 +1275,16 @@ const char* pfnCmd_Args(void)
 	// is this a bot issuing that client command ?
 	if (RCBotCommands_MainCommand::IsFakeClientCommand)
 	{
-		// is it a "say" or "say_team" client command ?
-		if (strncmp("say ", g_argv, 4) == 0)
-			RETURN_META_VALUE(MRES_SUPERCEDE, &g_argv[0] + 4); // skip the "say" bot client command (bug in HL engine)
-		else if (strncmp("say_team ", g_argv, 9) == 0)
-			RETURN_META_VALUE(MRES_SUPERCEDE, &g_argv[0] + 9); // skip the "say_team" bot client command (bug in HL engine)
+		if (g_argv != nullptr)
+		{
+			// is it a "say" or "say_team" client command ?
+			if (strncmp("say ", g_argv, 4) == 0)
+				RETURN_META_VALUE(MRES_SUPERCEDE, &g_argv[0] + 4); // skip the "say" bot client command (bug in HL engine)
+			else if (strncmp("say_team ", g_argv, 9) == 0)
+				RETURN_META_VALUE(MRES_SUPERCEDE, &g_argv[0] + 9); // skip the "say_team" bot client command (bug in HL engine)
 
-		RETURN_META_VALUE(MRES_SUPERCEDE, &g_argv[0]); // else return the whole bot client command string we know
+			RETURN_META_VALUE(MRES_SUPERCEDE, &g_argv[0]); // else return the whole bot client command string we know
+		}
 	}
 
 	RETURN_META_VALUE(MRES_IGNORED, nullptr);

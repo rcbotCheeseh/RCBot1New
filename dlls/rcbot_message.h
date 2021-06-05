@@ -3,9 +3,11 @@
 
 
 #include "extdll.h"
-
+#include "rcbot_base.h"
 #include <vector>
 #include <stdint.h>
+
+
 /// <summary>
 /// Base Network Message Class
 /// </summary>
@@ -14,18 +16,11 @@ class RCBotMessage
 
 public:
 
+	RCBotMessage(const char* szMessageName);
+
 	~RCBotMessage()
 	{
 
-	}
-
-	RCBotMessage(uint32_t msg_type)
-	{
-		this->msg_type = msg_type;
-
-		this->msg_dest = 0;
-		this->pOrigin = nullptr;
-		this->ed= nullptr;
 	}
 
 	void writeByte(uint8_t bByte )
@@ -61,6 +56,7 @@ public:
 	void writeString(const char *szValue)
 	{
 		// dont write strings now
+		m_Strings.push_back(szValue);
 	}
 
 	void writeEntity( uint32_t iEntity )
@@ -70,6 +66,7 @@ public:
 
 	void messageEnd()
 	{
+		Execute();
 		m_fAngles.clear();
 		m_fFloats.clear();
 		m_vVectors.clear();
@@ -79,7 +76,10 @@ public:
 		m_iEntities.clear();
 		m_Coords.clear();
 		m_Chars.clear();
+		m_Strings.clear();
 	}
+
+	bool isName(const char* szName);
 
 	void messageBegin(uint32_t _msg_dest, const float* _pOrigin, edict_t* _ed)
 	{
@@ -88,14 +88,11 @@ public:
 		this->ed = _ed;
 	}
 
-	static RCBotMessage *FindMessage(uint32_t msg_type)
-	{
-		return nullptr;
-	}
+	bool isID(uint32_t id);
 
-	static RCBotMessage* CurrentMessage;
-	static std::vector<RCBotMessage*> Messages;
+	virtual void Execute() = 0;
 
+protected:
 	std::vector<float> m_fAngles;
 	std::vector<float> m_fFloats;
 	std::vector<Vector> m_vVectors;
@@ -105,13 +102,99 @@ public:
 	std::vector<uint32_t> m_iEntities;
 	std::vector<float> m_Coords;
 	std::vector<char> m_Chars;
-
-private:
+	std::vector<const char*> m_Strings;
 	uint32_t msg_dest;
-	uint32_t msg_type;
 	const float* pOrigin;
 	edict_t* ed;
+private:
+	const char* m_szMessageName;
+	uint32_t msg_type;
 };
 
+class RCBotMessages
+{
+public:
+
+	RCBotMessages();
+
+	void add(RCBotMessage* message)
+	{
+		m_Messages.push_back(message);
+	}
+
+	RCBotMessage* findMessageById(uint32_t id)
+	{
+		for (auto msg : m_Messages)
+		{
+			if (msg->isID(id))
+				return msg;
+		}
+
+		return nullptr;
+	}
+
+	RCBotMessage* findMessageByName(const char* szName)
+	{
+		for (auto msg : m_Messages)
+		{
+			if (msg->isName(szName))
+				return msg;
+		}
+
+		return nullptr;
+	}
+
+	RCBotMessage* getCurrentMessage()
+	{
+		return m_CurrentMessage;
+	}
+
+	void clearCurrentMessage()
+	{
+		m_CurrentMessage = nullptr;
+	}
+
+	void setCurrentMessage( RCBotMessage *message )
+	{
+		m_CurrentMessage = message;
+	}
+private:
+	std::vector<RCBotMessage*> m_Messages;
+	RCBotMessage* m_CurrentMessage;
+};
+
+class RCBotMessage_WeaponList_Generic : public RCBotMessage
+{
+public:
+	RCBotMessage_WeaponList_Generic() : RCBotMessage("WeaponList")
+	{
+
+	}
+
+	void Execute();
+};
+
+class RCBotMessage_WeaponInfo : public RCBotMessage
+{
+public :
+	RCBotMessage_WeaponInfo() : RCBotMessage("WeaponInfo")
+	{
+
+	}
+
+	void Execute();
+};
+
+class RCBotMessages_TheSpecialists : public RCBotMessages
+{
+public:
+
+protected:
+
+private:
+
+};
+
+extern RCBotMessages* g_Messages;
 
 #endif 

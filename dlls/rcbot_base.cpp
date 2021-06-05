@@ -103,6 +103,11 @@ void RCBotBase::Think()
 #define BOT_MOVE_TO_MIN_DISTANCE 16.0f
 #define BOT_MOVE_TO_MAX_SPEED 320.0f
 
+void RCBotBase::pressButton(int button)
+{
+	m_pEdict->v.button |= button;
+}
+
 void RCBotBase::RunPlayerMove()
 {
 	float msec = (gpGlobals->time - m_fLastRunPlayerMove) * 1000;
