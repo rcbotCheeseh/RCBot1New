@@ -6,7 +6,6 @@ RCBotWeaponInfoList* gWeaponList;
 
 enum class RCBotWeaponInfoParameter
 {
-	Index,
 	Classname,
 	PrimaryMinDistance,
 	PrimaryMaxDistance,
@@ -25,6 +24,10 @@ RCBotWeaponInfo::RCBotWeaponInfo()
 {
 	memset(this, 0, sizeof(RCBotWeaponInfo));
 }
+bool RCBotWeaponInfo::isClassname(const char *szClassname)
+{
+	return gRCBotStrings.stringMatch(szClassname,m_szClassname);
+}
 /// <summary>
 /// 
 /// </summary>
@@ -38,9 +41,6 @@ RCBotWeaponInfo* RCBotWeaponInfo::Parse(std::vector<const char*> *split)
 	{
 		switch ((RCBotWeaponInfoParameter)i)
 		{
-		case RCBotWeaponInfoParameter::Index:
-			ret->m_iSelectIndex = atoi(split->at(i));
-			break;
 		case RCBotWeaponInfoParameter::Classname:
 			ret->m_szClassname = split->at(i);
 			break;

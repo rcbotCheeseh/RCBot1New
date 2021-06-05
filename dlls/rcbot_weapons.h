@@ -17,6 +17,8 @@ public:
 
 	static RCBotWeaponInfo *Parse(std::vector<const char*> *split);
 
+	//void setNonCustomisableData(uint32_t iID, uint8_t iAmmo1, uint8_t iAmmo2, uint8_t iAmmo1Max, uint8_t iAmmo2Max, uint32_t iSlot, uint32_t iPosition, uint32_t iFlags);
+
 	inline bool CanUsePrimary(double distance, bool isUnderWater)
 	{
 		return (distance > m_fPrimaryMinDistance) && (distance < m_fPrimaryMaxDistance) && (!isUnderWater || m_bCanUseUnderWater);
@@ -29,11 +31,25 @@ public:
 	{
 		return m_iPriority;
 	}
-	
+	bool isID(int id)
+	{
+		return m_iID == id;
+	}
+	bool isClassname(const char* szClassname);
 private:
+	// non-customisable items
 	const char* m_szClassname;
 
-	uint32_t m_iSelectIndex;
+	int iAmmo1;
+	int iAmmo2;
+	int iAmmo1Max;
+	int iAmmo2Max;
+	int iSlot;
+	int iPosition;
+	int iFlags;
+
+	// customisable items
+	int m_iID;
 
 	float m_fPrimaryMinDistance;
 	float m_fPrimaryMaxDistance;
@@ -60,8 +76,34 @@ public:
 
 	}
 
-	void Load ( );
+	void Load();
 
+	RCBotWeaponInfo* getByClassname(const char* szClassname)
+	{
+		for (auto ret : m_pWeaponInfo)
+		{
+			if (ret->isClassname(szClassname))
+			{
+				return ret;
+			}
+		}
+
+		return nullptr;
+	}
+
+	RCBotWeaponInfo* getByID(int id)
+	{
+		for (auto ret : m_pWeaponInfo)
+		{
+			if (ret->isID(id))
+			{
+				return ret;
+			}
+		}
+
+		return nullptr;
+
+	}
 
 private:
 	std::vector<RCBotWeaponInfo*> m_pWeaponInfo;

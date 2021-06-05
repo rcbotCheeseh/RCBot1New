@@ -64,20 +64,7 @@ public:
 		m_iEntities.push_back(iEntity);
 	}
 
-	void messageEnd()
-	{
-		Execute();
-		m_fAngles.clear();
-		m_fFloats.clear();
-		m_vVectors.clear();
-		m_Bytes.clear();
-		m_Shorts.clear();
-		m_Longs.clear();
-		m_iEntities.clear();
-		m_Coords.clear();
-		m_Chars.clear();
-		m_Strings.clear();
-	}
+	void messageEnd();
 
 	bool isName(const char* szName);
 
@@ -106,6 +93,8 @@ protected:
 	uint32_t msg_dest;
 	const float* pOrigin;
 	edict_t* ed;
+	RCBotBase* m_pBot;
+
 private:
 	const char* m_szMessageName;
 	uint32_t msg_type;
@@ -167,6 +156,50 @@ class RCBotMessage_WeaponList_Generic : public RCBotMessage
 {
 public:
 	RCBotMessage_WeaponList_Generic() : RCBotMessage("WeaponList")
+	{
+
+	}
+
+	void Execute();
+};
+
+class RCBotMessage_CurrentWeapon : public RCBotMessage
+{
+public:
+	RCBotMessage_CurrentWeapon() : RCBotMessage("CurWeapon")
+	{
+
+	}
+
+	void Execute();
+};
+
+class RCBotMessage_AmmoX : public RCBotMessage
+{
+public:
+	RCBotMessage_AmmoX() : RCBotMessage("AmmoX")
+	{
+
+	}
+
+	void Execute();
+};
+
+class RCBotMessage_WeaponPickup : public RCBotMessage
+{
+public:
+	RCBotMessage_WeaponPickup() : RCBotMessage("WeapPickup")
+	{
+
+	}
+
+	void Execute();
+};
+
+class RCBotMessage_AmmoPickup : public RCBotMessage
+{
+public:
+	RCBotMessage_AmmoPickup() : RCBotMessage("AmmoPickup")
 	{
 
 	}
