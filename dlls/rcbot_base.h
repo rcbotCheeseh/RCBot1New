@@ -9,6 +9,7 @@ class RCBotProfile;
 class RCBotVisibles;
 class RCBotSchedule;
 class RCBotUtilities;
+class RCBotWeapons;
 
 #define RCBOT_DEFAULT_FOV 100
 
@@ -49,6 +50,8 @@ private:
 	uint8_t m_iPriority;
 };
 
+class RCBotWeapon;
+
 class RCBotBase
 {
 public:
@@ -56,6 +59,9 @@ public:
 	RCBotBase();
 
 	~RCBotBase();
+
+	void selectWeapon(RCBotWeapon* weapon);
+	bool isCurrentWeapon(RCBotWeapon* weapon);
 
 	virtual void Think();
 
@@ -75,6 +81,10 @@ public:
 	void newVisible(edict_t* pEntity);
 
 	void lostVisible(edict_t* pEntity);
+
+	// do stuff
+	virtual void setCurrentWeapon(uint8_t iState, uint8_t iId, uint8_t iClip);
+	virtual void weaponPickup(uint8_t iId);
 
 	virtual bool isEnemy(edict_t* pEntity)
 	{
@@ -145,6 +155,8 @@ public:
 	void pressButton(int button);
 
 	inline bool isUnderWater() { return m_pEdict->v.waterlevel > 2; }
+
+	uint32_t getEnemyWeaponFlags( const edict_t *pEnemy ) { return 0; }
 protected:
 	edict_t* m_pEdict;
 	EHandle m_pEnemy;
@@ -153,6 +165,8 @@ private:
 	RCBotVisibles* m_pVisibles;
 	RCBotSchedule* m_pSchedule;
 	RCBotUtilities *m_Utils;
+	RCBotWeapons* m_pWeapons;
+	RCBotWeapon* m_pCurrentWeapon;
 
 	float m_fFovCos;
 

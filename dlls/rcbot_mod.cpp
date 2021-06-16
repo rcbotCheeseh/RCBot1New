@@ -8,6 +8,7 @@
 #include "rcbot_utils.h"
 #include "rcbot_navigator.h"
 #include "rcbot_message.h"
+#include "rcbot_weapons.h"
 
 RCBotModifications gRCBotModifications;
 
@@ -101,6 +102,6 @@ RCBotBase* RCBotModification_HLDM :: createBot()
 void RCBotModification_HLDM::GameInit()
 {
 	g_Messages = new RCBotMessages();
-
+	gWeaponList = new RCBotWeaponInfoList();
 	RCBotModification::GameInit();
 }

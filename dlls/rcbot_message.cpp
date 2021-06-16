@@ -75,7 +75,7 @@ void RCBotMessage_WeaponPickup::Execute()
 	{
 		int iID = m_Bytes[0];
 
-		// m_pBot->WeaponPickup(iId);
+		m_pBot->weaponPickup(iID);
 	}
 }
 
@@ -105,12 +105,12 @@ void RCBotMessage_CurrentWeapon::Execute()
 {
 	if (m_pBot != nullptr)
 	{
-		int iState = m_Bytes[0];
-		int iId = m_Bytes[1];
-		int iClip = m_Bytes[2];
+		uint8_t iState = m_Bytes[0];
+		uint8_t iId = m_Bytes[1];
+		uint8_t iClip = m_Bytes[2];
 
 		// do stuff
-		// m_pBot->setCurrentWeapon(iState,iId,iClip);
+		m_pBot->setCurrentWeapon(iState,iId,iClip);
 	}
 }
 
@@ -119,20 +119,26 @@ void RCBotMessage_WeaponList_Generic::Execute()
 	if (m_pBot != nullptr)
 	{
 		char* szClassname = (char*)(m_Strings[0]);
-		int iAmmo1 = m_Bytes[0];
-		int iAmmo2 = m_Bytes[1];
-		int iAmmo1Max = m_Bytes[2];
-		int iAmmo2Max = m_Bytes[3];
-		int iSlot = m_Bytes[4];
-		int iPosition = m_Bytes[5];
-		int iWeaponID = m_Bytes[6];
-		int iFlags = m_Bytes[7];
+		uint8_t iAmmo1 = m_Bytes[0];
+		uint8_t iAmmo2 = m_Bytes[1];
+		uint8_t iAmmo1Max = m_Bytes[2];
+		uint8_t iAmmo2Max = m_Bytes[3];
+		uint8_t iSlot = m_Bytes[4];
+		uint8_t iPosition = m_Bytes[5];
+		uint8_t iWeaponID = m_Bytes[6];
+		uint8_t iFlags = m_Bytes[7];
 
 		
 		RCBotWeaponInfo* pWeaponInfo = gWeaponList->getByClassname(szClassname);
 
 		if (pWeaponInfo != nullptr)
 		{
+			pWeaponInfo->setAmmo1(iAmmo1,iAmmo1Max);
+			pWeaponInfo->setAmmo2(iAmmo2,iAmmo2Max);
+			pWeaponInfo->setSlot(iSlot, iPosition);
+			pWeaponInfo->setID(iWeaponID);
+			//pWeaponInfo->setFlags(iFlags);
+
 			//pWeaponInfo->setNonCustomisableData(iID, iAmmo1, iAmmo2, iAmmo1Max, iAmmo2Max, iSlot, iPosition, iFlags);
 		}
 

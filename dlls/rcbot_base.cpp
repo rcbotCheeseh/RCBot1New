@@ -1,11 +1,14 @@
 #include "rcbot_base.h"
 #include "extdll.h"
+#include "meta_api.h"
+#include "dll.h"
 #include "h_export_meta.h"
 #include "meta_api.h"
 #include "rcbot_utils.h"
 #include "rcbot_task_utility.h"
 #include "rcbot_profile.h"
 #include "rcbot_visibles.h"
+#include "rcbot_weapons.h"
 
 #include <math.h>
 
@@ -102,6 +105,34 @@ void RCBotBase::Think()
 
 #define BOT_MOVE_TO_MIN_DISTANCE 16.0f
 #define BOT_MOVE_TO_MAX_SPEED 320.0f
+
+void RCBotBase::setCurrentWeapon(uint8_t iState, uint8_t iId, uint8_t iClip)
+{
+	RCBotWeapon* weapon = m_pWeapons->findById(iId);
+
+	if (weapon != nullptr)
+	{
+		//weapon->setState();
+		weapon->setClip(iClip);
+		m_pCurrentWeapon = weapon;
+	}
+}
+
+bool RCBotBase::isCurrentWeapon(RCBotWeapon* weapon)
+{
+	return m_pCurrentWeapon == weapon;
+}
+
+void RCBotBase::weaponPickup(uint8_t iID)
+{
+	m_pWeapons->weaponPickup(iID);
+}
+
+void RCBotBase::selectWeapon(RCBotWeapon* weapon)
+{
+	if ( !isCurrentWeapon(weapon) )
+		FakeClientCommand(m_pEdict, weapon->getClassname());
+}
 
 void RCBotBase::pressButton(int button)
 {
