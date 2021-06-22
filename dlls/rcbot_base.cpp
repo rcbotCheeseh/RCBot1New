@@ -30,6 +30,7 @@ void RCBotBase::Init()
 {
 	m_fLastRunPlayerMove = gpGlobals->time;
 	m_bPreviousAliveState = false;
+	m_pWeapons = new RCBotWeapons(this);
 
 	spawnInit();
 }

@@ -83,18 +83,25 @@ RCBotWeaponInfo* RCBotWeaponInfo::Parse(std::vector<const char*> *split)
 
 void RCBotWeaponInfoList::Load()
 {
-	RCBotFile* file = RCBotFile::Open(RCBOT_WEAPON_CONFIG_FOLDER, RCBOT_WEAPON_CONFIG_NAME, ".ini", "r", true);
-
+	RCBotFile* file = RCBotFile::Open(RCBOT_WEAPON_CONFIG_FOLDER, RCBOT_WEAPON_CONFIG_NAME, "ini", "r", true);
+	
 	if (file != nullptr)
 	{
-		const char *line = file->readLine();
-		std::vector<const char*> list;
+		const char* line;
 		
-		gRCBotStrings.split(line, &list, ',');
+		while ( (line = file->readLine()) != nullptr )
+		{
+			std::vector<const char*> list;
 
-		RCBotWeaponInfo* info = RCBotWeaponInfo::Parse(&list);
+			if (line[0] && line[0] != '#')
+			{
+				gRCBotStrings.split(line, &list, ',');
 
-		m_pWeaponInfo.push_back(info);
+				RCBotWeaponInfo* info = RCBotWeaponInfo::Parse(&list);
+
+				m_pWeaponInfo.push_back(info);
+			}
+		}
 
 		file->close();
 	}

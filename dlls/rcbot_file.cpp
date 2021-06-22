@@ -25,16 +25,25 @@ void RCBotFile::close()
 	fp = nullptr;
 }
 
+#ifdef __linux__
+#define RCBOT_FILE_FORMAT_MOD "%s/%s/%s/%s.%s"
+#define RCBOT_FILE_FORMAT_NOMOD "%s/%s/%s.%s"
+#else 
+#define RCBOT_FILE_FORMAT_MOD "%s\\%s\\%s\\%s.%s"
+#define RCBOT_FILE_FORMAT_NOMOD "%s\\%s\\%s.%s"
+#endif 
+
 RCBotFile* RCBotFile::Open(const char *szFolder, const char* szFilename, const char *szExtension, const char* mode, bool bUseModFolder)
 {
 	FILE* fp; 
-
+	//TCHAR pwd[MAX_PATH];
+	
 	RCBotModification *pMod = gRCBotModifications.getCurrentMod();
-
+	//GetCurrentDirectory(MAX_PATH, pwd);
 	if (bUseModFolder && (pMod != nullptr))
-		snprintf(m_szFileName, RCBOT_FILE_MAX_FILENAME_LENGTH, "%s/%s/%s/%s.%s", RCBOT_FILES_FOLDER, szFolder, pMod->getFolder(), szFilename, szExtension);
+		snprintf(m_szFileName, RCBOT_FILE_MAX_FILENAME_LENGTH, RCBOT_FILE_FORMAT_MOD, RCBOT_FILES_FOLDER, szFolder, pMod->getFolder(), szFilename, szExtension);
 	else 
-		snprintf(m_szFileName, RCBOT_FILE_MAX_FILENAME_LENGTH, "%s/%s/%s.%s", RCBOT_FILES_FOLDER, szFolder, szFilename, szExtension);
+		snprintf(m_szFileName, RCBOT_FILE_MAX_FILENAME_LENGTH, RCBOT_FILE_FORMAT_NOMOD, RCBOT_FILES_FOLDER, szFolder, szFilename, szExtension);
 
 	fp = fopen(m_szFileName, mode);
 
