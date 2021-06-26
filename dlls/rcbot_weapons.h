@@ -293,6 +293,8 @@ public:
 		m_Weapons.clear();
 	}
 
+	void setAmmo(uint8_t index, uint8_t amount);
+
 	void weaponPickup(uint8_t iID);
 
 	RCBotWeapon* getBestWeapon(edict_t* pEnemy);
@@ -304,6 +306,8 @@ private:
 	std::vector<RCBotWeapon*> m_Weapons;
 	int32_t m_iWeapons;
 	RCBotBase* m_pBot;
+	uint8_t m_iAmmo[MAX_AMMO_SLOTS];
+
 };
 
 extern RCBotWeaponInfoList* gWeaponList;

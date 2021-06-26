@@ -30,6 +30,7 @@ RCBotMessage ::RCBotMessage (const char* szMessageName)
 	this->msg_dest = 0;
 	this->pOrigin = nullptr;
 	this->ed = nullptr;
+	this->m_pBot = nullptr;
 }
 
 bool RCBotMessage::isName(const char* szName)
@@ -71,7 +72,7 @@ void RCBotMessage_WeaponInfo::Execute()
 
 void RCBotMessage_WeaponPickup::Execute()
 {
-	if (m_pBot != nullptr)
+	if (m_pBot != nullptr && (m_Bytes.size() > 0))
 	{
 		int iID = m_Bytes[0];
 
@@ -81,29 +82,29 @@ void RCBotMessage_WeaponPickup::Execute()
 
 void RCBotMessage_AmmoPickup::Execute()
 {
-	if (m_pBot != nullptr)
+	if (m_pBot != nullptr && (m_Bytes.size() > 1) )
 	{
 		int index = m_Bytes[0];
 		int amount = m_Bytes[1];
 
-		//m_pBot->setAmmo(index, amount);
+		m_pBot->setAmmo(index, amount);
 	}
 }
 
 void RCBotMessage_AmmoX::Execute()
 {
-	if (m_pBot != nullptr)
+	if (m_pBot != nullptr && (m_Bytes.size() > 1) )
 	{
 		int index = m_Bytes[0];
 		int amount = m_Bytes[1];
 
-		//m_pBot->setAmmo(index, amount);
+		m_pBot->setAmmo(index, amount);
 	}
 }
 
 void RCBotMessage_CurrentWeapon::Execute()
 {
-	if (m_pBot != nullptr)
+	if (m_pBot != nullptr && (m_Bytes.size() > 2) )
 	{
 		uint8_t iState = m_Bytes[0];
 		uint8_t iId = m_Bytes[1];
@@ -116,7 +117,7 @@ void RCBotMessage_CurrentWeapon::Execute()
 
 void RCBotMessage_WeaponList_Generic::Execute()
 {
-	if (m_pBot != nullptr)
+	if (m_pBot != nullptr && (m_Bytes.size() > 6) )
 	{
 		char* szClassname = (char*)(m_Strings[0]);
 		uint8_t iAmmo1 = m_Bytes[0];
@@ -126,24 +127,16 @@ void RCBotMessage_WeaponList_Generic::Execute()
 		uint8_t iSlot = m_Bytes[4];
 		uint8_t iPosition = m_Bytes[5];
 		uint8_t iWeaponID = m_Bytes[6];
-		uint8_t iFlags = m_Bytes[7];
+		//uint8_t iFlags = m_Bytes[7];
 
-		
 		RCBotWeaponInfo* pWeaponInfo = gWeaponList->getByClassname(szClassname);
 
 		if (pWeaponInfo != nullptr)
 		{
-			pWeaponInfo->setAmmo1(iAmmo1,iAmmo1Max);
-			pWeaponInfo->setAmmo2(iAmmo2,iAmmo2Max);
+			pWeaponInfo->setAmmo1(iAmmo1, iAmmo1Max);
+			pWeaponInfo->setAmmo2(iAmmo2, iAmmo2Max);
 			pWeaponInfo->setSlot(iSlot, iPosition);
 			pWeaponInfo->setID(iWeaponID);
-			//pWeaponInfo->setFlags(iFlags);
-
-			//pWeaponInfo->setNonCustomisableData(iID, iAmmo1, iAmmo2, iAmmo1Max, iAmmo2Max, iSlot, iPosition, iFlags);
 		}
-
-		// gWeapons->addWeapon(iWeaponID,szClassname,iAmmo1Max,iAmmo2Max,iSlot,iPosition,iAmmo1,iAmmo2);
 	}
-	
-
 }

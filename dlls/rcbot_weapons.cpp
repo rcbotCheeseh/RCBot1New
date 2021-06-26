@@ -162,6 +162,13 @@ void RCBotWeapons::weaponPickup(uint8_t iID)
 	}
 }
 
+void RCBotWeapons::setAmmo(uint8_t index, uint8_t amount)
+{
+	if (index >= 0 && index < MAX_AMMO_SLOTS)
+		m_iAmmo[index] = amount;
+}
+
+
 void RCBotWeapons::update(RCBotBase* pBot)
 {
 	if (m_iWeapons != pBot->getEdict()->v.weapons)

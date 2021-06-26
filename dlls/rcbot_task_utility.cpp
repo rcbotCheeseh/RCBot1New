@@ -29,7 +29,6 @@ RCBotTaskState RCBotFindPathTask::Execute(RCBotBase* pBot)
 	return RCBotTaskState::RCBotTaskState_InProgress;
 }
 
-
 RCBotUtility::RCBotUtility(const char* szDebugName)
 {
 	m_szDebugName = gRCBotStrings.add(szDebugName);

@@ -68,6 +68,8 @@ public:
 	void Init();
 	virtual void spawnInit();
 
+	void setAmmo(uint8_t index, uint8_t amount);
+
 	void setProfile(RCBotProfile *profile);
 	void setEdict(edict_t *pEdict);
 	

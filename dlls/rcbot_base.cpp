@@ -45,6 +45,11 @@ void RCBotBase::spawnInit()
 	m_pEnemy.Set(nullptr);
 }
 
+void RCBotBase::setAmmo(uint8_t index, uint8_t amount)
+{
+	m_pWeapons->setAmmo(index, amount);
+}
+
 #define RCBOT_RESPAWN_WAIT_TIME 2.0f
 
 void RCBotBase::Think()
