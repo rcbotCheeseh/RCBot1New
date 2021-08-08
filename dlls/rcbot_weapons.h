@@ -240,6 +240,7 @@ public:
 	{
 		return m_pWeaponInfo->HasWeapon(pEdict);
 	}
+
 	int32_t getID()
 	{
 		return m_iId;
@@ -283,6 +284,7 @@ public:
 	{
 		m_pBot = pBot;
 		m_iWeapons = 0;
+		memset(m_iAmmo,0,sizeof(uint8_t)* MAX_AMMO_SLOTS);
 	}
 
 	~RCBotWeapons()

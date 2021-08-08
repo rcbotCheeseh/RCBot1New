@@ -85,6 +85,18 @@ void RCBotBase::Think()
 			m_pEdict->v.v_angle = m_pEdict->v.angles;
 		}
 	}
+	
+	if (m_pEnemy.Get() != nullptr)
+	{
+		edict_t* pEnemy = m_pEnemy.Get();
+
+		RCBotWeapon* pBestWeapon = m_pWeapons->getBestWeapon(pEnemy);
+
+		if (pBestWeapon != nullptr && m_pCurrentWeapon != pBestWeapon)
+		{
+			selectWeapon(pBestWeapon);
+		}
+	}
 
 	m_pVisibles->tasks(m_pProfile->getVisRevs());
 
@@ -300,11 +312,19 @@ void RCBotBase::setUpClientInfo()
 
 }
 
+float RCBotBase::getEnemyFactor(edict_t* pEntity)
+{
+	return distanceFrom(pEntity);
+}
+
 void RCBotBase::newVisible(edict_t* pEntity)
 {
-	if ((m_pEnemy.Get() == nullptr) && isEnemy(pEntity))
+	if ( isEnemy(pEntity) )
 	{
-		m_pEnemy.Set(pEntity);
+		edict_t* pCurrentEnemy = m_pEnemy.Get();
+
+		if (pCurrentEnemy == nullptr || (getEnemyFactor(pEntity) < getEnemyFactor(pCurrentEnemy)) )
+			m_pEnemy.Set(pEntity);
 	}
 }
 

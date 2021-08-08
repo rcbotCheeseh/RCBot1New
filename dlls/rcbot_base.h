@@ -93,6 +93,8 @@ public:
 		return false;
 	}
 
+	virtual float getEnemyFactor(edict_t* pEntity);
+
 	edict_t* getEdict()
 	{
 		return m_pEdict;
