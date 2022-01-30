@@ -7,11 +7,17 @@
 #include "rcbot_engine_funcs.h"
 #include "rcbot_utils.h"
 #include "rcbot_navigator.h"
-
+/// <summary>
+/// 
+/// </summary>
 RCBotManager gRCBotManager;
-
+/// <summary>
+/// 
+/// </summary>
 extern globalvars_t* gpGlobals;
-
+/// <summary>
+/// 
+/// </summary>
 RCBotManager::~RCBotManager()
 {
 	for (auto* pBot : m_Bots)
@@ -21,13 +27,18 @@ RCBotManager::~RCBotManager()
 
 	m_Bots.clear();
 }
-
+/// <summary>
+/// 
+/// </summary>
 RCBotManager::RCBotManager()
 {
 	m_iQuota = 0;
 	m_fAddRemoveBotTime = 0.0f;
+	m_fNodeDrawTime = 0.0f;
 }
-
+/// <summary>
+/// 
+/// </summary>
 void RCBotManager::Think()
 {
 	for ( auto pBot : m_Bots )
@@ -62,7 +73,11 @@ void RCBotManager::Think()
 
 	gRCBotNavigatorNodes->gameFrame();
 }
-
+/// <summary>
+/// 
+/// </summary>
+/// <param name="iQuota"></param>
+/// <returns></returns>
 bool RCBotManager::SetQuota(uint8_t iQuota)
 {
 	if (m_iQuota > gpGlobals->maxClients)
@@ -72,7 +87,11 @@ bool RCBotManager::SetQuota(uint8_t iQuota)
 
 	return true;
 }
-
+/// <summary>
+/// RCBotManager :: AddBot
+/// Add a bot to the server
+/// </summary>
+/// <returns>bot pointer</returns>
 RCBotBase *RCBotManager::AddBot()
 {
 	RCBotProfile * profile = gRCBotProfiles->getRandomUnused();
@@ -81,7 +100,7 @@ RCBotBase *RCBotManager::AddBot()
 	{
 		edict_t *pBotEdict = (*g_engfuncs.pfnCreateFakeClient)(profile->getName());
 
-		if (pBotEdict != nullptr)
+		if ( !FNullEnt(pBotEdict) )
 		{
 			RCBotModification *pMod = gRCBotModifications.getCurrentMod();
 
@@ -114,7 +133,11 @@ RCBotBase *RCBotManager::AddBot()
 
 	return nullptr;
 }
-
+/// <summary>
+/// 
+/// </summary>
+/// <param name="pEdict">bot edict</param>
+/// <returns>bot pointer</returns>
 RCBotBase* RCBotManager::getBotByEdict(edict_t* pEdict)
 {
 	for (auto pBot : m_Bots)
@@ -125,7 +148,9 @@ RCBotBase* RCBotManager::getBotByEdict(edict_t* pEdict)
 
 	return nullptr;
 }
-
+/// <summary>
+/// called on level change
+/// </summary>
 void RCBotManager::OnLevelChange()
 {
 	for (auto* pBot : m_Bots)
@@ -135,7 +160,9 @@ void RCBotManager::OnLevelChange()
 
 	m_Bots.clear();
 }
-
+/// <summary>
+/// 
+/// </summary>
 void RCBotManager::KickBot()
 {
 	if (m_Bots.size() > 0)
@@ -153,15 +180,14 @@ void RCBotManager::KickBot()
 		m_Bots.erase(m_Bots.end());
 	}
 }
-	
+/// <summary>
+/// 
+/// </summary>
 void RCBotManager::LevelInit()
 {
+	m_fAddRemoveBotTime = 0.0f;
+
 	OnLevelChange();
-
-	if (gRCBotNavigatorNodes != nullptr)
-		delete gRCBotNavigatorNodes;
-
-	gRCBotNavigatorNodes = new RCBotNavigatorNodes();
 
 	gRCBotNavigatorNodes->mapInit();
 }

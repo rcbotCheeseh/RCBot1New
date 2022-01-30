@@ -16,6 +16,7 @@ RCBotBase ::RCBotBase()
 {
 	m_pVisibles = new RCBotVisibles(this);
 	m_Utils = new RCBotUtilities();
+	m_pSchedule = nullptr;
 	setFOV(RCBOT_DEFAULT_FOV);
 
 	Init();
@@ -290,6 +291,8 @@ void RCBotBase::setUpClientInfo()
 {
 	char* sInfoBuffer; // Bots infobuffer
 	int index = ENTINDEX(m_pEdict);
+
+	m_pEdict->v.frags = 0;
 
 	CALL_GAME_ENTITY(PLID, "player", VARS(m_pEdict)); // Olo
 

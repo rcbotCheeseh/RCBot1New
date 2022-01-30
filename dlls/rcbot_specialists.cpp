@@ -1,4 +1,7 @@
 #include "rcbot_specialists.h"
+#include "rcbot_navigator.h"
+#include "rcbot_mod.h"
+#include "rcbot_message.h"
 #include "extdll.h"
 #include "meta_api.h"
 #include "dll.h"
@@ -9,8 +12,6 @@ void RCBotSpecialists::setUpClientInfo()
 	char *sInfoBuffer = GET_INFOKEYBUFFER(m_pEdict);
 
 	RCBotBase::setUpClientInfo();
-
-	(*g_engfuncs.pfnSetClientKeyValue)(index, sInfoBuffer, "_vgui_menus", "1");
 
 }
 
@@ -51,8 +52,49 @@ void RCBotSpecialists::respawn()
 		m_RespawnState = RCBotSpecialists_RespawnState::Wait;
 		break;
 	case RCBotSpecialists_RespawnState::Wait:
-		primaryAttack();
+		if ( RANDOM_LONG(0,100) >= 50 )
+			primaryAttack();
 		m_RespawnState = RCBotSpecialists_RespawnState::Respawn;
 		break;
 	}
+}
+
+
+class RCBotStuntNodeType : public RCBotNodeType
+{
+public:
+	RCBotStuntNodeType() : RCBotNodeType(RCBotNodeTypeBitMasks::W_FL_STUNT, "stunt", "bot will do a stunt here", Colour(100, 200, 250))
+	{
+
+	}
+
+	void Touched(RCBotBase* pBot)
+	{
+		// let bot do a stunt here
+		pBot->pressButton(IN_ALT1);
+	}
+};
+
+class RCBotNavigatorNodes_TheSpecialists : public RCBotNavigatorNodes
+{
+public:
+
+	RCBotNavigatorNodes_TheSpecialists() : RCBotNavigatorNodes()
+	{
+		m_NodeTypes->addType(new RCBotStuntNodeType());
+	}
+};
+
+void RCBotModification_TheSpecialists::GameInit()
+{
+	gRCBotNavigatorNodes = new RCBotNavigatorNodes_TheSpecialists();
+
+	g_Messages = new RCBotMessages_TheSpecialists();
+
+	RCBotModification::GameInit();
+}
+
+RCBotBase* RCBotModification_TheSpecialists::createBot()
+{
+	return new RCBotSpecialists();
 }
