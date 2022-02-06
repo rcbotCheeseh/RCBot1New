@@ -568,7 +568,7 @@ void FakeClientCommand(edict_t* pFakeClient, const char* fmt, ...)
 		return; // if nothing in the command buffer, return
 	}
 
-	//gBotGlobals.m_bIsFakeClientCommand = TRUE; // set the "fakeclient command" flag
+    RCBotCommands_MainCommand::IsFakeClientCommand = TRUE; // set the "fakeclient command" flag
 	length = strlen(command); // get the total length of the command string
 
 	// process all individual commands (separated by a semicolon) one each a time

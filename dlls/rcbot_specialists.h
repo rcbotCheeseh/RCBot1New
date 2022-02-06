@@ -4,6 +4,7 @@ enum class RCBotSpecialists_RespawnState
 {
 	Initialise,
 	BuyGuns,
+	BuyGuns2,
 	Respawn,
 	Wait
 };
@@ -23,6 +24,8 @@ public:
 	void respawn();
 
 	bool isEnemy(edict_t* pEdict);
+
+	void Think();
 
 private:
 	RCBotSpecialists_RespawnState m_RespawnState;

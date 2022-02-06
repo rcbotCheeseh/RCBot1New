@@ -4,6 +4,7 @@
 #include "rcbot_message.h"
 #include "extdll.h"
 #include "meta_api.h"
+#include "rcbot_utils.h"
 #include "dll.h"
 
 void RCBotSpecialists::setUpClientInfo()
@@ -20,7 +21,7 @@ bool RCBotSpecialists::isEnemy(edict_t* pEdict)
 	if (pEdict == m_pEdict)
 		return false;
 
-	if (pEdict->v.flags == FL_CLIENT)
+	if (pEdict->v.flags & FL_CLIENT)
 	{
 		return !gpGlobals->teamplay || (pEdict->v.team != m_pEdict->v.team);
 	}
@@ -33,6 +34,31 @@ void RCBotSpecialists::spawnInit()
 	m_RespawnState = RCBotSpecialists_RespawnState::Initialise;
 }
 
+
+void RCBotSpecialists::Think()
+{
+	RCBotBase::Think();
+
+	if (m_pEnemy.Get() != nullptr)
+	{
+		edict_t* pEnemy = m_pEnemy.Get();
+
+		if (isEnemy(pEnemy))
+		{
+			// Enemy still alive and still an "enemy"
+			Vector vEnemy = RCBotUtils::entityOrigin(pEnemy);
+
+			setLookAt(vEnemy, 3);
+			setMoveTo(vEnemy);
+
+			if (RANDOM_FLOAT(0.0, 100.0) > 75.0f)
+				primaryAttack();
+		}
+		else
+			m_pEnemy.Set(nullptr);
+	}
+}
+
 void RCBotSpecialists::respawn()
 {
 	switch (m_RespawnState)
@@ -43,6 +69,9 @@ void RCBotSpecialists::respawn()
 	case RCBotSpecialists_RespawnState::BuyGuns:
 		//FakeClientCommand(m_pEdict, "say \"buy_guns\"");
 		FakeClientCommand(m_pEdict, "buy");
+		m_RespawnState = RCBotSpecialists_RespawnState::BuyGuns2;
+		break;
+	case RCBotSpecialists_RespawnState::BuyGuns2:
 		FakeClientCommand(m_pEdict, "menuselect 7"); // buy random
 		m_RespawnState = RCBotSpecialists_RespawnState::Respawn;
 		break;
