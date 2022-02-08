@@ -9,7 +9,6 @@ RCBotTask::RCBotTask(const char* szDebugName, RCBotTaskInterrupt* interrupt )
 	m_pInterrupt = interrupt;
 }
 
-
 RCBotFindPathTask::RCBotFindPathTask(RCBotNavigator* pNav, RCBotTaskInterrupt *interrupt ) : RCBotTask ("Find Path",interrupt)
 {
 	m_pNav = pNav;
@@ -38,7 +37,6 @@ RCBotUtility::RCBotUtility(const char* szDebugName)
 
 RCBotSchedule* RCBotUtility_Roam::execute(RCBotBase* pBot)
 {
-	
 	// find random place to go to
 	RCBotNavigatorNode *pNode = gRCBotNavigatorNodes->randomFlagged(0);
 

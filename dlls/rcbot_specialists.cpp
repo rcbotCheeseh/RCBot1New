@@ -9,8 +9,6 @@
 
 void RCBotSpecialists::setUpClientInfo()
 {
-	int index = ENTINDEX(m_pEdict);
-	char *sInfoBuffer = GET_INFOKEYBUFFER(m_pEdict);
 
 	RCBotBase::setUpClientInfo();
 

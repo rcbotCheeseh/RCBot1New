@@ -65,6 +65,11 @@ public:
 
 	virtual void Think();
 
+	void Interrupt()
+	{
+		m_bInterrupted = true;
+	}
+
 	void Init();
 	virtual void spawnInit();
 
@@ -171,6 +176,7 @@ private:
 	RCBotUtilities *m_Utils;
 	RCBotWeapons* m_pWeapons;
 	RCBotWeapon* m_pCurrentWeapon;
+	bool m_bInterrupted; // bot was interrupted and a new utility may be chosen
 
 	float m_fFovCos;
 

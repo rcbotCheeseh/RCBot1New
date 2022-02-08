@@ -271,32 +271,40 @@ void RCBotNavigatorNodes::playSound(edict_t *pClient, bool goodSound)
 
 void RCBotNavigatorNodes::DoVisibility()
 {
-	if (m_VisibilityIndex_X < m_UsedNodes.size() )
+	int NodeCount = m_UsedNodes.size();
+
+	if (m_VisibilityIndex_X < NodeCount)
 	{
 		TraceResult *tr;
 
 		RCBotNavigatorNode* node1 = m_UsedNodes[m_VisibilityIndex_X];
-		RCBotNavigatorNode* node2 = m_UsedNodes[m_VisibilityIndex_Y];
 
-		int index1 = node1->getIndex();
-		int index2 = node2->getIndex();
+		if (m_VisibilityIndex_Y < NodeCount)
+		{
+			RCBotNavigatorNode* node2 = m_UsedNodes[m_VisibilityIndex_Y];
 
-		if (index1 == index2)
-		{
-			m_Visibility[index1][index2] = RCBotNodeVisibility::Checked_Visible;
-		}
-		else if (m_Visibility[index2][index1] != RCBotNodeVisibility::Unchecked)
-		{
-			// use the other node's visibility check
-			m_Visibility[index1][index2] = m_Visibility[m_VisibilityIndex_Y][m_VisibilityIndex_X];
+			int index1 = m_VisibilityIndex_X;
+			int index2 = m_VisibilityIndex_Y;
+
+			if (index1 == index2)
+			{
+				m_Visibility[index1][index2] = RCBotNodeVisibility::Checked_Visible;
+			}
+			else if (m_Visibility[index2][index1] != RCBotNodeVisibility::Unchecked)
+			{
+				// use the other node's visibility check
+				m_Visibility[index1][index2] = m_Visibility[m_VisibilityIndex_Y][m_VisibilityIndex_X];
+			}
+			else
+			{
+				// do a traceline
+				tr = RCBotUtils::Traceline(node1->getOrigin(), node2->getOrigin(), ignore_monsters, ignore_glass, nullptr);
+
+				m_Visibility[index1][index2] = (tr->flFraction >= 1.0f) ? RCBotNodeVisibility::Checked_Visible : RCBotNodeVisibility::Checked_Invisible;
+			}
 		}
 		else
-		{
-			// do a traceline
-			tr = RCBotUtils::Traceline(node1->getOrigin(), node2->getOrigin(), ignore_monsters, ignore_glass, nullptr);
-
-			m_Visibility[index1][index2] = (tr->flFraction >= 1.0f) ? RCBotNodeVisibility::Checked_Visible : RCBotNodeVisibility::Checked_Invisible;
-		}
+			m_VisibilityIndex_Y = 0;
 
 		m_VisibilityIndex_X++;
 	}

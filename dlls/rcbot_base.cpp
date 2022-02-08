@@ -40,7 +40,7 @@ void RCBotBase::spawnInit()
 {
 	m_vMoveTo.reset();
 	m_vLookAt.reset();
-
+	m_bInterrupted = false;
 	m_fRespawnTime = gpGlobals->time;
 	m_fLastRunPlayerMove = gpGlobals->time;
 	m_pEnemy.Set(nullptr);
@@ -108,16 +108,30 @@ void RCBotBase::Think()
 		case RCBotTaskState::RCBotTaskState_Complete:
 		case RCBotTaskState::RCBotTaskState_Fail:
 			m_pSchedule = nullptr;
+			m_Utils->setUtility(nullptr);
 			break;
 		}
 	}
-	else
+	
+	if ( m_pSchedule == nullptr || m_bInterrupted )
 	{
 		RCBotUtility *pUtil = m_Utils->getBestUtility(this);
 
+		m_bInterrupted = false;
+
 		if (pUtil != nullptr)
 		{
-			m_pSchedule = pUtil->execute(this);
+			// We don't have anything to do or we have found something better to do
+			if (m_pSchedule == nullptr || !m_Utils->isCurrentUtility(pUtil) )
+			{
+				if (m_pSchedule != nullptr)
+					delete m_pSchedule;
+
+				m_pSchedule = pUtil->execute(this);
+
+				if (m_pSchedule != nullptr)
+					m_Utils->setUtility(pUtil);
+			}
 		}
 	}
 }
@@ -289,7 +303,8 @@ bool RCBotBase::inViewCone(Vector &vOrigin)
 
 void RCBotBase::setUpClientInfo()
 {
-	char* sInfoBuffer; // Bots infobuffer
+	char* sInfoBuffer;
+
 	int index = ENTINDEX(m_pEdict);
 
 	m_pEdict->v.frags = 0;
@@ -326,8 +341,11 @@ void RCBotBase::newVisible(edict_t* pEntity)
 	{
 		edict_t* pCurrentEnemy = m_pEnemy.Get();
 
-		if (pCurrentEnemy == nullptr || (getEnemyFactor(pEntity) < getEnemyFactor(pCurrentEnemy)) )
+		if (pCurrentEnemy == nullptr || (getEnemyFactor(pEntity) < getEnemyFactor(pCurrentEnemy)))
+		{
 			m_pEnemy.Set(pEntity);
+			m_bInterrupted = true; // interrupt the bots utility
+		}
 	}
 }
 
@@ -337,7 +355,10 @@ void RCBotBase::lostVisible(edict_t* pEntity)
 		return;
 
 	if (m_pEnemy.Get() == pEntity)
+	{
 		m_pEnemy.Set(nullptr);
+		m_bInterrupted = true; // interrupt the bots utility
+	}
 }
 
 bool RCBotBase::isAlive()

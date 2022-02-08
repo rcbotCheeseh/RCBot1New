@@ -72,6 +72,11 @@ public:
 		m_Utilities.push_back(pUtil);
 	}
 
+	bool isCurrentUtility(RCBotUtility* pUtil)
+	{
+		return m_pCurrentUtility == pUtil;
+	}
+
 	RCBotUtility* getBestUtility(RCBotBase* pBot)
 	{
 		RCBotUtility* pBest = nullptr;
@@ -93,8 +98,19 @@ public:
 
 		return pBest;
 	}
+
+	void setUtility(RCBotUtility* pUtil)
+	{
+		m_pCurrentUtility = pUtil;
+	}
+
+	void clearUtility()
+	{
+		m_pCurrentUtility = nullptr;
+	}
 private:
 	std::vector<RCBotUtility*> m_Utilities;
+	RCBotUtility *m_pCurrentUtility;
 };
 
 class RCBotTask
