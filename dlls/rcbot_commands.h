@@ -372,6 +372,52 @@ public:
 	RCBotCommandReturn execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
 };
 
+class RCBotCommand_Type_Add_Command : public RCBotCommand
+{
+public:
+	RCBotCommand_Type_Add_Command() : RCBotCommand("add", "add a node type", "add <node type>")
+	{
+
+	}
+
+	RCBotCommandReturn RCBotCommand_Type_Add_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+class RCBotCommand_Type_Remove_Command : public RCBotCommand
+{
+public:
+	RCBotCommand_Type_Remove_Command() : RCBotCommand("remove", "remove a node type", "remove <node type>")
+	{
+
+	}
+
+	RCBotCommandReturn RCBotCommand_Type_Remove_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+
+};
+
+class RCBotCommand_Type_Clear_Command : public RCBotCommand
+{
+public:
+	RCBotCommand_Type_Clear_Command() : RCBotCommand("clear", "clear node types", "clear [clears all node types]")
+	{
+
+	}
+
+	RCBotCommandReturn RCBotCommand_Type_Clear_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5);
+};
+
+class RCBotCommandsWaypointTypeCommands : public RCBotCommands
+{
+public:
+	// TO DO 
+	RCBotCommandsWaypointTypeCommands::RCBotCommandsWaypointTypeCommands() : RCBotCommands("type")
+	{
+		addCommand(new RCBotCommand_Type_Add_Command());
+		addCommand(new RCBotCommand_Type_Remove_Command());
+		addCommand(new RCBotCommand_Type_Clear_Command());
+	}
+};
+
 
 extern RCBotCommands_MainCommand *gRCBotCommands;
 

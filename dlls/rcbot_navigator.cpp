@@ -10,12 +10,18 @@ const Colour RCBotNavigatorNode::defaultPathColour = Colour(255, 255, 255);
 
 RCBotNavigatorNodes* gRCBotNavigatorNodes = nullptr;
 
-RCBotNodeType :: RCBotNodeType (RCBotNodeTypeBitMasks iBitMask, const char* szName, const char* szDescription, Colour vColour)
+RCBotNodeType :: RCBotNodeType (RCBotNodeTypeBitMasks iBitMask, const char* szName, const char* szDescription, Colour vColour, float fExtraCost)
 {
 	m_szName = gRCBotStrings.add(szName);
 	m_szDescription = gRCBotStrings.add(szDescription);
 	m_vColour = vColour;
 	m_iBitMask = iBitMask;
+	m_fExtraCost = fExtraCost;
+}
+
+bool RCBotNodeType::isName(const char* pszName)
+{
+	return RCBotStrings::stringMatch(pszName, m_szName);
 }
 
 void RCBotNavigatorNodes::gameFrame()
@@ -422,7 +428,7 @@ bool RCBotNavigatorNodes::Save(const char* szFilename)
 }
 
 
-RCBotNodePickup::RCBotNodePickup(RCBotNodeTypeBitMasks bitMask, const char* szName, const char* szDescription, Colour colour, const char* szPickupEntityName) : RCBotNodeType(bitMask, szName, szDescription, colour)
+RCBotNodePickup::RCBotNodePickup(RCBotNodeTypeBitMasks bitMask, const char* szName, const char* szDescription, Colour colour, const char* szPickupEntityName, float fExtraCost) : RCBotNodeType(bitMask, szName, szDescription, colour, fExtraCost)
 {
 	m_szPickupEntityName = gRCBotStrings.add(szPickupEntityName);
 }
@@ -456,6 +462,120 @@ bool RCBotNodeEditor::RemoveNode()
 	Vector vOrigin = RCBotUtils::entityOrigin(m_pPlayer.Get());
 
 	return m_Nodes->Remove(vOrigin, 200.0f);
+}
+
+bool RCBotNodeEditor::AddNodeType( const char* pszName)
+{
+	edict_t* pClient = m_pPlayer.Get();
+	RCBotNodeTypes* pTypes = gRCBotNavigatorNodes->getNodeTypes();
+
+	if (pszName && *pszName)
+	{
+		RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
+
+		if (pEditor != nullptr)
+		{
+			RCBotNodeType* pType = pTypes->findByName(pszName);
+
+			if (pType != nullptr)
+			{
+				RCBotNavigatorNode* pNode = gRCBotNavigatorNodes->Nearest(pClient->v.origin, 100, true);
+
+				if (pNode != nullptr)
+				{
+					pNode->addNodeType(pType);
+
+					return true;
+				}
+				else
+				{
+					RCBotUtils::Message(pClient, MessageErrorLevel::Information, "you are not near a waypoint");
+				}
+
+				return false;
+			}
+			else
+			{
+				RCBotUtils::Message(pClient, MessageErrorLevel::Information, "node type \"%s\" doesn't exist\n", pszName);
+			}
+		}
+	}
+	pTypes->showNodeTypes(pClient);
+
+
+	return false;
+}
+
+bool RCBotNodeEditor::RemoveNodeType(const char* pszName)
+{
+	edict_t* pClient = m_pPlayer.Get();
+	RCBotNodeTypes* pTypes = gRCBotNavigatorNodes->getNodeTypes();
+
+	if (pszName && *pszName)
+	{
+		RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
+
+		if (pEditor != nullptr)
+		{
+			RCBotNodeType* pType = pTypes->findByName(pszName);
+
+			if (pType != nullptr)
+			{
+				RCBotNavigatorNode* pNode = gRCBotNavigatorNodes->Nearest(pClient->v.origin, 100, true);
+
+				if (pNode != nullptr)
+				{
+					pNode->removeNodeType(pType);
+
+					return true;
+				}
+				else
+				{
+					RCBotUtils::Message(pClient, MessageErrorLevel::Information, "you are not near a waypoint");
+				}
+
+				return false;
+			}
+			else
+			{
+				RCBotUtils::Message(pClient, MessageErrorLevel::Information, "node type \"%s\" doesn't exist\n", pszName);
+			}
+		}
+	}
+	pTypes->showNodeTypes(pClient);
+
+
+	return false;
+}
+
+bool RCBotNodeEditor::ClearTypes()
+{
+	edict_t* pClient = m_pPlayer.Get();
+	RCBotNodeTypes* pTypes = gRCBotNavigatorNodes->getNodeTypes();
+
+	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(m_pPlayer.Get());
+
+	if (pEditor != nullptr)
+	{
+		RCBotNavigatorNode* pNode = gRCBotNavigatorNodes->Nearest(pClient->v.origin, 100, true);
+
+		if (pNode != nullptr)
+		{
+			pNode->removeNodeTypes();
+
+			return true;
+		}
+		else
+		{
+			RCBotUtils::Message(pClient, MessageErrorLevel::Information, "you are not near a waypoint");
+		}
+
+		return false;
+	}
+	
+	pTypes->showNodeTypes(pClient);
+
+	return false;
 }
 
 void RCBotNodeEditor::showNearestNodeInfo()
@@ -842,4 +962,12 @@ RCBotNavigator* RCBotNavigator::createPath(RCBotBase* pBot, Vector& vTo)
 
 	return RCBotNavigator::createPath(pBot, pGoal, vTo);
 
+}
+
+void RCBotNodeTypes::showNodeTypes(edict_t* pClient)
+{
+	for (auto* pNodeType : m_NodeTypes)
+	{
+		RCBotUtils::Message(pClient, MessageErrorLevel::Information, "\"%s\" : %s\n", pNodeType->getName(), pNodeType->getDescription());
+	}
 }

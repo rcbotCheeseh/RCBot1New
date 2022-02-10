@@ -303,6 +303,7 @@ RCBotCommands_WaypointCommand :: RCBotCommands_WaypointCommand() : RCBotCommands
 	addCommand(new RCBotCommand_WaypointAddCommand());
 	addCommand(new RCBotCommand_WaypointDeleteCommand());
 	addCommand(new RCBotCommand_WaypointInfoCommand());
+	addCommand(new RCBotCommandsWaypointTypeCommands());
 }
 
 RCBotCommandReturn RCBotCommand_WaypointInfoCommand::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
@@ -451,28 +452,35 @@ RCBotCommandReturn RCBotCommand_PathWaypoint_Remove2_Command::execute(edict_t* p
 ///////////////////////////////////////////
 // WAYPOINT TYPE COMMANDS
 ///////////////////////////////////////////
-/*
-// TO DO 
-RCBotCommandsWaypointTypeCommands::RCBotCommandsWaypointTypeCommands() : RCBotCommands("type")
-{
-	addCommand(new RCBotCommand_Type_Add_Command());
-	addCommand(new RCBotCommand_Type_Remove_Command());
-	addCommand(new RCBotCommand_Type_Clear_Command());
-}
 
 // TO DO - add a waypoint type
 RCBotCommandReturn RCBotCommand_Type_Add_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
+	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
+
+	if (pEditor != nullptr )
+		gRCBotNavigatorNodes->playSound(pClient, pEditor->AddNodeType(arg1));
+	
 	return RCBotCommandReturn::Ok;
 }
 // TO DO remove a waypoint type
 RCBotCommandReturn RCBotCommand_Type_Remove_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
+	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
+
+	if (pEditor != nullptr)
+		gRCBotNavigatorNodes->playSound(pClient, pEditor->RemoveNodeType(arg1));
+
 	return RCBotCommandReturn::Ok;
 }
 // TO DO clear all waypoint types
 RCBotCommandReturn RCBotCommand_Type_Clear_Command::execute(edict_t* pClient, const char* arg1, const char* arg2, const char* arg3, const char* arg4, const char* arg5)
 {
+	RCBotNodeEditor* pEditor = gRCBotNavigatorNodes->getEditor(pClient);
+
+	if (pEditor != nullptr)
+		gRCBotNavigatorNodes->playSound(pClient, pEditor->ClearTypes());
+
 	return RCBotCommandReturn::Ok;
 }
-*/
+

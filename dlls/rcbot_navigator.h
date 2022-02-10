@@ -29,6 +29,14 @@
 #define RCBOT_NAVIGATOR_NODE_INVISIBLE_TIMEOUT 5.0f
 #define RCBOT_NAVIGATOR_NODE_VISIBLE_CHECK_TIME 1.0f
 
+#define RCBOT_NODETYPE_EXTRA_COST_LADDER 100
+#define RCBOT_NODETYPE_EXTRA_COST_CROUCH 100
+#define RCBOT_NODETYPE_EXTRA_COST_HEALTH -200
+#define RCBOT_NODETYPE_EXTRA_COST_ARMOUR -100
+#define RCBOT_NODETYPE_EXTRA_COST_WEAPON -100
+#define RCBOT_NODETYPE_EXTRA_COST_AMMO -100
+#define RCBOT_NODETYPE_EXTRA_COST_JUMP 50
+
 enum class RCBotNodeTypeBitMasks
 {
 	// defines for waypoint flags field (32 bits are available)
@@ -75,7 +83,7 @@ enum class RCBotNodeTypeBitMasks
 class RCBotNodeType
 {
 public:
-	RCBotNodeType(RCBotNodeTypeBitMasks iBitMask, const char* szName, const char* szDescription, Colour vColour);
+	RCBotNodeType(RCBotNodeTypeBitMasks iBitMask, const char* szName, const char* szDescription, Colour vColour, float fExtraCost);
 
 	virtual void Touched(RCBotBase* pBot)
 	{
@@ -112,21 +120,30 @@ public:
 		return m_szDescription;
 	}
 
-	virtual float extraCost() const
+	float extraCost() const
 	{
-		return 0;
+		return m_fExtraCost;
 	}
+
+	const char* getName() const
+	{
+		return m_szName;
+	}
+
+	bool isName(const char* pszName);
 private:
 	const char* m_szName;
 	const char* m_szDescription;
 	Colour m_vColour;
 	RCBotNodeTypeBitMasks m_iBitMask;
+	float m_fExtraCost;
 };
+
 
 class RCBotNodePickup : public RCBotNodeType
 {
 public:
-	RCBotNodePickup(RCBotNodeTypeBitMasks bitMask, const char* szName, const char* szDescription, Colour colour, const char* szPickupEntityName);
+	RCBotNodePickup(RCBotNodeTypeBitMasks bitMask, const char* szName, const char* szDescription, Colour colour, const char* szPickupEntityName, float fExtraCost);
 
 	void Touched(RCBotBase* pBot);
 
@@ -134,12 +151,11 @@ private:
 	const char* m_szPickupEntityName;
 };
 
-
 class RCBotNodeLadder : public RCBotNodeType
 {
 public:
 
-	RCBotNodeLadder(RCBotNodeTypeBitMasks bitMask) : RCBotNodeType(bitMask, "ladder", "bot will climb ladder here", Colour(255, 255, 0))
+	RCBotNodeLadder(RCBotNodeTypeBitMasks bitMask) : RCBotNodeType(bitMask, "ladder", "bot will climb ladder here", Colour(255, 255, 0),RCBOT_NODETYPE_EXTRA_COST_LADDER)
 	{
 
 	}
@@ -150,7 +166,7 @@ class RCBotNodeJump : public RCBotNodeType
 {
 public:
 
-	RCBotNodeJump(RCBotNodeTypeBitMasks bitMask) : RCBotNodeType(bitMask, "jump", "bot will jump here", Colour(170, 180, 200))
+	RCBotNodeJump(RCBotNodeTypeBitMasks bitMask) : RCBotNodeType(bitMask, "jump", "bot will jump here", Colour(170, 180, 200), RCBOT_NODETYPE_EXTRA_COST_JUMP)
 	{
 
 	}
@@ -167,7 +183,7 @@ class RCBotNodeCrouch : public RCBotNodeType
 {
 public:
 
-	RCBotNodeCrouch(RCBotNodeTypeBitMasks bitMask) : RCBotNodeType(bitMask, "crouch", "bot will crouch here", Colour(200, 160, 100))
+	RCBotNodeCrouch(RCBotNodeTypeBitMasks bitMask) : RCBotNodeType(bitMask, "crouch", "bot will crouch here", Colour(200, 160, 100), RCBOT_NODETYPE_EXTRA_COST_CROUCH)
 	{
 
 	}
@@ -193,10 +209,25 @@ public:
 		m_NodeTypes.push_back(new RCBotNodeLadder(RCBotNodeTypeBitMasks::W_FL_LADDER));
 		m_NodeTypes.push_back(new RCBotNodeJump(RCBotNodeTypeBitMasks::W_FL_JUMP));
 		m_NodeTypes.push_back(new RCBotNodeCrouch(RCBotNodeTypeBitMasks::W_FL_CROUCH));
-		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_AMMO, "ammo", "bot will pick up ammo here", Colour(100, 200, 100), "item_ammo"));
-		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_HEALTH, "health", "bot will pick up health here", Colour(200, 200, 200), "item_health"));
-		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_ARMOR, "armour", "bot will pick up armour here", Colour(255, 100, 0), "item_battery"));
-		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_WEAPON, "weapon", "bot will pick up a weapon here", Colour(255, 0, 0), "item_weapon"));
+		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_AMMO, "ammo", "bot will pick up ammo here", Colour(100, 200, 100), "item_ammo", RCBOT_NODETYPE_EXTRA_COST_AMMO));
+		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_HEALTH, "health", "bot will pick up health here", Colour(200, 200, 200), "item_health", RCBOT_NODETYPE_EXTRA_COST_HEALTH));
+		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_ARMOR, "armour", "bot will pick up armour here", Colour(255, 100, 0), "item_battery", RCBOT_NODETYPE_EXTRA_COST_ARMOUR));
+		m_NodeTypes.push_back(new RCBotNodePickup(RCBotNodeTypeBitMasks::W_FL_WEAPON, "weapon", "bot will pick up a weapon here", Colour(255, 0, 0), "item_weapon", RCBOT_NODETYPE_EXTRA_COST_WEAPON));
+	}
+
+	void showNodeTypes(edict_t* pClient);
+
+	RCBotNodeType* findByName( const char *pszName )
+	{
+		for (auto* pNodeType : m_NodeTypes)
+		{
+			if (pNodeType->isName(pszName) )
+			{
+				return pNodeType;
+			}
+		}
+
+		return nullptr;
 	}
 
 	float extraCost(RCBotBase* pBot, uint32_t iFlags)
@@ -261,12 +292,19 @@ public:
 
 		return ret;
 	}
-
+	/// <summary>
+	/// addType
+	/// </summary>
+	/// <param name="pType"></param>
 	void addType(RCBotNodeType* pType)
 	{
 		m_NodeTypes.push_back(pType);
 	}
-
+	/// <summary>
+	/// getNodeTypes
+	/// </summary>
+	/// <param name="pNodeTypes"></param>
+	/// <param name="iFlags"></param>
 	void getNodeTypes(std::vector< RCBotNodeType*> *pNodeTypes, uint32_t iFlags)
 	{
 		for (auto* pNodeType : m_NodeTypes)
@@ -419,6 +457,33 @@ public:
 		m_iFlags = 0;
 	}
 
+	bool addNodeType(RCBotNodeType *pType)
+	{
+		if (!pType->hasType(m_iFlags))
+		{
+			m_iFlags = pType->setType(m_iFlags);
+			return true;
+		}
+
+		return false;
+	}
+
+	void removeNodeTypes()
+	{
+		m_iFlags = 0;
+	}
+
+	bool removeNodeType(RCBotNodeType* pType)
+	{
+		if (pType->hasType(m_iFlags))
+		{
+			m_iFlags = pType->removeType(m_iFlags);
+			return true;
+		}
+
+		return false;
+	}
+
 private:
 	std::vector<RCBotNavigatorNode*> m_Paths;
 	Vector m_vOrigin;
@@ -461,6 +526,10 @@ public:
 	bool RemoveNode();
 
 	void showNearestNodeInfo();
+
+	bool AddNodeType(const char* pType);
+	bool RemoveNodeType(const char* pType);
+	bool ClearTypes();
 
 private:
 	EHandle m_pPlayer;

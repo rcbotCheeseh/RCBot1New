@@ -86,11 +86,13 @@ void RCBotSpecialists::respawn()
 	}
 }
 
+#define RCBOT_NODETYPE_EXTRACOST_STUNT -10
+
 
 class RCBotStuntNodeType : public RCBotNodeType
 {
 public:
-	RCBotStuntNodeType() : RCBotNodeType(RCBotNodeTypeBitMasks::W_FL_STUNT, "stunt", "bot will do a stunt here", Colour(100, 200, 250))
+	RCBotStuntNodeType() : RCBotNodeType(RCBotNodeTypeBitMasks::W_FL_STUNT, "stunt", "bot will do a stunt here", Colour(100, 200, 250), RCBOT_NODETYPE_EXTRACOST_STUNT)
 	{
 
 	}
