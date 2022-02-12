@@ -50,6 +50,8 @@ public:
 	static void drawBeam(edict_t* pClient, const Vector& vFrom, const Vector& vTo, const Colour& vColour, int iTexture);
 	static void mapInit();
 
+	static bool isVisible(Vector& vFrom, Vector& vTo, IGNORE_MONSTERS  im = ignore_monsters, IGNORE_GLASS ig = ignore_glass, edict_t* pIgnore = nullptr);
+
 	static float yawAngle(edict_t* pEdict, Vector & vOrigin);
 };
 

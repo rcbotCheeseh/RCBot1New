@@ -145,6 +145,15 @@ void RCBotUtils:: Message(edict_t* pEntity, MessageErrorLevel errorlevel, char* 
 	}
 }
 
+bool RCBotUtils::isVisible(Vector &vFrom, Vector &vTo, IGNORE_MONSTERS im, IGNORE_GLASS ig, edict_t *pIgnore)
+{
+	TraceResult *tr;
+
+	tr = Traceline(vFrom, vTo, im, ig, pIgnore);
+
+	return tr->flFraction >= 1.0f;
+}
+
 void RCBotUtils::mapInit()
 {
 	

@@ -156,6 +156,34 @@ bool RCBotNavigatorNode::Save(RCBotFile* file)
 }
 
 
+
+void RCBotNavigatorNodes :: autoPath(RCBotNavigatorNode* pNode)
+{
+	for (auto pOther : m_UsedNodes)
+	{
+		if (pOther != pNode)
+		{
+			Vector otherOrigin = pOther->getOrigin();
+			Vector nodeOrigin = pNode->getOrigin();
+
+			if (pOther->distanceFrom(nodeOrigin) < 384)
+			{
+				if (RCBotUtils::isVisible(otherOrigin, nodeOrigin))
+				{
+					float zoffset = fabs(nodeOrigin.z - otherOrigin.z);
+					// Simple auto checking 
+					// TO Improve
+					if (zoffset < 24.0f)
+					{
+						pOther->AddPathTo(pNode);
+						pNode->AddPathTo(pOther);
+					}
+				}
+			}
+		}
+	}
+}
+
 RCBotNavigatorNode * RCBotNavigatorNodes::Add(const Vector& vOrigin)
 {
 	RCBotNavigatorNode *node = nextFree();
@@ -165,6 +193,8 @@ RCBotNavigatorNode * RCBotNavigatorNodes::Add(const Vector& vOrigin)
 		node->Add(vOrigin);
 
 		m_UsedNodes.push_back(node);
+		// TO DO Auto path
+		autoPath(node);
 	}
 
 	return node;

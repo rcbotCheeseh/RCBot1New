@@ -574,6 +574,9 @@ public:
 	virtual RCBotNavigatorNode* Add(const Vector& vOrigin);
 	virtual bool Remove(const Vector& vOrigin, float fDistance);
 
+
+	void autoPath(RCBotNavigatorNode* pNode);
+
 	void RemovePathsTo(RCBotNavigatorNode* pNode);
 
 	void mapInit();
