@@ -421,6 +421,8 @@ bool RCBotNavigatorNodes::Save(const char* szFilename)
 			pNode->Save(file);
 		}
 
+		file->close();
+
 		return true;
 	}
 

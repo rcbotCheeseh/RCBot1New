@@ -56,6 +56,8 @@
 #include <stdint.h>
 #include "rcbot_commands.h"
 #include "rcbot_manager.h"
+#include "rcbot_navigator.h"
+
 
 #ifdef _WIN32
 #define strdup _strdup
@@ -224,7 +226,8 @@ BOOL ClientConnect(edict_t* pEntity, const char* pszName, const char* pszAddress
 ///////////////////////////////////////////////////////////////////////////
 void ClientDisconnect(edict_t* pEntity)
 {
-	
+	gRCBotNavigatorNodes->removeEditor(pEntity);
+
 	RETURN_META(MRES_IGNORED);
 
 }
@@ -307,6 +310,8 @@ void StartFrame(void)
 void ParmsNewLevel(void)
 {
 	gRCBotManager.LevelInit();
+	gRCBotNavigatorNodes->clearEditors();
+	gRCBotNavigatorNodes->Load(STRING(gpGlobals->mapname));
 
 	RETURN_META(MRES_IGNORED);
 }

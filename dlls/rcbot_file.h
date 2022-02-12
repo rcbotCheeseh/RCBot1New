@@ -32,7 +32,7 @@ public:
 	float readFloat();
 	char readChar();
 	const char* readString();
-	const char* readString(uint8_t len);
+	const char* readString(uint16_t len);
 	uint32_t readBytes(void* pBuffer, uint32_t len);
 	
 private:

@@ -557,6 +557,10 @@ public:
 	bool LoadRCBot1Waypoints(const char* szFilename);
 
 	void Clear();
+	void clearEditors()
+	{
+		m_Editors.clear();
+	}
 
 	RCBotNavigatorNode* randomFlagged(uint32_t iFlags);
 

@@ -89,9 +89,9 @@ void RCBotFile::writeFloat(float f)
 
 void RCBotFile::writeString(const char* szString)
 {
-	int len = gRCBotStrings.stringLength(szString);
+	uint16_t len = gRCBotStrings.stringLength(szString);
 
-	fwrite(&len, sizeof(int), 1, fp);
+	fwrite(&len, sizeof(uint16_t), 1, fp);
 	fwrite(szString, sizeof(char), len, fp);
 }
 
@@ -161,7 +161,7 @@ char RCBotFile::readChar()
 /// </summary>
 /// <param name="len">uint32 length</param>
 /// <returns></returns>
-const char* RCBotFile::readString(uint8_t len)
+const char* RCBotFile::readString(uint16_t len)
 {
 	char* str = new char[len + 1];
 
@@ -179,7 +179,7 @@ const char* RCBotFile::readString(uint8_t len)
 const char* RCBotFile::readString()
 {
 	// read length
-	uint8_t len = readByte();
+	uint16_t len = this->readUInt16();
 
 	return readString(len);
 }
