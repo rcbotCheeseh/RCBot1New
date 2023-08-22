@@ -458,7 +458,8 @@ int pfnTraceMonsterHull(edict_t* pEdict, const float* v1, const float* v2, int f
 	RETURN_META_VALUE(MRES_IGNORED, 0);
 
 }
-void pfnTraceHull(const float* v1, const float* v2, int fNoMonsters, int hullNumber, edict_t* pentToSkip, TraceResult* ptr)
+void pfnTraceHull
+(const float* v1, const float* v2, int fNoMonsters, int hullNumber, edict_t* pentToSkip, TraceResult* ptr)
 {
 	//   if (debug_engine) { fp=fopen("bot.txt","a"); fprintf(fp,"pfnTraceHull:\n"); fclose(fp); }
 

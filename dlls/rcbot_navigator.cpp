@@ -155,7 +155,78 @@ bool RCBotNavigatorNode::Save(RCBotFile* file)
 	return true;
 }
 
+#define NODE_AUTOPATH_DISTANCE 384 // To do make a CVAR
+#define NODE_AUTOPATH_STEP_HEIGHT 16 // to do make a CVAR
+#define NODE_AUTOPATH_STEP_DEPTH 16 // to do make a CVAR
+#define PLAYER_HEIGHT 78
+/// <summary>
+/// Walkable
+/// NODE 1                          NODE 2
+///                                   |
+///   |              _________________|
+///   |_____________/
+///
+/// Not Walkable
+/// NODE 1                          NODE 2
+///                                   |
+///   |						 ________|
+///   |_______               /
+///		     \             /
+///            `-----------'
+/// </summary>
+/// <param name="vStart"></param>
+/// <param name="vEnd"></param>
+/// <returns></returns>
+static bool IsWalkable(Vector& vStart, Vector& vEnd)
+{
+	if (RCBotUtils::isVisible(vStart, vEnd))
+	{
+		TraceResult th;
 
+		(*g_engfuncs.pfnTraceHull)(vStart, vEnd, ignore_monsters, human_hull, nullptr, &th);
+
+		if (th.flFraction >= 1.0f)
+		{
+			if (((*g_engfuncs.pfnPointContents)(vStart) == CONTENTS_WATER) &&
+				((*g_engfuncs.pfnPointContents)(vEnd) == CONTENTS_WATER))
+			{
+				// can swim there
+				return true;
+			}
+			else
+			{
+				// Check for stairs/holes
+				Vector vComp = vEnd - vStart;
+
+				vComp = vComp / 16; // Break up in to 16 pieces
+
+				// Find height of waypoint up to PLAYER_HEIGHT
+				TraceResult* tr = RCBotUtils::Traceline(vStart, vStart - Vector(0, 0, 72), ignore_monsters, dont_ignore_glass, nullptr);
+
+				float fHeight = (vStart.z - tr->vecEndPos.z) + 8.0f; // add a bit of height
+
+				// Check for ground between 
+				for (uint8_t i = 0; i < 16; i++)
+				{
+					Vector vStep = vStart + vComp;
+
+					tr = RCBotUtils::Traceline(vStart, vStart - Vector(0, 0, fHeight), ignore_monsters, dont_ignore_glass, nullptr);
+
+					vStart = vStep;
+
+					if (tr->flFraction >= 1.0f)
+						return false;
+					// check for ground
+
+				}
+
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
 
 void RCBotNavigatorNodes :: autoPath(RCBotNavigatorNode* pNode)
 {
@@ -166,18 +237,17 @@ void RCBotNavigatorNodes :: autoPath(RCBotNavigatorNode* pNode)
 			Vector otherOrigin = pOther->getOrigin();
 			Vector nodeOrigin = pNode->getOrigin();
 
-			if (pOther->distanceFrom(nodeOrigin) < 384)
+			const float stepHeight = NODE_AUTOPATH_STEP_HEIGHT;
+			const float stepDepth = NODE_AUTOPATH_STEP_DEPTH;
+
+			float fDist = pOther->distanceFrom(nodeOrigin);
+
+			if ( fDist < NODE_AUTOPATH_DISTANCE)
 			{
-				if (RCBotUtils::isVisible(otherOrigin, nodeOrigin))
+				if (IsWalkable(nodeOrigin, otherOrigin))
 				{
-					float zoffset = fabs(nodeOrigin.z - otherOrigin.z);
-					// Simple auto checking 
-					// TO Improve
-					if (zoffset < 24.0f)
-					{
-						pOther->AddPathTo(pNode);
-						pNode->AddPathTo(pOther);
-					}
+					pOther->AddPathTo(pNode);
+					pNode->AddPathTo(pOther);
 				}
 			}
 		}
